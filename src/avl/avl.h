@@ -198,6 +198,8 @@ void avl_node_rlock(avl_node *node);
 void avl_node_wlock(avl_node *node);
 void avl_node_unlock(avl_node *node);
 
+_Itype_for_any(T) void avl_free(void* ptr : itype(_Array_ptr<T>) byte_count(0));
+
 #ifdef __cplusplus
 }
 #endif

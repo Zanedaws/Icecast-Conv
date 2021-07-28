@@ -350,7 +350,13 @@ avl_get_by_key (avl_tree * tree,
 
 int avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
 {
-  avl_node *x, *y, *p, *q, *r, *top, *x_child;
+  avl_node *x;
+  avl_node *y; 
+  avl_node *p;
+  avl_node *q; 
+  avl_node *r; 
+  avl_node *top; 
+  avl_node *x_child;
   int shortened_side, shorter;
   
   x = tree->root->right;
@@ -1192,3 +1198,8 @@ void avl_node_unlock(avl_node *node)
     thread_rwlock_unlock(&node->rwlock);
 }
 #endif
+
+void avl_free(void* ptr)
+{
+  free(ptr);
+}
