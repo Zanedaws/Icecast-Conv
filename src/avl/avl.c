@@ -113,7 +113,7 @@ avl_tree_free (avl_tree* tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type fre
 #ifdef HAVE_AVL_NODE_LOCK
     thread_rwlock_destroy(&tree->root->rwlock);
 #endif
-    free (tree->root);
+    avl_free (tree->root);
   }
   thread_rwlock_destroy(&tree->rwlock);
   free (tree);
@@ -465,7 +465,7 @@ int avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
 #ifdef HAVE_AVL_NODE_LOCK
   thread_rwlock_destroy (&x->rwlock);
 #endif
-  free (x);
+  avl_free (x);
 
   while (shorter && p->parent) {
     
@@ -1199,7 +1199,7 @@ void avl_node_unlock(avl_node *node)
 }
 #endif
 
-void avl_free(void* ptr)
+_Itype_for_any(T) void avl_free(void* ptr : itype(_Array_ptr<T>) byte_count(0))
 {
   free(ptr);
 }
