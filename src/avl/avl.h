@@ -25,9 +25,9 @@ extern "C" {
 
 typedef struct avl_node_tag {
   void *        key;
-  struct avl_node_tag *    left;
-  struct avl_node_tag *    right;  
-  struct avl_node_tag *    parent;
+  struct avl_node_tag *    left : itype(_Ptr<struct avl_node_tag>);
+  struct avl_node_tag *    right : itype(_Ptr<struct avl_node_tag>);  
+  struct avl_node_tag *    parent : itype(_Ptr<struct avl_node_tag>);
   /*
    * The lower 2 bits of <rank_and_balance> specify the balance
    * factor: 00==-1, 01==0, 10==+1.

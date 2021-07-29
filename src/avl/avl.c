@@ -40,7 +40,7 @@
 
 avl_node *
 avl_node_new (void *        key,
-          avl_node *    parent) : itype(_Ptr<avl_node>)
+          avl_node *    parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
 {
   avl_node * node = (avl_node *) malloc (sizeof (avl_node));
 
@@ -124,7 +124,7 @@ avl_insert (avl_tree * ob,
            void * key)
 {
   if (!(ob->root->right)) {
-    avl_node * node = avl_node_new (key, ob->root);
+    _Ptr<avl_node> node = avl_node_new (key, ob->root);
     if (!node) {
       return -1;
     } else {
@@ -133,7 +133,11 @@ avl_insert (avl_tree * ob,
       return 0;
     }
   } else { /* not self.right == None */
-    avl_node *t, *p, *s, *q, *r;
+    _Ptr<avl_node> t = NULL;
+    _Ptr<avl_node> p = NULL;
+    _Ptr<avl_node> s = NULL;
+    _Ptr<avl_node> q = NULL;
+    _Ptr<avl_node> r = NULL;
     int a;
 
     t = ob->root;
@@ -146,7 +150,7 @@ avl_insert (avl_tree * ob,
     q = p->left;
     if (!q) {
       /* insert */
-      avl_node * q_node = avl_node_new (key, p);
+      _Ptr<avl_node> q_node = avl_node_new (key, p);
       if (!q_node) {
         return (-1);
       } else {
@@ -164,7 +168,7 @@ avl_insert (avl_tree * ob,
     q = p->right;
     if (!q) {
       /* insert */
-      avl_node * q_node = avl_node_new (key, p);
+      _Ptr<avl_node> q_node = avl_node_new (key, p);
       if (!q_node) {
         return -1;
       } else {
@@ -350,13 +354,13 @@ avl_get_by_key (avl_tree * tree,
 
 int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key, avl_free_key_fun_type free_key_fun)
 {
-  avl_node *x;
-  avl_node *y; 
-  avl_node *p;
-  avl_node *q; 
-  avl_node *r; 
-  avl_node *top; 
-  avl_node *x_child;
+  _Ptr<avl_node> x = NULL;
+  _Ptr<avl_node> y = NULL; 
+  _Ptr<avl_node> p = NULL;
+  _Ptr<avl_node> q = NULL; 
+  _Ptr<avl_node> r = NULL; 
+  _Ptr<avl_node> top = NULL; 
+  _Ptr<avl_node> x_child = NULL;
   int shortened_side, shorter;
   
   x = tree->root->right;
