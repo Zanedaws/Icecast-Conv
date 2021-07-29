@@ -93,7 +93,7 @@ typedef int (*avl_key_printer_fun_type)    (char *, void *);
 #endif
 
 typedef struct _avl_tree {
-  avl_node *            root;
+  avl_node *            root : itype(_Ptr<avl_node>);
   unsigned int          height;
   unsigned int          length;
   avl_key_compare_fun_type    compare_fun;
@@ -197,8 +197,6 @@ void avl_tree_unlock(avl_tree *tree);
 void avl_node_rlock(avl_node *node);
 void avl_node_wlock(avl_node *node);
 void avl_node_unlock(avl_node *node);
-
-_Itype_for_any(T) void avl_free(void* ptr : itype(_Array_ptr<T>) byte_count(0));
 
 #ifdef __cplusplus
 }
