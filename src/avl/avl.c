@@ -348,7 +348,7 @@ avl_get_by_key (avl_tree * tree,
   }
 }
 
-int avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
+int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key, avl_free_key_fun_type free_key_fun)
 {
   avl_node *x;
   avl_node *y; 

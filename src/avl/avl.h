@@ -117,7 +117,7 @@ int avl_insert (
   );
 
 int avl_delete (
-  avl_tree *        tree,
+  avl_tree *        tree : itype(_Ptr<avl_tree>),
   void *        key,
   avl_free_key_fun_type    free_key_fun
   );
