@@ -51,7 +51,7 @@ typedef struct ogg_codec_tag
     ogg_stream_state os;
     unsigned headers;
     const char *name;
-    void *specific;
+    _Itype_for_any(T) void *specific : itype(_Ptr<T>);
     refbuf_t        *possible_start;
     refbuf_t        *page;
 
