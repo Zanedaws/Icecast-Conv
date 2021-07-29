@@ -1279,7 +1279,7 @@ void source_update_settings (ice_config_t *config, source_t *source, mount_proxy
 }
 
 
-void *source_client_thread (void *arg)
+_Itype_for_any(T) void *source_client_thread (void *arg : itype(_Ptr<T>))
 {
     source_t *source = arg;
 
