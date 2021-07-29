@@ -40,7 +40,7 @@
 
 avl_node *
 avl_node_new (void *        key,
-          avl_node *    parent)
+          avl_node *    parent) : itype(_Ptr<avl_node>)
 {
   avl_node * node = (avl_node *) malloc (sizeof (avl_node));
 
@@ -70,7 +70,7 @@ avl_tree_new (avl_key_compare_fun_type compare_fun,
   if (!t) {
     return NULL;
   } else {
-    avl_node * root = avl_node_new((void *)NULL, (avl_node *) NULL);
+    _Ptr<avl_node> root = avl_node_new((void *)NULL, (avl_node *) NULL);
     if (!root) {
       free (t);
       return NULL;

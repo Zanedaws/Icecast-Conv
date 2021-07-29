@@ -104,7 +104,7 @@ typedef struct _avl_tree {
 } avl_tree;
 
 avl_tree * avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg);
-avl_node * avl_node_new (void * key, avl_node * parent);
+avl_node * avl_node_new (void * key, avl_node * parent) : itype(_Ptr<avl_node>);
 
 void avl_tree_free (
   avl_tree *        tree : itype(_Ptr<avl_tree>),
