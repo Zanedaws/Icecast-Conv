@@ -85,7 +85,7 @@ typedef struct thread_start_tag {
 
 static long _next_thread_id = 0;
 static int _initialized = 0;
-static avl_tree *_threadtree = NULL;
+static avl_tree * _threadtree : itype(_Ptr<avl_tree>) = NULL;
 
 #ifdef DEBUG_MUTEXES
 static mutex_t _threadtree_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1, 

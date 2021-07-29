@@ -107,7 +107,7 @@ avl_tree * avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_ar
 avl_node * avl_node_new (void * key, avl_node * parent);
 
 void avl_tree_free (
-  avl_tree *        tree,
+  avl_tree *        tree : itype(_Ptr<avl_tree>),
   avl_free_key_fun_type    free_key_fun
   );
 

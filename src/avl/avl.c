@@ -104,7 +104,7 @@ avl_tree_free_helper (avl_node * node, avl_free_key_fun_type free_key_fun)
 }
   
 void
-avl_tree_free (avl_tree * tree, avl_free_key_fun_type free_key_fun)
+avl_tree_free (avl_tree* tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type free_key_fun)
 {
   if (tree->length) {
     avl_tree_free_helper (tree->root->right, free_key_fun);
