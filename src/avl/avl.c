@@ -633,10 +633,10 @@ int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key, avl_free_key_f
   return (0);
 }
 
-static int
+_Itype_for_any(T) static int
 avl_iterate_inorder_helper (avl_node * node,
             avl_iter_fun_type iter_fun,
-            void * iter_arg)
+            void * iter_arg : itype(_Ptr<T>))
 {
   int result;
   if (node->left) {

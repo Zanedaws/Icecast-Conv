@@ -134,10 +134,10 @@ int avl_get_by_key (
   void **        value_address
   );
 
-int avl_iterate_inorder (
+_Itype_for_any(T) int avl_iterate_inorder (
   avl_tree *        tree,
   avl_iter_fun_type    iter_fun,
-  void *        iter_arg
+  void *        iter_arg : itype(_Ptr<T>)
   );
 
 int avl_iterate_index_range (
