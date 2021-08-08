@@ -958,7 +958,7 @@ void stats_callback (client_t *client, void *notused)
         return;
     }
     client_set_queue (client, NULL);
-    thread_create("Stats Connection", stats_connection, (void *)client, THREAD_DETACHED);
+    thread_create("Stats Connection", stats_connection, _Dynamic_bounds_cast<_Ptr<void>>(client), THREAD_DETACHED);
 }
 
 
