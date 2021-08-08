@@ -163,8 +163,8 @@ void thread_initialize_with_log_id(int log_id);
 void thread_shutdown(void);
 
 /* creation, destruction, locking, unlocking, signalling and waiting */
-_Itype_for_any(T) thread_type *thread_create_c(char *name, void *(*start_routine)(void *), 
-        void *arg : itype(_Array_ptr<T>) , int detached, int line, char *file);
+_Itype_for_any(T) thread_type *thread_create_c(char *name, void *(*start_routine)(void *) : itype(_Ptr<T>), 
+        void *arg : itype(_Nt_array_ptr<char>) , int detached, int line, char *file);
 void thread_mutex_create_c(mutex_t *mutex, int line, char *file);
 void thread_mutex_lock_c(mutex_t *mutex, int line, char *file);
 void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file);
