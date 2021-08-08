@@ -1,6 +1,6 @@
 fserve.o: fserve.c ../config.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdio.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdio_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdio.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdio_checked.h \
   /usr/include/stdio.h \
   /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
   /usr/include/features.h /usr/include/stdc-predef.h \
@@ -9,8 +9,8 @@ fserve.o: fserve.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stddef.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdarg.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stddef.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdarg.h \
   /usr/include/x86_64-linux-gnu/bits/types.h \
   /usr/include/x86_64-linux-gnu/bits/timesize.h \
   /usr/include/x86_64-linux-gnu/bits/typesizes.h \
@@ -23,10 +23,10 @@ fserve.o: fserve.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
   /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
   /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_stdio_checked.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_common.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_stdio_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_common.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib_checked.h \
   /usr/include/stdlib.h /usr/include/x86_64-linux-gnu/bits/waitflags.h \
   /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
   /usr/include/x86_64-linux-gnu/bits/floatn.h \
@@ -54,25 +54,25 @@ fserve.o: fserve.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
   /usr/include/alloca.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/__stddef_max_align_t.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/string.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/string_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/__stddef_max_align_t.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string_checked.h \
   /usr/include/string.h \
   /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_string_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/errno.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/errno_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/errno.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/errno_checked.h \
   /usr/include/errno.h /usr/include/x86_64-linux-gnu/bits/errno.h \
   /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
   /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
   /usr/include/x86_64-linux-gnu/sys/poll.h \
   /usr/include/x86_64-linux-gnu/bits/poll.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
   /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
@@ -80,8 +80,8 @@ fserve.o: fserve.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
   /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
   /usr/include/x86_64-linux-gnu/sys/time.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/sys/socket.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/sys/socket_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/sys/socket.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/socket.h \
@@ -102,8 +102,8 @@ fserve.o: fserve.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/sched.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
   /usr/include/x86_64-linux-gnu/bits/cpu-set.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time_checked.h \
   /usr/include/time.h /usr/include/x86_64-linux-gnu/bits/time.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
@@ -113,16 +113,16 @@ fserve.o: fserve.c ../config.h \
   /usr/include/openssl/ssl.h /usr/include/openssl/e_os2.h \
   /usr/include/x86_64-linux-gnu/openssl/opensslconf.h \
   /usr/include/openssl/opensslv.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/inttypes.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/inttypes.h \
   /usr/include/inttypes.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdint.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdint.h \
   /usr/include/stdint.h /usr/include/x86_64-linux-gnu/bits/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/inttypes_checked_internal.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/inttypes_checked_internal.h \
   /usr/include/openssl/comp.h /usr/include/openssl/crypto.h \
   /usr/include/openssl/safestack.h /usr/include/openssl/stack.h \
   /usr/include/openssl/ossl_typ.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/limits.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/limits.h \
   /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
   /usr/include/x86_64-linux-gnu/bits/local_lim.h \
   /usr/include/linux/limits.h \
@@ -171,7 +171,7 @@ fserve.o: fserve.c ../config.h \
   /usr/include/unicode/ptypes.h /usr/include/unicode/platform.h \
   /usr/include/unicode/uconfig.h /usr/include/unicode/uvernum.h \
   /usr/include/unicode/urename.h /usr/include/unicode/uversion.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/float.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/float.h \
   /usr/include/unicode/utf.h /usr/include/unicode/utf8.h \
   /usr/include/unicode/utf16.h /usr/include/unicode/utf_old.h \
   /usr/include/unicode/uenum.h /usr/include/unicode/localpointer.h \
@@ -181,9 +181,9 @@ fserve.o: fserve.c ../config.h \
 
 ../config.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdio.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdio.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdio_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdio_checked.h:
 
 /usr/include/stdio.h:
 
@@ -203,9 +203,9 @@ fserve.o: fserve.c ../config.h \
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stddef.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stddef.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdarg.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdarg.h:
 
 /usr/include/x86_64-linux-gnu/bits/types.h:
 
@@ -231,13 +231,13 @@ fserve.o: fserve.c ../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/sys_errlist.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_stdio_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_stdio_checked.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_common.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_common.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib_checked.h:
 
 /usr/include/stdlib.h:
 
@@ -297,11 +297,11 @@ fserve.o: fserve.c ../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/__stddef_max_align_t.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/__stddef_max_align_t.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/string.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/string_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string_checked.h:
 
 /usr/include/string.h:
 
@@ -311,15 +311,15 @@ fserve.o: fserve.c ../config.h \
 
 /usr/include/strings.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_string_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h:
 
 /usr/include/x86_64-linux-gnu/sys/stat.h:
 
 /usr/include/x86_64-linux-gnu/bits/stat.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/errno.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/errno.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/errno_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/errno_checked.h:
 
 /usr/include/errno.h:
 
@@ -337,9 +337,9 @@ fserve.o: fserve.c ../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/poll.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/unistd.h:
 
@@ -357,9 +357,9 @@ fserve.o: fserve.c ../config.h \
 
 /usr/include/x86_64-linux-gnu/sys/time.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/sys/socket.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/sys/socket_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
 
 /usr/include/x86_64-linux-gnu/sys/socket.h:
 
@@ -407,9 +407,9 @@ thread/thread.h:
 
 /usr/include/x86_64-linux-gnu/bits/cpu-set.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time_checked.h:
 
 /usr/include/time.h:
 
@@ -441,11 +441,11 @@ connection.h:
 
 /usr/include/openssl/opensslv.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/inttypes.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/inttypes.h:
 
 /usr/include/inttypes.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdint.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdint.h:
 
 /usr/include/stdint.h:
 
@@ -453,7 +453,7 @@ connection.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/inttypes_checked_internal.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/inttypes_checked_internal.h:
 
 /usr/include/openssl/comp.h:
 
@@ -465,7 +465,7 @@ connection.h:
 
 /usr/include/openssl/ossl_typ.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/limits.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/limits.h:
 
 /usr/include/limits.h:
 
@@ -639,7 +639,7 @@ auth.h:
 
 /usr/include/unicode/uversion.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/float.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/float.h:
 
 /usr/include/unicode/utf.h:
 

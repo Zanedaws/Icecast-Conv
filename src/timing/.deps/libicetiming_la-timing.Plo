@@ -1,6 +1,6 @@
 libicetiming_la-timing.lo: timing.c ../../config.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib_checked.h \
   /usr/include/stdlib.h \
   /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
   /usr/include/features.h /usr/include/stdc-predef.h \
@@ -9,7 +9,7 @@ libicetiming_la-timing.lo: timing.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stddef.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stddef.h \
   /usr/include/x86_64-linux-gnu/bits/waitflags.h \
   /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
   /usr/include/x86_64-linux-gnu/bits/floatn.h \
@@ -41,17 +41,17 @@ libicetiming_la-timing.lo: timing.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
   /usr/include/alloca.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/__stddef_max_align_t.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/__stddef_max_align_t.h \
   /usr/include/x86_64-linux-gnu/sys/time.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time_checked.h \
   /usr/include/time.h /usr/include/x86_64-linux-gnu/bits/time.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
   /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
   /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
@@ -59,18 +59,18 @@ libicetiming_la-timing.lo: timing.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
   /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
   /usr/include/x86_64-linux-gnu/sys/timeb.h timing.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/inttypes.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/inttypes.h \
   /usr/include/inttypes.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdint.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdint.h \
   /usr/include/stdint.h /usr/include/x86_64-linux-gnu/bits/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/inttypes_checked_internal.h
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/inttypes_checked_internal.h
 
 ../../config.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib_checked.h:
 
 /usr/include/stdlib.h:
 
@@ -90,7 +90,7 @@ libicetiming_la-timing.lo: timing.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stddef.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stddef.h:
 
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
 
@@ -156,13 +156,13 @@ libicetiming_la-timing.lo: timing.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/__stddef_max_align_t.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/__stddef_max_align_t.h:
 
 /usr/include/x86_64-linux-gnu/sys/time.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time_checked.h:
 
 /usr/include/time.h:
 
@@ -176,9 +176,9 @@ libicetiming_la-timing.lo: timing.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/unistd.h:
 
@@ -198,11 +198,11 @@ libicetiming_la-timing.lo: timing.c ../../config.h \
 
 timing.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/inttypes.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/inttypes.h:
 
 /usr/include/inttypes.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdint.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdint.h:
 
 /usr/include/stdint.h:
 
@@ -210,4 +210,4 @@ timing.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/inttypes_checked_internal.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/inttypes_checked_internal.h:

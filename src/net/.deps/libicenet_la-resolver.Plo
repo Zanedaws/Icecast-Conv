@@ -1,6 +1,6 @@
 libicenet_la-resolver.lo: resolver.c ../../config.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdio.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdio_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdio.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdio_checked.h \
   /usr/include/stdio.h \
   /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
   /usr/include/features.h /usr/include/stdc-predef.h \
@@ -9,8 +9,8 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stddef.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdarg.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stddef.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdarg.h \
   /usr/include/x86_64-linux-gnu/bits/types.h \
   /usr/include/x86_64-linux-gnu/bits/timesize.h \
   /usr/include/x86_64-linux-gnu/bits/typesizes.h \
@@ -23,8 +23,8 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
   /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
   /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_stdio_checked.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_common.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_stdio_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_common.h \
   /usr/include/x86_64-linux-gnu/sys/types.h \
   /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
@@ -46,26 +46,26 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h \
   /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
   /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib_checked.h \
   /usr/include/stdlib.h /usr/include/x86_64-linux-gnu/bits/waitflags.h \
   /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
   /usr/include/x86_64-linux-gnu/bits/floatn.h \
   /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
   /usr/include/alloca.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/__stddef_max_align_t.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/string.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/string_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/__stddef_max_align_t.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string_checked.h \
   /usr/include/string.h \
   /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_string_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h \
   /usr/include/netdb.h /usr/include/netinet/in.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/sys/socket.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/sys/socket_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/sys/socket.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/socket.h \
@@ -84,20 +84,20 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
   /usr/include/x86_64-linux-gnu/bits/in.h /usr/include/rpc/netdb.h \
   /usr/include/x86_64-linux-gnu/bits/netdb.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/arpa/inet.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/arpa/inet_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet_checked.h \
   /usr/include/arpa/inet.h ../thread/thread.h /usr/include/pthread.h \
   /usr/include/sched.h /usr/include/x86_64-linux-gnu/bits/sched.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
   /usr/include/x86_64-linux-gnu/bits/cpu-set.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time_checked.h \
   /usr/include/time.h /usr/include/x86_64-linux-gnu/bits/time.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
   /usr/include/x86_64-linux-gnu/bits/setjmp.h resolver.h sock.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
   /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
@@ -109,9 +109,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 ../../config.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdio.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdio.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdio_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdio_checked.h:
 
 /usr/include/stdio.h:
 
@@ -131,9 +131,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stddef.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stddef.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdarg.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdarg.h:
 
 /usr/include/x86_64-linux-gnu/bits/types.h:
 
@@ -159,9 +159,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/sys_errlist.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_stdio_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_stdio_checked.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_common.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_common.h:
 
 /usr/include/x86_64-linux-gnu/sys/types.h:
 
@@ -207,9 +207,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/stdlib_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdlib_checked.h:
 
 /usr/include/stdlib.h:
 
@@ -225,11 +225,11 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/__stddef_max_align_t.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/__stddef_max_align_t.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/string.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/string_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string_checked.h:
 
 /usr/include/string.h:
 
@@ -239,7 +239,7 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /usr/include/strings.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/_builtin_string_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h:
 
 /usr/include/netdb.h:
 
@@ -247,9 +247,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/sys/socket.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/sys/socket_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
 
 /usr/include/x86_64-linux-gnu/sys/socket.h:
 
@@ -291,9 +291,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/netdb.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/arpa/inet.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/arpa/inet_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet_checked.h:
 
 /usr/include/arpa/inet.h:
 
@@ -309,9 +309,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/cpu-set.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/time_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time_checked.h:
 
 /usr/include/time.h:
 
@@ -327,9 +327,9 @@ resolver.h:
 
 sock.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/11.0.0/include/unistd_checked.h:
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/unistd.h:
 
