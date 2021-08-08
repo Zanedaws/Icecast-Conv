@@ -950,7 +950,7 @@ void *stats_connection(void *arg)
 }
 
 
-void stats_callback (client_t *client, void *notused)
+void stats_callback (client_t *client : itype(_Ptr<client_t>), void *notused)
 {
     if (client->con->error)
     {
