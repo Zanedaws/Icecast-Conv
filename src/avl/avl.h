@@ -128,10 +128,10 @@ int avl_get_by_index (
   void **        value_address
   );
 
-int avl_get_by_key (
+_Itype_for_any(T) int avl_get_by_key (
   avl_tree *        tree,
   void *        key : itype(_Ptr<void>),
-  void **        value_address : itype(_Ptr<_Ptr<void>>)
+  void **        value_address : itype(_Ptr<_Ptr<T>>)
   );
 
 _Itype_for_any(T) int avl_iterate_inorder (
