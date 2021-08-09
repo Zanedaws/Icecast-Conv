@@ -120,7 +120,7 @@ static int _compare_mutexes(void *compare_arg, void *a, void *b);
 static int _free_mutex(void *key);
 #endif
 
-static int _compare_threads(void *compare_arg, void *a, void *b);
+_Itype_for_any(T) static int _compare_threads(void *compare_arg, void *a : itype(_Ptr<T>) , void *b : itype(_Ptr<T>));
 static int _free_thread(void *key);
 
 /* mutex fuctions */
