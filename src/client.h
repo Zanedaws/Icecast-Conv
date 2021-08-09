@@ -55,7 +55,7 @@ typedef struct _client_tag
     char *password;
 
     /* Format-handler-specific data for this client */
-    void *format_data;
+    void *format_data : itype(_Array_ptr<void>);
 
     /* function to call to release format specific resources */
     void (*free_client_data)(struct _client_tag *client);
