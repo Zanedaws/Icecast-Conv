@@ -926,7 +926,7 @@ static void source_shutdown (source_t *source)
 }
 
 
-static int _compare_clients(void *compare_arg, void *a, void *b)
+_Itype_for_any(T) static int _compare_clients(void *compare_arg, void *a : itype(_Ptr<T>), void *b : itype(_Ptr<T>))
 {
     client_t *clienta = (client_t *)a;
     client_t *clientb = (client_t *)b;
