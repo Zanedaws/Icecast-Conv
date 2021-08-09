@@ -322,10 +322,9 @@ avl_get_by_index (avl_tree * tree,
   }
 }
            
-int
-avl_get_by_key (avl_tree * tree,
-         void * key,
-         void **value_address)
+_Itype_for_any(T) int avl_get_by_key (avl_tree * tree,
+         void * key : itype(_Ptr<void>),
+         void **value_address : itype(_Ptr<_Ptr<T>>))
 {
   avl_node * x = tree->root->right;
   if (!x) {
