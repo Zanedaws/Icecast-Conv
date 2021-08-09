@@ -70,7 +70,7 @@
 mutex_t move_clients_mutex;
 
 /* avl tree helper */
-static int _compare_clients(void *compare_arg, void *a, void *b);
+_Itype_for_any(T) static int _compare_clients(void *compare_arg, void *a : itype(_Ptr<T>), void *b : itype(_Ptr<T>));
 static int _free_client(void *key);
 static void _parse_audio_info (source_t *source, const char *s);
 static void source_shutdown (source_t *source);
