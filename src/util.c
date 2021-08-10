@@ -293,31 +293,32 @@ char *util_url_escape (const char *src)
     return dst;
 }
 
-char *util_url_unescape (const char *src) : itype(_Ptr<char>)
+char *util_url_unescape (const char *src) : itype(_Array_ptr<char>)
 {
     int len = strlen(src);
-    char *decoded;
+    _Array_ptr<char> decoded : byte_count(len + 1)= calloc<char>(1, len+1);
     int i;
-    char *dst;
+    _Array_ptr<char> dst = NULL;
     int done = 0;
+    _Ptr<char> dstTmp = NULL;
 
-    _Unchecked{decoded = calloc(1, len + 1);}
+    //_Checked{decoded = calloc<char>(1, len + 1);}
 
-    dst = decoded;
+    dst = _Dynamic_bounds_cast<_Array_ptr<char>>(decoded, byte_count(len + 1));
 
     for(i=0; i < len; i++) {
         switch(src[i]) {
             case '%':
                 if(i+2 >= len) {
-                    free(decoded);
+                    free<char>(_Dynamic_bounds_cast<_Array_ptr<char>>(decoded, byte_count(0)));
                     return NULL;
                 }
                 if(hex(src[i+1]) == -1 || hex(src[i+2]) == -1 ) {
-                    free(decoded);
+                    free<char>(_Dynamic_bounds_cast<_Array_ptr<char>>(decoded, byte_count(0)));
                     return NULL;
                 }
-
-                *dst++ = hex(src[i+1]) * 16  + hex(src[i+2]);
+                dstTmp = _Assume_bounds_cast<_Ptr<char>>(dst++);
+                *dstTmp = hex(src[i+1]) * 16  + hex(src[i+2]);
                 i+= 2;
                 break;
             case '#':
@@ -325,18 +326,19 @@ char *util_url_unescape (const char *src) : itype(_Ptr<char>)
                 break;
             case 0:
                 ICECAST_LOG_ERROR("Fatal internal logic error in util_url_unescape()");
-                free(decoded);
+                free<char>(_Dynamic_bounds_cast<_Array_ptr<char>>(decoded, byte_count(0)));
                 return NULL;
                 break;
             default:
-                *dst++ = src[i];
+                dstTmp = _Assume_bounds_cast<_Ptr<char>>(dst++);
+                *dstTmp = src[i];
                 break;
         }
         if(done)
             break;
     }
-
-    *dst = 0; /* null terminator */
+    dstTmp = _Assume_bounds_cast<_Ptr<char>>(dst);
+    *dstTmp = 0; /* null terminator */
 
     return decoded;
 }
