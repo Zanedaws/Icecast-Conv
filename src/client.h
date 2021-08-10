@@ -26,9 +26,9 @@
 typedef struct _client_tag
 {
     /* the client's connection */
-    connection_t *con : itype(_Ptr<connection_t>);
+    connection_t *con;
     /* the client's http headers */
-    http_parser_t *parser : itype(_Ptr<http_parser_t>);
+    http_parser_t *parser;
 
     /* http response code for this client */
     int respcode;

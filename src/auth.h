@@ -46,7 +46,6 @@ typedef struct auth_client_tag
     struct auth_client_tag *next;
 } auth_client;
 
-
 typedef struct auth_tag
 {
     char *mount;
