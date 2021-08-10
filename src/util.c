@@ -301,7 +301,7 @@ char *util_url_unescape (const char *src) : itype(_Nt_array_ptr<char>)
     char *dst;
     int done = 0;
 
-    decoded = calloc(1, len + 1);
+    decoded = calloc<char>(1, len + 1);
 
     dst = decoded;
 
