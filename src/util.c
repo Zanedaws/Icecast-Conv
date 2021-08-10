@@ -293,7 +293,7 @@ char *util_url_escape (const char *src)
     return dst;
 }
 
-char *util_url_unescape (const char *src) : itype(_Nt_array_ptr<char>)
+char *util_url_unescape (const char *src) : itype(_Ptr<char>)
 {
     int len = strlen(src);
     char *decoded;
@@ -301,7 +301,7 @@ char *util_url_unescape (const char *src) : itype(_Nt_array_ptr<char>)
     char *dst;
     int done = 0;
 
-    decoded = calloc<char>(1, len + 1);
+    _Unchecked{decoded = calloc(1, len + 1);}
 
     dst = decoded;
 
