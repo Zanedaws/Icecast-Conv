@@ -81,7 +81,7 @@ typedef struct auth_tag
     auth_client *head, **tailp;
     int pending_count;
 
-    void *state;
+    void *state : itype(_Ptr<void>);
     char *type;
 } auth_t;
 

@@ -102,7 +102,7 @@ static int _free_user (void *key)
 }
 
 
-static void htpasswd_recheckfile (htpasswd_auth_state *htpasswd)
+static void htpasswd_recheckfile (htpasswd_auth_state *htpasswd : itype(_Ptr<htpasswd_auth_state>))
 {
     FILE *passwdfile;
     avl_tree *new_users;
@@ -225,7 +225,7 @@ static auth_result htpasswd_auth (auth_client *auth_user)
 
 int  auth_get_htpasswd_auth (auth_t *authenticator, config_options_t *options)
 {
-    htpasswd_auth_state *state;
+    _Ptr<htpasswd_auth_state>state = NULL;
 
     authenticator->authenticate = htpasswd_auth;
     authenticator->free = htpasswd_clear;
@@ -233,7 +233,7 @@ int  auth_get_htpasswd_auth (auth_t *authenticator, config_options_t *options)
     authenticator->deleteuser = htpasswd_deleteuser;
     authenticator->listuser = htpasswd_userlist;
 
-    state = calloc(1, sizeof(htpasswd_auth_state));
+    state = _Dynamic_bounds_cast<_Ptr<htpasswd_auth_state>>(calloc(1, sizeof(htpasswd_auth_state)));
 
     while(options) {
         if(!strcmp(options->name, "filename"))
@@ -250,7 +250,7 @@ int  auth_get_htpasswd_auth (auth_t *authenticator, config_options_t *options)
     else
         ICECAST_LOG_ERROR("No filename given in options for authenticator.");
 
-    authenticator->state = state;
+    authenticator->state = _Dynamic_bounds_cast<_Ptr<void>>(state);
 
     thread_rwlock_create(&state->file_rwlock);
     htpasswd_recheckfile (state);
