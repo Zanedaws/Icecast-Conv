@@ -193,7 +193,7 @@ source_t *source_find_mount (const char *mount)
 }
 
 
-_Itype_for_any(T) int source_compare_sources(void *arg, void *a : itype(_Ptr<T>) , void *b : itype(_Ptr<T>))
+int source_compare_sources(void *arg, void *a, void *b)
 {
     source_t *srca = (source_t *)a;
     source_t *srcb = (source_t *)b;

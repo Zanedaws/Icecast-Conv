@@ -26,9 +26,9 @@
 typedef struct _client_tag
 {
     /* the client's connection */
-    connection_t *con;
+    connection_t *con : itype(_Ptr<connection_t>);
     /* the client's http headers */
-    http_parser_t *parser;
+    http_parser_t *parser : itype(_Ptr<connection_t>);
 
     /* http response code for this client */
     int respcode;
@@ -76,8 +76,8 @@ void client_send_401(client_t *client);
 void client_send_403(client_t *client, const char *message);
 void client_send_400(client_t *client, const char *message);
 void client_send_500(client_t *client, const char *message);
-int client_send_bytes (client_t *client, const void *buf, unsigned len);
-int client_read_bytes (client_t *client, void *buf, unsigned len);
+int client_send_bytes (client_t *client, const void *buf : itype(_Array_ptr<const void>), unsigned len);
+int client_read_bytes (client_t *client, void *buf : itype(_Array_ptr<void>) , unsigned len);
 void client_set_queue (client_t *client, refbuf_t *refbuf);
 int client_check_source_auth (client_t *client, const char *mount);
 void client_send_error(client_t *client, int status, int plain, const char *message);
