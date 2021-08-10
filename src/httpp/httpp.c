@@ -544,7 +544,7 @@ static char *_lowercase(char *str)
     return str;
 }
 
-_Itype_for_any(T) static int _compare_vars(void *compare_arg, void *a : itype(_Ptr<T>), void *b : itype(_Ptr<T>))
+static int _compare_vars(void *compare_arg, void *a, void *b)
 {
     http_var_t *vara, *varb;
 
