@@ -293,7 +293,7 @@ char *util_url_escape (const char *src)
     return dst;
 }
 
-char *util_url_unescape (const char *src)
+char *util_url_unescape (const char *src) : itype(_Nt_array_ptr<char>)
 {
     int len = strlen(src);
     char *decoded;

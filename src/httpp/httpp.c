@@ -200,7 +200,7 @@ static int hex(char c)
         return -1;
 }
 
-static char *url_escape(const char *src)
+static char *url_escape(const char *src) : itype(_Nt_array_ptr<char>)
 {
     int len = strlen(src);
     unsigned char *decoded;
@@ -563,7 +563,7 @@ static int _free_vars(void *key)
     if (var->name)
         free(var->name);
     if (var->value)
-        free(var->value);
+        free(_Dynamic_bounds_cast<_Array_ptr<void>>(var->value, byte_count(0)));
     free(var);
 
     return 1;
