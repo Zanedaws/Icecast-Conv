@@ -47,7 +47,7 @@
 #define CATMODULE "format"
 
 #ifdef WIN32
-#define strcasecmp stricmp
+//define strcasecmp stricmp
 #define strncasecmp strnicmp
 #define snprintf _snprintf
 #endif
@@ -334,7 +334,7 @@ static int format_prepare_headers (source_t *source, client_t *client)
         int next = 1;
         http_var_t *var = (http_var_t *)node->key;
         bytes = 0;
-        if (!strcasecmp(var->name, "ice-audio-info"))
+//       if (!strcasecmp(var->name, "ice-audio-info"))
         {
             /* convert ice-audio-info to icy-br */
             char *brfield = NULL;
@@ -354,10 +354,10 @@ static int format_prepare_headers (source_t *source, client_t *client)
         }
         else
         {
-            if (strcasecmp(var->name, "ice-password") &&
-                strcasecmp(var->name, "icy-metaint"))
+//           if (strcasecmp(var->name, "ice-password") &&
+//               strcasecmp(var->name, "icy-metaint"))
             {
-		if (!strcasecmp(var->name, "ice-name"))
+//	if (!strcasecmp(var->name, "ice-name"))
 		{
 		    ice_config_t *config;
 		    mount_proxy *mountinfo;
@@ -374,10 +374,10 @@ static int format_prepare_headers (source_t *source, client_t *client)
 		}
                 else if (!strncasecmp("ice-", var->name, 4))
                 {
-                    if (!strcasecmp("ice-public", var->name))
+//                   if (!strcasecmp("ice-public", var->name))
                         bytes = snprintf (ptr, remaining, "icy-pub:%s\r\n", var->value);
                     else
-                        if (!strcasecmp ("ice-bitrate", var->name))
+//                       if (!strcasecmp ("ice-bitrate", var->name))
                             bytes = snprintf (ptr, remaining, "icy-br:%s\r\n", var->value);
                         else
                             bytes = snprintf (ptr, remaining, "icy%s:%s\r\n",

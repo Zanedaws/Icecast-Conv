@@ -33,7 +33,7 @@
 #else
 #include <winsock2.h>
 #define snprintf _snprintf
-#define strcasecmp stricmp
+//define strcasecmp stricmp
 #define strncasecmp strnicmp
 #endif
 

@@ -46,7 +46,7 @@ static refbuf_t *process_speex_page (ogg_state_t *ogg_info,
     {
         ogg_packet packet;
 
-        ogg_stream_pagein (&codec->os, page);
+//       ogg_stream_pagein (&codec->os, page);
         while (ogg_stream_packetout (&codec->os, &packet) > 0)
         {
            /* first time around (normal case) yields comments */
@@ -69,7 +69,7 @@ ogg_codec_t *initial_speex_page (format_plugin_t *plugin, ogg_page *page)
     SpeexHeader *header;
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
-    ogg_stream_pagein (&codec->os, page);
+//   ogg_stream_pagein (&codec->os, page);
 
     ogg_stream_packetout (&codec->os, &packet);
 

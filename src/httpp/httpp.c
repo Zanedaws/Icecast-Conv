@@ -23,7 +23,7 @@
 #include "httpp.h"
 
 #if defined(_WIN32) && !defined(HAVE_STRCASECMP)
-#define strcasecmp stricmp
+//define strcasecmp stricmp
 #endif
 
 #define MAX_HEADERS 32
@@ -337,19 +337,19 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
         }
     }
 
-    if (strcasecmp("GET", req_type) == 0) {
+     if (strcasecmp("GET", req_type) == 0) {
         parser->req_type = httpp_req_get;
-    } else if (strcasecmp("POST", req_type) == 0) {
+//   } else if (strcasecmp("POST", req_type) == 0) {
         parser->req_type = httpp_req_post;
-    } else if (strcasecmp("PUT", req_type) == 0) {
+//   } else if (strcasecmp("PUT", req_type) == 0) {
         parser->req_type = httpp_req_put;
-    } else if (strcasecmp("HEAD", req_type) == 0) {
+//   } else if (strcasecmp("HEAD", req_type) == 0) {
         parser->req_type = httpp_req_head;
-    } else if (strcasecmp("SOURCE", req_type) == 0) {
+//   } else if (strcasecmp("SOURCE", req_type) == 0) {
         parser->req_type = httpp_req_source;
-    } else if (strcasecmp("PLAY", req_type) == 0) {
+//   } else if (strcasecmp("PLAY", req_type) == 0) {
         parser->req_type = httpp_req_play;
-    } else if (strcasecmp("STATS", req_type) == 0) {
+//   } else if (strcasecmp("STATS", req_type) == 0) {
         parser->req_type = httpp_req_stats;
     } else {
         parser->req_type = httpp_req_unknown;

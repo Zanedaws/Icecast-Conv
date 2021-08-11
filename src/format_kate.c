@@ -82,12 +82,12 @@ static refbuf_t *process_kate_page (ogg_state_t *ogg_info, ogg_codec_t *codec, o
     refbuf_t *refbuf = NULL;
     ogg_int64_t granulepos;
 
-    if (ogg_stream_pagein (&codec->os, page) < 0)
+//   if (ogg_stream_pagein (&codec->os, page) < 0)
     {
         ogg_info->error = 1;
         return NULL;
     }
-    granulepos = ogg_page_granulepos (page);
+//   granulepos = ogg_page_granulepos (page);
 
     while (ogg_stream_packetout (&codec->os, &packet) > 0)
     {
@@ -187,7 +187,7 @@ ogg_codec_t *initial_kate_page (format_plugin_t *plugin, ogg_page *page)
     kate_codec_t *kate_codec = calloc (1, sizeof (kate_codec_t));
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
-    ogg_stream_pagein (&codec->os, page);
+//   ogg_stream_pagein (&codec->os, page);
 
 #ifdef HAVE_KATE
     kate_info_init (&kate_codec->ki);

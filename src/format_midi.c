@@ -45,7 +45,7 @@ static refbuf_t *process_midi_page (ogg_state_t *ogg_info, ogg_codec_t *codec, o
 {
     refbuf_t * refbuf;
 
-    if (ogg_stream_pagein (&codec->os, page) < 0)
+//   if (ogg_stream_pagein (&codec->os, page) < 0)
     {
         ogg_info->error = 1;
         return NULL;
@@ -64,7 +64,7 @@ ogg_codec_t *initial_midi_page (format_plugin_t *plugin, ogg_page *page)
     ogg_packet packet;
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
-    ogg_stream_pagein (&codec->os, page);
+//   ogg_stream_pagein (&codec->os, page);
 
     ogg_stream_packetout (&codec->os, &packet);
 

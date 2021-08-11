@@ -155,8 +155,8 @@ static refbuf_t *get_buffer_audio (ogg_state_t *ogg_info, ogg_codec_t *codec)
     if (get_ogg_page (&source_vorbis->new_os, &page) > 0)
     {
         /* squeeze a page copy into a buffer */
-        source_vorbis->samples_in_page -= (ogg_page_granulepos (&page) - source_vorbis->prev_page_samples);
-        source_vorbis->prev_page_samples = ogg_page_granulepos (&page);
+//       source_vorbis->samples_in_page -= (ogg_page_granulepos (&page) - source_vorbis->prev_page_samples);
+//       source_vorbis->prev_page_samples = ogg_page_granulepos (&page);
 
         refbuf = make_refbuf_with_page (&page);
     }
@@ -191,8 +191,8 @@ static refbuf_t *get_buffer_finished (ogg_state_t *ogg_info, ogg_codec_t *codec)
 
     if (ogg_stream_flush (&source_vorbis->new_os, &page) > 0)
     {
-        source_vorbis->samples_in_page -= (ogg_page_granulepos (&page) - source_vorbis->prev_page_samples);
-        source_vorbis->prev_page_samples = ogg_page_granulepos (&page);
+//       source_vorbis->samples_in_page -= (ogg_page_granulepos (&page) - source_vorbis->prev_page_samples);
+//       source_vorbis->prev_page_samples = ogg_page_granulepos (&page);
 
         refbuf = make_refbuf_with_page (&page);
         ICECAST_LOG_DEBUG("flushing page");
@@ -329,11 +329,11 @@ static int process_vorbis_headers (ogg_state_t *ogg_info, ogg_codec_t *codec)
 
         vorbis_comment_init (&vc);
         if (ogg_info->artist) 
-            vorbis_comment_add_tag (&vc, "artist", ogg_info->artist);
+//           vorbis_comment_add_tag (&vc, "artist", ogg_info->artist);
         if (ogg_info->title)
-            vorbis_comment_add_tag (&vc, "title", ogg_info->title);
+//           vorbis_comment_add_tag (&vc, "title", ogg_info->title);
         config = config_get_config();
-        vorbis_comment_add_tag (&vc, "server", config->server_id);
+//       vorbis_comment_add_tag (&vc, "server", config->server_id);
         config_release_config();
         vorbis_commentheader_out (&vc, &header);
 
@@ -366,7 +366,7 @@ ogg_codec_t *initial_vorbis_page (format_plugin_t *plugin, ogg_page *page)
     vorbis_codec_t *vorbis = calloc (1, sizeof (vorbis_codec_t));
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
-    ogg_stream_pagein (&codec->os, page);
+//   ogg_stream_pagein (&codec->os, page);
 
     vorbis_info_init (&vorbis->vi);
     vorbis_comment_init (&vorbis->vc);
@@ -505,7 +505,7 @@ static refbuf_t *process_vorbis_page (ogg_state_t *ogg_info,
     vorbis_codec_t *source_vorbis = codec->specific;
     char *comment;
 
-    if (ogg_stream_pagein (&codec->os, page) < 0)
+//   if (ogg_stream_pagein (&codec->os, page) < 0)
     {
         ogg_info->error = 1;
         return NULL;
@@ -514,7 +514,7 @@ static refbuf_t *process_vorbis_page (ogg_state_t *ogg_info,
     {
         if (source_vorbis->initial_audio_page)
         {
-            source_vorbis->initial_page_granulepos = ogg_page_granulepos (page);
+//           source_vorbis->initial_page_granulepos = ogg_page_granulepos (page);
             source_vorbis->initial_audio_page = 0;
         }
         return NULL;

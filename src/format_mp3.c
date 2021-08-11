@@ -42,7 +42,7 @@
 #include "format_mp3.h"
 
 #ifdef WIN32
-#define strcasecmp stricmp
+//define strcasecmp stricmp
 #define strncasecmp strnicmp
 #define snprintf _snprintf
 #endif

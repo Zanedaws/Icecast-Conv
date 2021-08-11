@@ -32,7 +32,7 @@
 #include <windows.h>
 #include <stdio.h>
 #define snprintf _snprintf
-#define strcasecmp stricmp
+//define strcasecmp stricmp
 #define strncasecmp strnicmp
 #endif
 

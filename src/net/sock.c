@@ -600,7 +600,7 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
 
     snprintf (service, sizeof (service), "%u", port);
 
-    if (getaddrinfo (hostname, service, &hints, &head))
+//   if (getaddrinfo (hostname, service, &hints, &head))
         return SOCK_ERROR;
 
     ai = head;
@@ -641,7 +641,7 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
     hints.ai_socktype = SOCK_STREAM;
     snprintf (service, sizeof (service), "%u", port);
 
-    if (getaddrinfo (hostname, service, &hints, &head))
+//   if (getaddrinfo (hostname, service, &hints, &head))
         return SOCK_ERROR;
 
     ai = head;
@@ -659,7 +659,7 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
                 b_hints.ai_family = ai->ai_family;
                 b_hints.ai_socktype = ai->ai_socktype;
                 b_hints.ai_protocol = ai->ai_protocol;
-                if (getaddrinfo (bnd, NULL, &b_hints, &b_head) ||
+//               if (getaddrinfo (bnd, NULL, &b_hints, &b_head) ||
                         bind (sock, b_head->ai_addr, b_head->ai_addrlen) < 0)
                 {
                     sock_close (sock);
@@ -720,7 +720,7 @@ sock_t sock_get_server_socket (int port, const char *sinterface)
     hints.ai_socktype = SOCK_STREAM;
     snprintf (service, sizeof (service), "%d", port);
 
-    if (getaddrinfo (sinterface, service, &hints, &res))
+//   if (getaddrinfo (sinterface, service, &hints, &res))
         return SOCK_ERROR;
     ai = res;
     do
@@ -938,7 +938,7 @@ sock_t sock_accept(sock_t serversock, char *ip, size_t len)
     if (ret != SOCK_ERROR)
     {
 #ifdef HAVE_GETNAMEINFO
-        if (getnameinfo ((struct sockaddr *)&sa, slen, ip, len, NULL, 0, NI_NUMERICHOST))
+//       if (getnameinfo ((struct sockaddr *)&sa, slen, ip, len, NULL, 0, NI_NUMERICHOST))
             snprintf (ip, len, "unknown");
 #else
         /* inet_ntoa is not reentrant, we should protect this */

@@ -72,12 +72,12 @@ static refbuf_t *process_theora_page (ogg_state_t *ogg_info, ogg_codec_t *codec,
     refbuf_t *refbuf = NULL;
     ogg_int64_t granulepos;
 
-    if (ogg_stream_pagein (&codec->os, page) < 0)
+//   if (ogg_stream_pagein (&codec->os, page) < 0)
     {
         ogg_info->error = 1;
         return NULL;
     }
-    granulepos = ogg_page_granulepos (page);
+//   granulepos = ogg_page_granulepos (page);
 
     while (ogg_stream_packetout (&codec->os, &packet) > 0)
     {
@@ -155,7 +155,7 @@ ogg_codec_t *initial_theora_page (format_plugin_t *plugin, ogg_page *page)
     theora_codec_t *theora_codec = calloc (1, sizeof (theora_codec_t));
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
-    ogg_stream_pagein (&codec->os, page);
+//   ogg_stream_pagein (&codec->os, page);
 
     theora_info_init (&theora_codec->ti);
     theora_comment_init (&theora_codec->tc);
