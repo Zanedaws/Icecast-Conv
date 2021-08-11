@@ -352,11 +352,11 @@ static int format_prepare_headers (source_t *source, client_t *client)
                 /* show ice-audio_info header as well because of relays */
                 bytes = snprintf (ptr, remaining, "%s: %s\r\n", var->name, var->value);
         }
-        else
-        {
+//        else
+//        {
 //           if (strcasecmp(var->name, "ice-password") &&
 //               strcasecmp(var->name, "icy-metaint"))
-            {
+//            {
 //	if (!strcasecmp(var->name, "ice-name"))
 		{
 		    ice_config_t *config;
