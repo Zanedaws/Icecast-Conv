@@ -422,45 +422,35 @@ char *util_bin_to_hex(unsigned char *data, int len)
 }
 
 /* This isn't efficient, but it doesn't need to be */
-char *util_base64_encode(const char *data) : itype(_Array_ptr<char>)
+char *util_base64_encode(const char *data)
 {
     int len = strlen(data);
-    _Array_ptr<char> out = malloc(len*4/3 + 4);
-    _Array_ptr<char> result = out;
+    char *out = malloc(len*4/3 + 4);
+    char *result = out;
     int chunk;
-    _Ptr<char> outTmp = NULL;
 
     while(len > 0) {
         chunk = (len >3)?3:len;
-        outTmp = _Assume_bounds_cast<_Ptr<char>>(out++);
-        *outTmp = base64table[(*data & 0xFC)>>2];
-        outTmp = _Assume_bounds_cast<_Ptr<char>>(out++);
-        *outTmp = base64table[((*data & 0x03)<<4) | ((*(data+1) & 0xF0) >> 4)];
+        *out++ = base64table[(*data & 0xFC)>>2];
+        *out++ = base64table[((*data & 0x03)<<4) | ((*(data+1) & 0xF0) >> 4)];
         switch(chunk) {
             case 3:
-                outTmp = _Assume_bounds_cast<_Ptr<char>>(out++);
-                *outTmp = base64table[((*(data+1) & 0x0F)<<2) | ((*(data+2) & 0xC0)>>6)];
-                outTmp = _Assume_bounds_cast<_Ptr<char>>(out++);
-                *outTmp = base64table[(*(data+2)) & 0x3F];
+                *out++ = base64table[((*(data+1) & 0x0F)<<2) | ((*(data+2) & 0xC0)>>6)];
+                *out++ = base64table[(*(data+2)) & 0x3F];
                 break;
             case 2:
-                outTmp = _Assume_bounds_cast<_Ptr<char>>(out++);
-                *outTmp = base64table[((*(data+1) & 0x0F)<<2)];
-                outTmp = _Assume_bounds_cast<_Ptr<char>>(out++);
-                *outTmp = '=';
+                *out++ = base64table[((*(data+1) & 0x0F)<<2)];
+                *out++ = '=';
                 break;
             case 1:
-                outTmp = _Assume_bounds_cast<_Ptr<char>>(out++);
-                *outTmp = '=';
-                outTmp = _Assume_bounds_cast<_Ptr<char>>(out++);
-                *outTmp = '=';
+                *out++ = '=';
+                *out++ = '=';
                 break;
         }
         data += chunk;
         len -= chunk;
     }
-    outTmp = _Assume_bounds_cast<_Ptr<char>>(out);
-    *outTmp = 0;
+    *out = 0;
 
     return result;
 }
