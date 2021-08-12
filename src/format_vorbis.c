@@ -365,7 +365,7 @@ ogg_codec_t *initial_vorbis_page (format_plugin_t *plugin, ogg_page *page)
 
     vorbis_codec_t *vorbis = calloc (1, sizeof (vorbis_codec_t));
 
-    ogg_stream_init (&codec->os, ogg_page_serialno (page));
+//   ogg_stream_init (&codec->os, ogg_page_serialno (page));
 //   ogg_stream_pagein (&codec->os, page);
 
     vorbis_info_init (&vorbis->vi);

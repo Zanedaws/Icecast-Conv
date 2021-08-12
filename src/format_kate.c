@@ -186,7 +186,7 @@ ogg_codec_t *initial_kate_page (format_plugin_t *plugin, ogg_page *page)
 
     kate_codec_t *kate_codec = calloc (1, sizeof (kate_codec_t));
 
-    ogg_stream_init (&codec->os, ogg_page_serialno (page));
+//   ogg_stream_init (&codec->os, ogg_page_serialno (page));
 //   ogg_stream_pagein (&codec->os, page);
 
 #ifdef HAVE_KATE

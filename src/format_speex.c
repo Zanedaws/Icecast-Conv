@@ -68,7 +68,7 @@ ogg_codec_t *initial_speex_page (format_plugin_t *plugin, ogg_page *page)
     ogg_packet packet;
     SpeexHeader *header;
 
-    ogg_stream_init (&codec->os, ogg_page_serialno (page));
+//   ogg_stream_init (&codec->os, ogg_page_serialno (page));
 //   ogg_stream_pagein (&codec->os, page);
 
     ogg_stream_packetout (&codec->os, &packet);

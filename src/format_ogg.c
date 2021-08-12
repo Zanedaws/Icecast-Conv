@@ -374,7 +374,8 @@ static refbuf_t *process_ogg_page (ogg_state_t *ogg_info, ogg_page *page)
 
     while (codec)
     {
-        if (ogg_page_serialno (page) == codec->os.serialno)
+//       if (ogg_page_serialno (page) == codec->os.serialno)
+        if(1)
         {
             if (codec->process_page)
                 refbuf = codec->process_page (ogg_info, codec, page);

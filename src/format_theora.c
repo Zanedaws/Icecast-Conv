@@ -154,7 +154,7 @@ ogg_codec_t *initial_theora_page (format_plugin_t *plugin, ogg_page *page)
 
     theora_codec_t *theora_codec = calloc (1, sizeof (theora_codec_t));
 
-    ogg_stream_init (&codec->os, ogg_page_serialno (page));
+//   ogg_stream_init (&codec->os, ogg_page_serialno (page));
 //   ogg_stream_pagein (&codec->os, page);
 
     theora_info_init (&theora_codec->ti);
