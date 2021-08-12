@@ -978,7 +978,7 @@ void stats_transform_xslt(client_t *client, const char *uri)
 
     doc = stats_get_xml (0, mount);
 
-    xslt_transform(doc, xslpath, client);
+    //xslt_transform(doc, xslpath, client);
 
     xmlFreeDoc(doc);
     free (xslpath);
