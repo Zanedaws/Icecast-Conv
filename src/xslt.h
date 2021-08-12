@@ -14,10 +14,10 @@
 #include <libxml/debugXML.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/xmlIO.h>
-//#include <libxslt/xslt.h>
-//#include <libxslt/xsltInternals.h>
+#include <libxslt/xslt.h>
+#include <libxslt/xsltInternals.h>
 #include <libxslt/transform.h>
-//#include <libxslt/xsltutils.h>
+#include <libxslt/xsltutils.h>
 
 
 #include "thread/thread.h"

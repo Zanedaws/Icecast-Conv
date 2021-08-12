@@ -21,10 +21,10 @@
 #include <libxml/xmlIO.h>
 #include <libxml/xinclude.h>
 #include <libxml/catalog.h>
-//#include <libxslt/xslt.h>
-//#include <libxslt/xsltInternals.h>
+#include <libxslt/xslt.h>
+#include <libxslt/xsltInternals.h>
 //#include <libxslt/transform.h>
-//#include <libxslt/xsltutils.h>
+#include <libxslt/xsltutils.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
