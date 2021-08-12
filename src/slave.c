@@ -73,13 +73,13 @@ relay_server *relay_free (relay_server *relay)
     ICECAST_LOG_DEBUG("freeing relay %s", relay->localmount);
     if (relay->source)
        source_free_source (relay->source);
-    xmlFree (relay->server);
-    xmlFree (relay->mount);
-    xmlFree (relay->localmount);
-    if (relay->username)
-        xmlFree (relay->username);
-    if (relay->password)
-        xmlFree (relay->password);
+    //xmlFree (relay->server);
+    //xmlFree (relay->mount);
+    //xmlFree (relay->localmount);
+    //if (relay->username)
+    //    xmlFree (relay->username);
+    //if (relay->password)
+    //    xmlFree (relay->password);
     free (relay);
     return next;
 }
@@ -699,7 +699,7 @@ static int update_from_master(ice_config_t *config)
                 ICECAST_LOG_DEBUG("Added relay host=\"%s\", port=%d, mount=\"%s\"", r->server, r->port, r->mount);
                 new_relays = r;
             }
-            xmlFreeURI(parsed_uri);
+            //xmlFreeURI(parsed_uri);
         }
         sock_close (mastersock);
 

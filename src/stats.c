@@ -980,7 +980,7 @@ void stats_transform_xslt(client_t *client, const char *uri)
 
     //xslt_transform(doc, xslpath, client);
 
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
     free (xslpath);
 }
 

@@ -147,7 +147,7 @@ void auth_release (auth_t *authenticator)
 
     if (authenticator->free)
         authenticator->free (authenticator);
-    xmlFree (authenticator->type);
+ //   xmlFree (authenticator->type);
     thread_mutex_unlock (&authenticator->lock);
     thread_mutex_destroy (&authenticator->lock);
     if (authenticator->mount)
@@ -660,7 +660,7 @@ auth_t *auth_get_authenticator (xmlNodePtr node)
             opt->value = (char *)xmlGetProp (current, XMLSTR("value"));
             if (opt->value == NULL)
             {
-                xmlFree (opt->name);
+                //xmlFree (opt->name);
                 free (opt);
                 continue;
             }
@@ -674,7 +674,7 @@ auth_t *auth_get_authenticator (xmlNodePtr node)
     auth->type = (char*)xmlGetProp (node, XMLSTR("type"));
     if (get_authenticator (auth, options) < 0)
     {
-        xmlFree (auth->type);
+        //xmlFree (auth->type);
         free (auth);
         auth = NULL;
     }
@@ -691,8 +691,8 @@ auth_t *auth_get_authenticator (xmlNodePtr node)
     {
         config_options_t *opt = options;
         options = opt->next;
-        xmlFree (opt->name);
-        xmlFree (opt->value);
+        //xmlFree (opt->name);
+        //xmlFree (opt->value);
         free (opt);
     }
     return auth;

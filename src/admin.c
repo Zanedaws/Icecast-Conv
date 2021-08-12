@@ -287,7 +287,7 @@ void admin_send_response (xmlDocPtr doc, client_t *client,
         if (ret == -1) {
             ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
             client_send_500(client, "Header generation failed.");
-            xmlFree(buff);
+            //xmlFree(buff);
             return;
         } else if (buf_len < (len + ret + 64)) {
             void *new_data;
@@ -304,13 +304,13 @@ void admin_send_response (xmlDocPtr doc, client_t *client,
                 if (ret == -1) {
                     ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
                     client_send_500(client, "Header generation failed.");
-                    xmlFree(buff);
+                    //xmlFree(buff);
                     return;
                 }
             } else {
                 ICECAST_LOG_ERROR("Client buffer reallocation failed. Dropping client.");
                 client_send_500(client, "Buffer reallocation failed.");
-                xmlFree(buff);
+                //xmlFree(buff);
                 return;
             } 
         }
@@ -319,7 +319,7 @@ void admin_send_response (xmlDocPtr doc, client_t *client,
 	ret += snprintf (client->refbuf->data + ret, buf_len - ret, "Content-Length: %d\r\n\r\n%s", xmlStrlen(buff), buff);
 
         client->refbuf->len = ret;
-        xmlFree(buff);
+        //xmlFree(buff);
         client->respcode = 200;
         fserve_add_client (client, NULL);
     }
@@ -646,7 +646,7 @@ static void command_move_clients(client_t *client, source_t *source,
         doc = admin_build_sourcelist(source->mount);
         admin_send_response(doc, client, response, 
              MOVECLIENTS_TRANSFORMED_REQUEST);
-        xmlFreeDoc(doc);
+        //xmlFreeDoc(doc);
         return;
     }
 
@@ -686,7 +686,7 @@ static void command_move_clients(client_t *client, source_t *source,
 
     admin_send_response(doc, client, response, 
         ADMIN_XSL_RESPONSE);
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
 }
 
 static void command_show_listeners(client_t *client, source_t *source,
@@ -739,7 +739,7 @@ static void command_show_listeners(client_t *client, source_t *source,
     avl_tree_unlock(source->client_tree);
     admin_send_response(doc, client, response, 
         LISTCLIENTS_TRANSFORMED_REQUEST);
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
 }
 
 static void command_buildm3u(client_t *client,  const char *mount)
@@ -864,7 +864,7 @@ static void command_manageauth(client_t *client, source_t *source,
         admin_send_response(doc, client, response, 
                 MANAGEAUTH_TRANSFORMED_REQUEST);
         free (message);
-        xmlFreeDoc(doc);
+        //xmlFreeDoc(doc);
         return;
     } while (0);
 
@@ -888,7 +888,7 @@ static void command_kill_source(client_t *client, source_t *source,
 
     admin_send_response(doc, client, response, 
         ADMIN_XSL_RESPONSE);
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
 }
 
 static void command_kill_client(client_t *client, source_t *source,
@@ -932,7 +932,7 @@ static void command_kill_client(client_t *client, source_t *source,
     }
     admin_send_response(doc, client, response, 
         ADMIN_XSL_RESPONSE);
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
 }
 
 static void command_fallback(client_t *client, source_t *source,
@@ -980,7 +980,7 @@ static void command_metadata(client_t *client, source_t *source,
         xmlNewTextChild(node, NULL, XMLSTR("return"), XMLSTR("0"));
         admin_send_response(doc, client, response, 
             ADMIN_XSL_RESPONSE);
-        xmlFreeDoc(doc);
+        //xmlFreeDoc(doc);
         return;
     }
 
@@ -1016,7 +1016,7 @@ static void command_metadata(client_t *client, source_t *source,
         xmlNewTextChild(node, NULL, XMLSTR("return"), XMLSTR("1"));
         admin_send_response(doc, client, response, 
             ADMIN_XSL_RESPONSE);
-        xmlFreeDoc(doc);
+        //xmlFreeDoc(doc);
         return;
     }
 
@@ -1024,7 +1024,7 @@ static void command_metadata(client_t *client, source_t *source,
     xmlNewTextChild(node, NULL, XMLSTR("return"), XMLSTR("1"));
     admin_send_response(doc, client, response, 
         ADMIN_XSL_RESPONSE);
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
 }
 
 static void command_shoutcast_metadata(client_t *client, source_t *source)
@@ -1069,7 +1069,7 @@ static void command_stats(client_t *client, const char *mount, int response) {
 
     doc = stats_get_xml(1, mount);
     admin_send_response(doc, client, response, STATS_TRANSFORMED_REQUEST);
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
     return;
 }
 
@@ -1105,7 +1105,7 @@ static void command_list_mounts(client_t *client, int response)
 
         admin_send_response(doc, client, response, 
             LISTMOUNTS_TRANSFORMED_REQUEST);
-        xmlFreeDoc(doc);
+        //xmlFreeDoc(doc);
     }
 }
 
@@ -1123,5 +1123,5 @@ static void command_updatemetadata(client_t *client, source_t *source,
 
     admin_send_response(doc, client, response, 
         UPDATEMETADATA_TRANSFORMED_REQUEST);
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
 }

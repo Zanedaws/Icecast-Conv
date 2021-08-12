@@ -506,7 +506,7 @@ int fserve_client_create (client_t *httpclient, const char *path)
         doc = stats_get_xml (0, reference);
         free (reference);
         admin_send_response (doc, httpclient, TRANSFORMED, xslt_playlist_requested);
-        xmlFreeDoc(doc);
+        //xmlFreeDoc(doc);
         return 0;
     }
 

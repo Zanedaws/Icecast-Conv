@@ -283,7 +283,7 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
                 fserve_add_client (client, NULL);
             }
         }
-        xmlFree (string);
+        //xmlFree (string);
     }
     else
     {
@@ -291,6 +291,6 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
         client_send_404 (client, "XSLT problem");
     }
     thread_mutex_unlock (&xsltlock);
-    xmlFreeDoc(res);
+    //xmlFreeDoc(res);
 }
 
