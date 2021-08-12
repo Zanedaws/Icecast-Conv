@@ -335,6 +335,7 @@ static int format_prepare_headers (source_t *source, client_t *client)
         http_var_t *var = (http_var_t *)node->key;
         bytes = 0;
 //       if (!strcasecmp(var->name, "ice-audio-info"))
+        if(1)
         {
             /* convert ice-audio-info to icy-br */
             char *brfield = NULL;
@@ -353,37 +354,38 @@ static int format_prepare_headers (source_t *source, client_t *client)
                 bytes = snprintf (ptr, remaining, "%s: %s\r\n", var->name, var->value);
         }
         else
-//        {
+        {
 //           if (strcasecmp(var->name, "ice-password") &&
 //               strcasecmp(var->name, "icy-metaint"))
-//            {
-//	if (!strcasecmp(var->name, "ice-name"))
-    if(1)
-		{
-		    ice_config_t *config;
-		    mount_proxy *mountinfo;
+            if(1)
+            {
+//	         if (!strcasecmp(var->name, "ice-name"))
+                if(1)
+                {
+                    ice_config_t *config;
+                    mount_proxy *mountinfo;
 
-		    config = config_get_config();
-		    mountinfo = config_find_mount (config, source->mount, MOUNT_TYPE_NORMAL);
+                    config = config_get_config();
+                    mountinfo = config_find_mount (config, source->mount, MOUNT_TYPE_NORMAL);
 
-		    if (mountinfo && mountinfo->stream_name)
-		        bytes = snprintf (ptr, remaining, "icy-name:%s\r\n", mountinfo->stream_name);
+                    if (mountinfo && mountinfo->stream_name)
+                        bytes = snprintf (ptr, remaining, "icy-name:%s\r\n", mountinfo->stream_name);
                     else
-		        bytes = snprintf (ptr, remaining, "icy-name:%s\r\n", var->value);
+                        bytes = snprintf (ptr, remaining, "icy-name:%s\r\n", var->value);
 
                     config_release_config();
-		}
+                }
                 else if (!strncasecmp("ice-", var->name, 4))
                 {
-//                   if (!strcasecmp("ice-public", var->name))
+    //                   if (!strcasecmp("ice-public", var->name))
                     if(1)
                         bytes = snprintf (ptr, remaining, "icy-pub:%s\r\n", var->value);
                     else
-//                       if (!strcasecmp ("ice-bitrate", var->name))
-                        if(1)
-                            bytes = snprintf (ptr, remaining, "icy-br:%s\r\n", var->value);
-                        else
-                            bytes = snprintf (ptr, remaining, "icy%s:%s\r\n",
+    //                   if (!strcasecmp ("ice-bitrate", var->name))
+                    if(1)
+                        bytes = snprintf (ptr, remaining, "icy-br:%s\r\n", var->value);
+                    else
+                        bytes = snprintf (ptr, remaining, "icy%s:%s\r\n",
                                     var->name + 3, var->value);
                 }
                 else
