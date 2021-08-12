@@ -621,7 +621,7 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
         }
         ai = ai->ai_next;
     }
-    if (head) freeaddrinfo (head);
+//   if (head) freeaddrinfo (head);
     
     return sock;
 }
@@ -696,8 +696,8 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
         ai = ai->ai_next;
     }
     if (b_head)
-        freeaddrinfo (b_head);
-    freeaddrinfo (head);
+//       freeaddrinfo (b_head);
+//   freeaddrinfo (head);
 
     return sock;
 }
@@ -743,12 +743,12 @@ sock_t sock_get_server_socket (int port, const char *sinterface)
             sock_close (sock);
             continue;
         }
-        freeaddrinfo (res);
+//       freeaddrinfo (res);
         return sock;
 
     } while ((ai = ai->ai_next));
 
-    freeaddrinfo (res);
+//   freeaddrinfo (res);
     return SOCK_ERROR;
 }
 

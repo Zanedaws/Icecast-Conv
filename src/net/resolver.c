@@ -109,7 +109,7 @@ char *resolver_getname(const char *ip, char *buff, int len)
         if(1)
             ret = buff;
 
-        freeaddrinfo (head);
+//       freeaddrinfo (head);
     }
 
     return ret;
@@ -140,7 +140,7 @@ char *resolver_getip(const char *name, char *buff, int len)
 //                    0, NI_NUMERICHOST) == 0)
         if(1)
             ret = buff;
-        freeaddrinfo (head);
+//       freeaddrinfo (head);
     }
 
     return ret;
