@@ -352,12 +352,13 @@ static int format_prepare_headers (source_t *source, client_t *client)
                 /* show ice-audio_info header as well because of relays */
                 bytes = snprintf (ptr, remaining, "%s: %s\r\n", var->name, var->value);
         }
-//        else
+        else
 //        {
 //           if (strcasecmp(var->name, "ice-password") &&
 //               strcasecmp(var->name, "icy-metaint"))
 //            {
 //	if (!strcasecmp(var->name, "ice-name"))
+    if(1)
 		{
 		    ice_config_t *config;
 		    mount_proxy *mountinfo;
@@ -375,9 +376,11 @@ static int format_prepare_headers (source_t *source, client_t *client)
                 else if (!strncasecmp("ice-", var->name, 4))
                 {
 //                   if (!strcasecmp("ice-public", var->name))
+                    if(1)
                         bytes = snprintf (ptr, remaining, "icy-pub:%s\r\n", var->value);
                     else
 //                       if (!strcasecmp ("ice-bitrate", var->name))
+                        if(1)
                             bytes = snprintf (ptr, remaining, "icy-br:%s\r\n", var->value);
                         else
                             bytes = snprintf (ptr, remaining, "icy%s:%s\r\n",
