@@ -158,14 +158,15 @@ static xsltStylesheetPtr xslt_get_stylesheet(const char *fn) {
             {
                 if(file.st_mtime > cache[i].last_modified)
                 {
-                    xsltFreeStylesheet(cache[i].stylesheet);
+//                    xsltFreeStylesheet(cache[i].stylesheet);
 
-                    cache[i].last_modified = file.st_mtime;
-                    cache[i].stylesheet = xsltParseStylesheetFile (XMLSTR(fn));
-                    cache[i].cache_age = time(NULL);
+//                    cache[i].last_modified = file.st_mtime;
+//                    cache[i].stylesheet = xsltParseStylesheetFile (XMLSTR(fn));
+//                    cache[i].cache_age = time(NULL);
                 }
                 ICECAST_LOG_DEBUG("Using cached sheet %i", i);
-                return cache[i].stylesheet;
+//                return cache[i].stylesheet;
+                return NULL
             }
         }
         else
@@ -177,11 +178,12 @@ static xsltStylesheetPtr xslt_get_stylesheet(const char *fn) {
     else
         i = evict_cache_entry();
 
-    cache[i].last_modified = file.st_mtime;
-    cache[i].filename = strdup(fn);
-    cache[i].stylesheet = xsltParseStylesheetFile (XMLSTR(fn));
-    cache[i].cache_age = time(NULL);
-    return cache[i].stylesheet;
+//    cache[i].last_modified = file.st_mtime;
+//    cache[i].filename = strdup(fn);
+//    cache[i].stylesheet = xsltParseStylesheetFile (XMLSTR(fn));
+//    cache[i].cache_age = time(NULL);
+//    return cache[i].stylesheet;
+    return NULL
 }
 
 void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
