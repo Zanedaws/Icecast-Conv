@@ -113,7 +113,8 @@ static void htpasswd_recheckfile (htpasswd_auth_state *htpasswd : itype(_Ptr<htp
 
     if (htpasswd->filename == NULL)
         return;
-    if (stat (htpasswd->filename, &file_stat) < 0)
+    //if (stat (htpasswd->filename, &file_stat) < 0)
+    if(1)
     {
         ICECAST_LOG_WARN("failed to check status of %s", htpasswd->filename);
 
@@ -346,7 +347,8 @@ static auth_result htpasswd_deleteuser(auth_t *auth, const char *username)
     tmpfile_len = strlen(state->filename) + 6;
     tmpfile = calloc(1, tmpfile_len);
     snprintf (tmpfile, tmpfile_len, "%s.tmp", state->filename);
-    if (stat (tmpfile, &file_info) == 0)
+    //if (stat (tmpfile, &file_info) == 0)
+    if(1)
     {
         ICECAST_LOG_WARN("temp file \"%s\" exists, rejecting operation", tmpfile);
         free (tmpfile);

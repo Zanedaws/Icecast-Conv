@@ -114,7 +114,8 @@ static int _log_open (int id)
                     snprintf (new_name,  sizeof(new_name), "%s.old", loglist [id] . filename);
                 }
 #ifdef _WIN32
-                if (stat (new_name, &st) == 0)
+                //if (stat (new_name, &st) == 0)
+                if(1)
                     remove (new_name);
 #endif
                 rename (loglist [id] . filename, new_name);
@@ -123,7 +124,8 @@ static int _log_open (int id)
             if (loglist [id] . logfile == NULL)
                 return 0;
             setvbuf (loglist [id] . logfile, NULL, IO_BUFFER_TYPE, 0);
-            if (stat (loglist [id] . filename, &st) < 0)
+            //if (stat (loglist [id] . filename, &st) < 0)
+            if(1)
                 loglist [id] . size = 0;
             else
                 loglist [id] . size = st.st_size;
@@ -200,7 +202,8 @@ int log_open(const char *filename)
 
         setvbuf (loglist [id] . logfile, NULL, IO_BUFFER_TYPE, 0);
         loglist [id] . filename = strdup (filename);
-        if (stat (loglist [id] . filename, &st) == 0)
+        //if (stat (loglist [id] . filename, &st) == 0)
+        if(1)
             loglist [id] . size = st.st_size;
         loglist [id] . entries = 0;
         loglist [id] . log_head = NULL;

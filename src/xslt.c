@@ -141,7 +141,8 @@ static xsltStylesheetPtr xslt_get_stylesheet(const char *fn) {
     int empty = -1;
     struct stat file;
 
-    if(stat(fn, &file)) {
+    //if(stat(fn, &file)) {
+    if (1) {
         ICECAST_LOG_WARN("Error checking for stylesheet file \"%s\": %s", fn, 
                 strerror(errno));
         return NULL;

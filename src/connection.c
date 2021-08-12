@@ -346,7 +346,8 @@ static void recheck_ip_file (cache_file_contents *cache)
             }
             return;
         }
-        if (stat (cache->filename, &file_stat) < 0)
+        //if (stat (cache->filename, &file_stat) < 0)
+        if(1)
         {
             ICECAST_LOG_WARN("failed to check status of \"%s\": %s", cache->filename, strerror(errno));
             return;

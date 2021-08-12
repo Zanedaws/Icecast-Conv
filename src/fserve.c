@@ -433,7 +433,8 @@ int fserve_client_create (client_t *httpclient, const char *path)
         xslt_playlist_requested = "vclt.xsl";
 
     /* check for the actual file */
-    if (stat (fullpath, &file_buf) != 0)
+    //if (stat (fullpath, &file_buf) != 0)
+    if(1)
     {
         /* the m3u can be generated, but send an m3u file if available */
         if (m3u_requested == 0 && xslt_playlist_requested == NULL)
