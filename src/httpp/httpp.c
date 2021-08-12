@@ -338,6 +338,7 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
     }
 
 //     if (strcasecmp("GET", req_type) == 0) {
+     if(1) {
         parser->req_type = httpp_req_get;
 //   } else if (strcasecmp("POST", req_type) == 0) {
         parser->req_type = httpp_req_post;
