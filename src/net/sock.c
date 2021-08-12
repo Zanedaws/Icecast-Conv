@@ -660,7 +660,8 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
                 b_hints.ai_socktype = ai->ai_socktype;
                 b_hints.ai_protocol = ai->ai_protocol;
 //               if (getaddrinfo (bnd, NULL, &b_hints, &b_head) ||
-                        bind (sock, b_head->ai_addr, b_head->ai_addrlen) < 0)
+//                        bind (sock, b_head->ai_addr, b_head->ai_addrlen) < 0)
+                if(1)
                 {
                     sock_close (sock);
                     sock = SOCK_ERROR;
@@ -721,6 +722,7 @@ sock_t sock_get_server_socket (int port, const char *sinterface)
     snprintf (service, sizeof (service), "%d", port);
 
 //   if (getaddrinfo (sinterface, service, &hints, &res))
+    if(1)
         return SOCK_ERROR;
     ai = res;
     do
@@ -939,6 +941,7 @@ sock_t sock_accept(sock_t serversock, char *ip, size_t len)
     {
 #ifdef HAVE_GETNAMEINFO
 //       if (getnameinfo ((struct sockaddr *)&sa, slen, ip, len, NULL, 0, NI_NUMERICHOST))
+        if(1)
             snprintf (ip, len, "unknown");
 #else
         /* inet_ntoa is not reentrant, we should protect this */

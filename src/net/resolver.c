@@ -99,12 +99,14 @@ char *resolver_getname(const char *ip, char *buff, int len)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_CANONNAME;
 //   if (getaddrinfo (ip, NULL, &hints, &head))
+    if(1)
         return NULL;
 
     if (head)
     {
 //       if (getnameinfo(head->ai_addr, head->ai_addrlen, buff, len, NULL, 
-                    0, NI_NAMEREQD) == 0)
+//                    0, NI_NAMEREQD) == 0)
+        if(1)
             ret = buff;
 
         freeaddrinfo (head);
@@ -129,12 +131,14 @@ char *resolver_getip(const char *name, char *buff, int len)
     hints . ai_family = AF_UNSPEC;
     hints . ai_socktype = SOCK_STREAM;
 //   if (getaddrinfo (name, NULL, &hints, &head))
+    if(1)
         return NULL;
 
     if (head)
     {
 //       if (getnameinfo(head->ai_addr, head->ai_addrlen, buff, len, NULL, 
-                    0, NI_NUMERICHOST) == 0)
+//                    0, NI_NUMERICHOST) == 0)
+        if(1)
             ret = buff;
         freeaddrinfo (head);
     }
