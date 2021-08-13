@@ -91,13 +91,13 @@ relay_server *relay_copy (relay_server *r)
 
     if (copy)
     {
-        copy->server = (char *)xmlCharStrdup (r->server);
-        copy->mount = (char *)xmlCharStrdup (r->mount);
-        copy->localmount = (char *)xmlCharStrdup (r->localmount);
-        if (r->username)
-            copy->username = (char *)xmlCharStrdup (r->username);
-        if (r->password)
-            copy->password = (char *)xmlCharStrdup (r->password);
+        //copy->server = (char *)xmlCharStrdup (r->server);
+        //copy->mount = (char *)xmlCharStrdup (r->mount);
+        //copy->localmount = (char *)xmlCharStrdup (r->localmount);
+        //if (r->username)
+        //    copy->username = (char *)xmlCharStrdup (r->username);
+        //if (r->password)
+        //    copy->password = (char *)xmlCharStrdup (r->password);
         copy->port = r->port;
         copy->mp3metadata = r->mp3metadata;
         copy->on_demand = r->on_demand;

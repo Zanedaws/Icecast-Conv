@@ -155,8 +155,8 @@ static inline ice_config_http_header_t * config_copy_http_header(ice_config_http
         if (!cur) return ret; /* TODO: do better error handling */
 
         cur->type   = header->type;
-        cur->name   = (char *)xmlCharStrdup(header->name);
-        cur->value  = (char *)xmlCharStrdup(header->value);
+        //cur->name   = (char *)xmlCharStrdup(header->name);
+        //cur->value  = (char *)xmlCharStrdup(header->value);
         cur->status = header->status;
 
         if (!cur->name || !cur->value) {
@@ -406,9 +406,9 @@ ice_config_t *config_get_config_unlocked(void)
 
 static void _set_defaults(ice_config_t *configuration)
 {
-    configuration->location = (char *)xmlCharStrdup (CONFIG_DEFAULT_LOCATION);
-    configuration->server_id = (char *)xmlCharStrdup (ICECAST_VERSION_STRING);
-    configuration->admin = (char *)xmlCharStrdup (CONFIG_DEFAULT_ADMIN);
+    //configuration->location = (char *)xmlCharStrdup (CONFIG_DEFAULT_LOCATION);
+    //configuration->server_id = (char *)xmlCharStrdup (ICECAST_VERSION_STRING);
+    //configuration->admin = (char *)xmlCharStrdup (CONFIG_DEFAULT_ADMIN);
     configuration->client_limit = CONFIG_DEFAULT_CLIENT_LIMIT;
     configuration->source_limit = CONFIG_DEFAULT_SOURCE_LIMIT;
     configuration->queue_size_limit = CONFIG_DEFAULT_QUEUE_SIZE_LIMIT;
@@ -417,34 +417,34 @@ static void _set_defaults(ice_config_t *configuration)
     configuration->header_timeout = CONFIG_DEFAULT_HEADER_TIMEOUT;
     configuration->source_timeout = CONFIG_DEFAULT_SOURCE_TIMEOUT;
     configuration->source_password = NULL;
-    configuration->shoutcast_mount = (char *)xmlCharStrdup (CONFIG_DEFAULT_SHOUTCAST_MOUNT);
+    //configuration->shoutcast_mount = (char *)xmlCharStrdup (CONFIG_DEFAULT_SHOUTCAST_MOUNT);
     configuration->ice_login = CONFIG_DEFAULT_ICE_LOGIN;
     configuration->fileserve = CONFIG_DEFAULT_FILESERVE;
     configuration->touch_interval = CONFIG_DEFAULT_TOUCH_FREQ;
     configuration->on_demand = 0;
     configuration->dir_list = NULL;
-    configuration->hostname = (char *)xmlCharStrdup (CONFIG_DEFAULT_HOSTNAME);
-    configuration->mimetypes_fn = (char *)xmlCharStrdup (MIMETYPESFILE);
+    //configuration->hostname = (char *)xmlCharStrdup (CONFIG_DEFAULT_HOSTNAME);
+    //configuration->mimetypes_fn = (char *)xmlCharStrdup (MIMETYPESFILE);
     configuration->master_server = NULL;
     configuration->master_server_port = 0;
     configuration->master_update_interval = CONFIG_MASTER_UPDATE_INTERVAL;
-    configuration->master_username = (char *)xmlCharStrdup (CONFIG_DEFAULT_MASTER_USERNAME);
+    //configuration->master_username = (char *)xmlCharStrdup (CONFIG_DEFAULT_MASTER_USERNAME);
     configuration->master_password = NULL;
-    configuration->base_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_BASE_DIR);
-    configuration->log_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_LOG_DIR);
-    configuration->cipher_list = (char *)xmlCharStrdup (CONFIG_DEFAULT_CIPHER_LIST);
-    configuration->webroot_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_WEBROOT_DIR);
-    configuration->adminroot_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_ADMINROOT_DIR);
-    configuration->playlist_log = (char *)xmlCharStrdup (CONFIG_DEFAULT_PLAYLIST_LOG);
-    configuration->access_log = (char *)xmlCharStrdup (CONFIG_DEFAULT_ACCESS_LOG);
-    configuration->error_log = (char *)xmlCharStrdup (CONFIG_DEFAULT_ERROR_LOG);
+    //configuration->base_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_BASE_DIR);
+    //configuration->log_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_LOG_DIR);
+    //configuration->cipher_list = (char *)xmlCharStrdup (CONFIG_DEFAULT_CIPHER_LIST);
+    //configuration->webroot_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_WEBROOT_DIR);
+    //configuration->adminroot_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_ADMINROOT_DIR);
+    //configuration->playlist_log = (char *)xmlCharStrdup (CONFIG_DEFAULT_PLAYLIST_LOG);
+    //configuration->access_log = (char *)xmlCharStrdup (CONFIG_DEFAULT_ACCESS_LOG);
+    //configuration->error_log = (char *)xmlCharStrdup (CONFIG_DEFAULT_ERROR_LOG);
     configuration->loglevel = CONFIG_DEFAULT_LOG_LEVEL;
     configuration->chroot = CONFIG_DEFAULT_CHROOT;
     configuration->chuid = CONFIG_DEFAULT_CHUID;
     configuration->user = NULL;
     configuration->group = NULL;
     configuration->num_yp_directories = 0;
-    configuration->relay_username = (char *)xmlCharStrdup (CONFIG_DEFAULT_MASTER_USERNAME);
+    //configuration->relay_username = (char *)xmlCharStrdup (CONFIG_DEFAULT_MASTER_USERNAME);
     configuration->relay_password = NULL;
     /* default to a typical prebuffer size used by clients */
     configuration->burst_size = CONFIG_DEFAULT_BURST_SIZE;
@@ -568,20 +568,20 @@ static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
 
   if (!configuration->hostname || strcmp(configuration->hostname, CONFIG_DEFAULT_HOSTNAME) == 0) {
       ICECAST_LOG_WARN("Warning, <hostname> not configured, using default value \"%s\". This will cause problems, e.g. with YP directory listings.", CONFIG_DEFAULT_HOSTNAME);
-      if (!configuration->hostname)
-          configuration->hostname = (char *)xmlCharStrdup (CONFIG_DEFAULT_HOSTNAME);
+      //if (!configuration->hostname)
+      //    configuration->hostname = (char *)xmlCharStrdup (CONFIG_DEFAULT_HOSTNAME);
   }
 
   if (!configuration->location || strcmp(configuration->location, CONFIG_DEFAULT_LOCATION) == 0) {
       ICECAST_LOG_WARN("Warning, <location> not configured, using default value \"%s\".", CONFIG_DEFAULT_LOCATION);
-      if (!configuration->location)
-          configuration->location = (char *)xmlCharStrdup (CONFIG_DEFAULT_LOCATION);
+      //if (!configuration->location)
+      //    configuration->location = (char *)xmlCharStrdup (CONFIG_DEFAULT_LOCATION);
   }
 
   if (!configuration->admin || strcmp(configuration->admin, CONFIG_DEFAULT_ADMIN) == 0) {
       ICECAST_LOG_WARN("Warning, <admin> contact not configured, using default value \"%s\".", CONFIG_DEFAULT_ADMIN);
-      if (!configuration->admin)
-          configuration->admin = (char *)xmlCharStrdup (CONFIG_DEFAULT_ADMIN);
+      //if (!configuration->admin)
+      //    configuration->admin = (char *)xmlCharStrdup (CONFIG_DEFAULT_ADMIN);
   }
 }
 
@@ -910,8 +910,8 @@ static void _parse_relay(xmlDocPtr doc, xmlNodePtr node,
     relay->next = NULL;
     relay->mp3metadata = 1;
     relay->on_demand = configuration->on_demand;
-    relay->server = (char *)xmlCharStrdup ("127.0.0.1");
-    relay->mount = (char *)xmlCharStrdup ("/");
+    //relay->server = (char *)xmlCharStrdup ("127.0.0.1");
+    //relay->mount = (char *)xmlCharStrdup ("/");
 
     do {
         if (node == NULL) break;
@@ -966,8 +966,8 @@ static void _parse_relay(xmlDocPtr doc, xmlNodePtr node,
             relay->bind = (char *)xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
         }
     } while ((node = node->next));
-    if (relay->localmount == NULL)
-        relay->localmount = (char *)xmlStrdup (XMLSTR(relay->mount));
+    //if (relay->localmount == NULL)
+    //    relay->localmount = (char *)xmlStrdup (XMLSTR(relay->mount));
 }
 
 static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
@@ -1032,9 +1032,9 @@ static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
         listener_t *sc_port = calloc (1, sizeof (listener_t));
         sc_port->port = listener->port+1;
         sc_port->shoutcast_compat = 1;
-        sc_port->shoutcast_mount = (char*)xmlStrdup (XMLSTR(listener->shoutcast_mount));
-        if (listener->bind_address)
-            sc_port->bind_address = (char*)xmlStrdup (XMLSTR(listener->bind_address));
+        //sc_port->shoutcast_mount = (char*)xmlStrdup (XMLSTR(listener->shoutcast_mount));
+        //if (listener->bind_address)
+        //    sc_port->bind_address = (char*)xmlStrdup (XMLSTR(listener->bind_address));
 
         sc_port->next = listener->next;
         listener->next = sc_port;
@@ -1341,21 +1341,21 @@ static void merge_mounts(mount_proxy * dst, mount_proxy * src) {
     if (!dst || !src)
     	return;
 
-    if (!dst->username)
-    	dst->username = (char*)xmlStrdup((xmlChar*)src->username);
-    if (!dst->password)
-    	dst->password = (char*)xmlStrdup((xmlChar*)src->password);
-    if (!dst->dumpfile)
-    	dst->dumpfile = (char*)xmlStrdup((xmlChar*)src->dumpfile);
-    if (!dst->intro_filename)
-    	dst->intro_filename = (char*)xmlStrdup((xmlChar*)src->intro_filename);
+    //if (!dst->username)
+    //	dst->username = (char*)xmlStrdup((xmlChar*)src->username);
+    //if (!dst->password)
+    //	dst->password = (char*)xmlStrdup((xmlChar*)src->password);
+    //if (!dst->dumpfile)
+    //	dst->dumpfile = (char*)xmlStrdup((xmlChar*)src->dumpfile);
+    //if (!dst->intro_filename)
+    //	dst->intro_filename = (char*)xmlStrdup((xmlChar*)src->intro_filename);
     if (!dst->fallback_when_full)
     	dst->fallback_when_full = src->fallback_when_full;
     if (dst->max_listeners == -1)
     	dst->max_listeners = src->max_listeners;
-    if (!dst->fallback_mount)
-    	dst->fallback_mount = (char*)xmlStrdup((xmlChar*)src->fallback_mount);
-    if (!dst->fallback_override)
+    //if (!dst->fallback_mount)
+    //	dst->fallback_mount = (char*)xmlStrdup((xmlChar*)src->fallback_mount);
+    //if (!dst->fallback_override)
     	dst->fallback_override = src->fallback_override;
     if (!dst->no_mount)
     	dst->no_mount = src->no_mount;
@@ -1367,36 +1367,36 @@ static void merge_mounts(mount_proxy * dst, mount_proxy * src) {
     	dst->hidden = src->hidden;
     if (!dst->source_timeout)
     	dst->source_timeout = src->source_timeout;
-    if (!dst->charset)
-    	dst->charset = (char*)xmlStrdup((xmlChar*)src->charset);
+    //if (!dst->charset)
+    //	dst->charset = (char*)xmlStrdup((xmlChar*)src->charset);
     if (dst->mp3_meta_interval == -1)
     	dst->mp3_meta_interval = src->mp3_meta_interval;
-    if (!dst->auth_type)
-    	dst->auth_type = (char*)xmlStrdup((xmlChar*)src->auth_type);
+    //if (!dst->auth_type)
+    //	dst->auth_type = (char*)xmlStrdup((xmlChar*)src->auth_type);
     // TODO: dst->auth
-    if (!dst->cluster_password)
-    	dst->cluster_password = (char*)xmlStrdup((xmlChar*)src->cluster_password);
+    //if (!dst->cluster_password)
+    //	dst->cluster_password = (char*)xmlStrdup((xmlChar*)src->cluster_password);
     // TODO: dst->auth_options
-    if (!dst->on_connect)
-    	dst->on_connect = (char*)xmlStrdup((xmlChar*)src->on_connect);
-    if (!dst->on_disconnect)
-    	dst->on_disconnect = (char*)xmlStrdup((xmlChar*)src->on_disconnect);
+    //if (!dst->on_connect)
+    //	dst->on_connect = (char*)xmlStrdup((xmlChar*)src->on_connect);
+    //if (!dst->on_disconnect)
+    //	dst->on_disconnect = (char*)xmlStrdup((xmlChar*)src->on_disconnect);
     if (!dst->max_listener_duration)
     	dst->max_listener_duration = src->max_listener_duration;
-    if (!dst->stream_name)
-    	dst->stream_name = (char*)xmlStrdup((xmlChar*)src->stream_name);
-    if (!dst->stream_description)
-    	dst->stream_description = (char*)xmlStrdup((xmlChar*)src->stream_description);
-    if (!dst->stream_url)
-    	dst->stream_url = (char*)xmlStrdup((xmlChar*)src->stream_url);
-    if (!dst->stream_genre)
-    	dst->stream_genre = (char*)xmlStrdup((xmlChar*)src->stream_genre);
-    if (!dst->bitrate)
-    	dst->bitrate = (char*)xmlStrdup((xmlChar*)src->bitrate);
-    if (!dst->type)
-    	dst->type = (char*)xmlStrdup((xmlChar*)src->type);
-    if (!dst->subtype)
-    	dst->subtype = (char*)xmlStrdup((xmlChar*)src->subtype);
+    //if (!dst->stream_name)
+    //	dst->stream_name = (char*)xmlStrdup((xmlChar*)src->stream_name);
+    //if (!dst->stream_description)
+    //	dst->stream_description = (char*)xmlStrdup((xmlChar*)src->stream_description);
+    //if (!dst->stream_url)
+    //	dst->stream_url = (char*)xmlStrdup((xmlChar*)src->stream_url);
+    //if (!dst->stream_genre)
+    //	dst->stream_genre = (char*)xmlStrdup((xmlChar*)src->stream_genre);
+    //if (!dst->bitrate)
+    //	dst->bitrate = (char*)xmlStrdup((xmlChar*)src->bitrate);
+    //if (!dst->type)
+    //	dst->type = (char*)xmlStrdup((xmlChar*)src->type);
+    //if (!dst->subtype)
+    //	dst->subtype = (char*)xmlStrdup((xmlChar*)src->subtype);
     if (dst->yp_public == -1)
     	dst->yp_public = src->yp_public;
 

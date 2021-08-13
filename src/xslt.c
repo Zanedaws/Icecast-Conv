@@ -245,8 +245,8 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
             full_len = 4096;
         refbuf = refbuf_new (full_len);
 
-        if (string == NULL)
-            string = xmlCharStrdup ("");
+        //if (string == NULL)
+        //    string = xmlCharStrdup ("");
         ret = util_http_build_header(refbuf->data, full_len, 0, 0, 200, NULL, mediatype, charset, NULL, NULL);
         if (ret == -1) {
             ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
