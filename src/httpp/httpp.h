@@ -27,7 +27,7 @@ typedef enum httpp_request_type_tag {
 } httpp_request_type_e;
 
 typedef struct http_var_tag {
-    char *name;
+    char *name : itype(_Nt_array_ptr<char>);
     char *value : itype(_Nt_array_ptr<char>);
 } http_var_t;
 
