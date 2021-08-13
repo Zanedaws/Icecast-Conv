@@ -224,15 +224,15 @@ void stats_event_conv(const char *mount, const char *name, const char *value, co
     if (charset)
     {
 //       xmlCharEncodingHandlerPtr handle = xmlFindCharEncodingHandler (charset);
-
+        int deletethisvariable = 0;
         if (handle)
         {
             xmlBufferPtr raw = xmlBufferCreate ();
             xmlBufferAdd (raw, (const xmlChar *)value, strlen (value));
-            if (xmlCharEncInFunc (handle, conv, raw) > 0)
-                metadata = (char *)xmlBufferContent (conv);
+            //if (xmlCharEncInFunc (handle, conv, raw) > 0)
+            //    metadata = (char *)xmlBufferContent (conv);
             xmlBufferFree (raw);
-            xmlCharEncCloseFunc (handle);
+            //xmlCharEncCloseFunc (handle);
         }
         else
             ICECAST_LOG_WARN("No charset found for \"%s\"", charset);

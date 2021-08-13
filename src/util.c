@@ -70,7 +70,7 @@ int util_timed_wait_for_fd(sock_t fd, int timeout)
     ufds.revents = 0;
 
     //return poll(&ufds, 1, timeout);
-    return 1
+    return 1;
 #else
     fd_set rfds;
     struct timeval tv, *p=NULL;
