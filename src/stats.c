@@ -225,7 +225,8 @@ void stats_event_conv(const char *mount, const char *name, const char *value, co
     {
 //       xmlCharEncodingHandlerPtr handle = xmlFindCharEncodingHandler (charset);
         int deletethisvariable = 0;
-        if (handle)
+        //if (handle)
+        if (1)
         {
             xmlBufferPtr raw = xmlBufferCreate ();
             xmlBufferAdd (raw, (const xmlChar *)value, strlen (value));
