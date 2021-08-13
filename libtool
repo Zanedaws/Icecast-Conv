@@ -281,7 +281,7 @@ finish_eval=""
 hardcode_into_libs=yes
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/home/zane/Code/research/checkedC/build/lib/clang/11.0.0 /usr/lib/gcc/x86_64-linux-gnu/9 /usr/lib/x86_64-linux-gnu /usr/lib64 /lib/x86_64-linux-gnu /lib64 /usr/lib /home/zane/Code/research/checkedC/build/lib /lib "
+sys_lib_search_path_spec="/home/zane/Code/research/checkedC/build/lib/clang/12.0.0 /usr/lib/gcc/x86_64-linux-gnu/9 /usr/lib/x86_64-linux-gnu /usr/lib64 /lib/x86_64-linux-gnu /lib64 /usr/lib /home/zane/Code/research/checkedC/build/lib /lib "
 
 # Detected run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/lib/digilent/adept  /usr/lib64/digilent/adept  /usr/lib/x86_64-linux-gnu/libfakeroot /usr/local/lib/i386-linux-gnu /lib/i386-linux-gnu /usr/lib/i386-linux-gnu /usr/local/lib/i686-linux-gnu /lib/i686-linux-gnu /usr/lib/i686-linux-gnu /usr/local/lib /usr/local/lib/x86_64-linux-gnu /lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu /lib32 /usr/lib32 "
