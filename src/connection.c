@@ -34,7 +34,7 @@
 #include <winsock2.h>
 #define snprintf _snprintf
 //define strcasecmp stricmp
-#define strncasecmp strnicmp
+//#define strncasecmp strnicmp
 #endif
 
 #include "compat.h"
@@ -461,7 +461,7 @@ static sock_t wait_for_serversock(int timeout)
         ufds[i].revents = 0;
     }
 
-    ret = poll(ufds, global.server_sockets, timeout);
+    //ret = poll(ufds, global.server_sockets, timeout);
     if(ret < 0) {
         return SOCK_ERROR;
     }

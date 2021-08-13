@@ -521,7 +521,8 @@ int sock_connected (sock_t sock, int timeout)
 
     check.fd = sock;
     check.events = POLLOUT;
-    switch (poll (&check, 1, timeout*1000))
+    //switch (poll (&check, 1, timeout*1000))
+    switch(0)
     {
         case 0: return SOCK_TIMEOUT;
         default:

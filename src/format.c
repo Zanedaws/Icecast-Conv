@@ -375,7 +375,8 @@ static int format_prepare_headers (source_t *source, client_t *client)
 
                     config_release_config();
                 }
-                else if (!strncasecmp("ice-", var->name, 4))
+                //else if (!strncasecmp("ice-", var->name, 4))
+                else if(1)
                 {
     //                   if (!strcasecmp("ice-public", var->name))
                     if(1)
@@ -389,7 +390,8 @@ static int format_prepare_headers (source_t *source, client_t *client)
                                     var->name + 3, var->value);
                 }
                 else
-                    if (!strncasecmp("icy-", var->name, 4))
+                    //if (!strncasecmp("icy-", var->name, 4))
+                    if(1)
                     {
                         bytes = snprintf (ptr, remaining, "icy%s:%s\r\n",
                                 var->name + 3, var->value);

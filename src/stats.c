@@ -223,7 +223,7 @@ void stats_event_conv(const char *mount, const char *name, const char *value, co
 
     if (charset)
     {
-        xmlCharEncodingHandlerPtr handle = xmlFindCharEncodingHandler (charset);
+//       xmlCharEncodingHandlerPtr handle = xmlFindCharEncodingHandler (charset);
 
         if (handle)
         {

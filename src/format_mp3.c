@@ -43,7 +43,7 @@
 
 #ifdef WIN32
 //define strcasecmp stricmp
-#define strncasecmp strnicmp
+//#define strncasecmp strnicmp
 #define snprintf _snprintf
 #endif
 

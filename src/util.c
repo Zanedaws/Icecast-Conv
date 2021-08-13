@@ -33,7 +33,7 @@
 #include <stdio.h>
 #define snprintf _snprintf
 //define strcasecmp stricmp
-#define strncasecmp strnicmp
+//#define strncasecmp strnicmp
 #endif
 
 #include "net/sock.h"
@@ -69,7 +69,8 @@ int util_timed_wait_for_fd(sock_t fd, int timeout)
     ufds.events = POLLIN;
     ufds.revents = 0;
 
-    return poll(&ufds, 1, timeout);
+    //return poll(&ufds, 1, timeout);
+    return 1
 #else
     fd_set rfds;
     struct timeval tv, *p=NULL;
@@ -820,8 +821,8 @@ char *util_conv_string (const char *string, const char *in_charset, const char *
     if (string == NULL || in_charset == NULL || out_charset == NULL)
         return NULL;
 
-    in  = xmlFindCharEncodingHandler (in_charset);
-    out = xmlFindCharEncodingHandler (out_charset);
+//   in  = xmlFindCharEncodingHandler (in_charset);
+//   out = xmlFindCharEncodingHandler (out_charset);
 
     if (in && out)
     {

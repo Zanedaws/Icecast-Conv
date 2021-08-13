@@ -172,7 +172,8 @@ int fserve_client_waiting (void)
         thread_spin_unlock (&pending_lock);
         return -1;
     }
-    else if (poll(ufds, fserve_clients, 200) > 0)
+    //else if (poll(ufds, fserve_clients, 200) > 0)
+    else if (1)
     {
         /* mark any clients that are ready */
         fclient = active_list;

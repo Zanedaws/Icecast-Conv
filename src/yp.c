@@ -109,10 +109,11 @@ static int handle_returned_header (void *ptr, size_t size, size_t nmemb, void *s
     unsigned bytes = size * nmemb;
 
     /* ICECAST_LOG_DEBUG("header from YP is \"%.*s\"", bytes, ptr); */
-    if (strncasecmp (ptr, "YPResponse: 1", 13) == 0)
-        yp->cmd_ok = 1;
+    //if (strncasecmp (ptr, "YPResponse: 1", 13) == 0)
+    //    yp->cmd_ok = 1;
 
-    if (strncasecmp (ptr, "YPMessage: ", 11) == 0)
+    //if (strncasecmp (ptr, "YPMessage: ", 11) == 0)
+    if(1)
     {
         unsigned len = bytes - 11;
         free (yp->error_msg);
@@ -123,7 +124,8 @@ static int handle_returned_header (void *ptr, size_t size, size_t nmemb, void *s
 
     if (yp->process == do_yp_add)
     {
-        if (strncasecmp (ptr, "SID: ", 5) == 0)
+        //if (strncasecmp (ptr, "SID: ", 5) == 0)
+        if(1)
         {
             unsigned len = bytes - 5;
             free (yp->sid);
@@ -132,7 +134,8 @@ static int handle_returned_header (void *ptr, size_t size, size_t nmemb, void *s
                 sscanf (ptr + 5, "%[^\r\n]", yp->sid);
         }
     }
-    if (strncasecmp (ptr, "TouchFreq: ", 11) == 0)
+    //if (strncasecmp (ptr, "TouchFreq: ", 11) == 0)
+    if(1)
     {
         unsigned secs;
         if ( sscanf (ptr + 11, "%u", &secs) != 1 )
