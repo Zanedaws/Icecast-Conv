@@ -237,7 +237,7 @@ char *util_get_path_from_normalised_uri(const char *uri) {
 
     fullpath = malloc(strlen(uri) + strlen(webroot) + 1);
     if (fullpath)
-        _Unchecked {sprintf (fullpath, "%s%s", webroot, uri);}
+        //_Unchecked {sprintf (fullpath, "%s%s", webroot, uri);}
     config_release_config();
 
     return fullpath;
@@ -757,7 +757,7 @@ char *util_dict_urlencode(util_dict *dict, char delim)
             if (!(res = malloc(strlen(dict->key) + 1))) {
                 return NULL;
             }
-            _Unchecked {sprintf(res, "%s", dict->key);}
+            //_Unchecked {sprintf(res, "%s", dict->key);}
             start = 0;
         } else {
             if (!(tmp = realloc(res, strlen(res) + strlen(dict->key) + 2))) {
@@ -765,7 +765,7 @@ char *util_dict_urlencode(util_dict *dict, char delim)
                 return NULL;
             } else
                 res = tmp;
-            _Unchecked {sprintf(res + strlen(res), "%c%s", delim, dict->key);}
+            //_Unchecked {sprintf(res + strlen(res), "%c%s", delim, dict->key);}
         }
 
         /* encode value */
@@ -782,7 +782,7 @@ char *util_dict_urlencode(util_dict *dict, char delim)
             return NULL;
         } else
             res = tmp;
-        _Unchecked {sprintf(res + strlen(res), "=%s", enc);}
+        //_Unchecked {sprintf(res + strlen(res), "=%s", enc);}
         free(enc);
     }
 
