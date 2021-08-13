@@ -448,7 +448,7 @@ static int do_yp_touch (ypdata_t *yp, char *s, unsigned len)
          song = malloc (strlen (artist) + strlen (title) + strlen (separator) +1);
          if (song)
          {
-             sprintf (song, "%s%s%s", artist, separator, title);
+             _Unchecked {sprintf (song, "%s%s%s", artist, separator, title);}
              add_yp_info(yp, song, YP_CURRENT_SONG);
              stats_event (yp->mount, "yp_currently_playing", song);
              free (song);
