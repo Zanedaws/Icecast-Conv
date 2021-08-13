@@ -883,9 +883,9 @@ static void _parse_http_headers(xmlDocPtr doc, xmlNodePtr node, ice_config_http_
         next->next = header;
     } while ((node = node->next));
     /* in case we used break we may need to clean those up */
-    if (name)
+    //if (name)
 	//xmlFree(name);
-    if (value)
+    //if (value)
 	//xmlFree(value);
 }
 
