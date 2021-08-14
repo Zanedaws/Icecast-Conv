@@ -167,7 +167,7 @@ static int get_file_data (FILE *intro, client_t *client)
  * to right place in the queue at end of file else repeat file if queue
  * is not ready yet.
  */
-int format_check_file_buffer (source_t *source, client_t *client)
+int format_check_file_buffer (source_t *source : itype(_Ptr<source_t>), client_t *client : itype(_Ptr<client_t>))
 {
     refbuf_t *refbuf = client->refbuf;
 
@@ -212,7 +212,7 @@ int format_check_file_buffer (source_t *source, client_t *client)
 /* call this to verify that the HTTP data has been sent and if so setup
  * callbacks to the appropriate format functions
  */
-int format_check_http_buffer (source_t *source, client_t *client)
+int format_check_http_buffer (source_t *source : itype(_Ptr<source_t>), client_t *client : itype(_Ptr<client_t>))
 {
     refbuf_t *refbuf = client->refbuf;
 
@@ -267,7 +267,7 @@ int format_generic_write_to_client (client_t *client)
  * the next buffer in the queue if there is no more left to be written from 
  * the existing buffer.
  */
-int format_advance_queue (source_t *source, client_t *client)
+int format_advance_queue (source_t *source : itype(_Ptr<source_t>), client_t *client : itype(_Ptr<client_t>))
 {
     refbuf_t *refbuf = client->refbuf;
 

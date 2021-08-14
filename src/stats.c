@@ -951,7 +951,7 @@ void *stats_connection(void *arg)
 }
 
 
-void stats_callback (client_t *client : itype(_Ptr<client_t>), void *notused)
+_Itype_for_any(T) void stats_callback (client_t *client : itype(_Ptr<client_t>), void *notused : itype(_Ptr<T>))
 {
     if (client->con->error)
     {
