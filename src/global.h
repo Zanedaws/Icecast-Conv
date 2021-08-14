@@ -40,7 +40,7 @@ typedef struct ice_global_tag
     /* for locally defined relays */
     struct _relay_server *relays;
     /* relays retrieved from master */
-    struct _relay_server *master_relays;
+    struct _relay_server *master_relays : itype(_Ptr<struct _relay_server>);
 
     cond_t shutdown_cond;
 } ice_global_t;
