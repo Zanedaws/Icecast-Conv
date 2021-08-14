@@ -103,10 +103,10 @@ xslt.o: xslt.c ../config.h \
   /usr/include/libxml2/libxml/HTMLparser.h \
   /usr/include/libxml2/libxml/xinclude.h \
   /usr/include/libxml2/libxml/catalog.h /usr/include/libxslt/xslt.h \
-  /usr/include/libxslt/xsltexports.h /usr/include/libxslt/transform.h \
+  /usr/include/libxslt/xsltexports.h \
   /usr/include/libxslt/xsltInternals.h /usr/include/libxslt/xsltlocale.h \
   /usr/include/libxslt/numbersInternals.h \
-  /usr/include/libxslt/xsltutils.h \
+  /usr/include/libxslt/transform.h /usr/include/libxslt/xsltutils.h \
   /usr/include/x86_64-linux-gnu/libxslt/xsltconfig.h \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
@@ -417,13 +417,13 @@ xslt.o: xslt.c ../config.h \
 
 /usr/include/libxslt/xsltexports.h:
 
-/usr/include/libxslt/transform.h:
-
 /usr/include/libxslt/xsltInternals.h:
 
 /usr/include/libxslt/xsltlocale.h:
 
 /usr/include/libxslt/numbersInternals.h:
+
+/usr/include/libxslt/transform.h:
 
 /usr/include/libxslt/xsltutils.h:
 

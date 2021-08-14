@@ -42,8 +42,8 @@ typedef struct ice_config_http_header_tag {
     http_header_type type;
 
     /* name and value of the header */
-    char *name;
-    char *value;
+    char *name : itype(_Nt_array_ptr<char>);
+    char *value : itype(_Nt_array_ptr<char>);
 
     /* filters */
     int status;
@@ -181,7 +181,7 @@ typedef struct ice_config_tag {
 
     ice_config_http_header_t *http_headers;
 
-    relay_server *relay;
+    relay_server *relay : itype(_Ptr<relay_server>);
 
     mount_proxy *mounts;
 

@@ -85,7 +85,7 @@ relay_server *relay_free (relay_server *relay)
 }
 
 
-relay_server *relay_copy (relay_server *r)
+relay_server *relay_copy (relay_server *r) : itype(_Ptr<relay_server>)
 {
     relay_server *copy = calloc (1, sizeof (relay_server));
 
@@ -486,7 +486,7 @@ static void check_relay_stream (relay_server *relay)
 /* compare the 2 relays to see if there are any changes, return 1 if
  * the relay needs to be restarted, 0 otherwise
  */
-static int relay_has_changed (relay_server *new, relay_server *old)
+static int relay_has_changed (relay_server *new : itype(_Ptr<relay_server>), relay_server *old : itype(_Ptr<relay_server>))
 {
     do
     {
@@ -511,16 +511,19 @@ static int relay_has_changed (relay_server *new, relay_server *old)
  * the list of relays to shutdown
  */
 static relay_server *
-update_relay_set (relay_server **current, relay_server *updated)
+update_relay_set (relay_server **current : itype(_Ptr<_Ptr<relay_server>>), relay_server *updated) : itype(_Ptr<relay_server>)
 {
     relay_server *relay = updated;
-    relay_server *existing_relay, **existing_p;
-    relay_server *new_list = NULL;
+    _Ptr<relay_server> existing_relay = NULL; 
+    _Ptr<_Ptr<relay_server>> existing_p = NULL;
+    _Ptr<relay_server> new_list = NULL;
 
     while (relay)
     {
-        existing_relay = *current;
-        existing_p = current;
+        _Checked {
+          existing_relay = *current;
+          existing_p = current;
+        }
 
         while (existing_relay)
         {
@@ -528,7 +531,7 @@ update_relay_set (relay_server **current, relay_server *updated)
             if (strcmp (relay->localmount, existing_relay->localmount) == 0)
                 if (relay_has_changed (relay, existing_relay) == 0)
                     break;
-            existing_p = &existing_relay->next;
+            _Checked {existing_p = &existing_relay->next;}
             existing_relay = existing_relay->next;
         }
         if (existing_relay == NULL)
@@ -568,7 +571,7 @@ update_relays (relay_server **relay_list : itype(_Array_ptr<_Ptr<relay_server>>)
 
 
 static void relay_check_streams (relay_server *to_start,
-        relay_server *to_free, int skip_timer)
+        relay_server *to_free : itype(_Ptr<relay_server>), int skip_timer)
 {
     relay_server *relay;
 
@@ -611,7 +614,8 @@ static int update_from_master(ice_config_t *config)
     do
     {
         char *authheader, *data;
-        relay_server *new_relays = NULL, *cleanup_relays;
+        _Ptr<relay_server> new_relays = NULL; 
+        relay_server *cleanup_relays;
         int len, count = 1;
         int on_demand;
 
@@ -665,7 +669,7 @@ static int update_from_master(ice_config_t *config)
         }
         while (sock_read_line(mastersock, buf, sizeof(buf)))
         {
-            relay_server *r;
+            _Ptr<relay_server> r = NULL;
             if (!strlen(buf))
                 continue;
             ICECAST_LOG_DEBUG("read %d from master \"%s\"", count++, buf);
@@ -687,7 +691,7 @@ static int update_from_master(ice_config_t *config)
                 }
                 else
                 {
-                  r->server = (char *)xmlCharStrdup (master);
+                  //r->server = (char *)xmlCharStrdup (master);
                   r->port = port;
                 }
 

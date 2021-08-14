@@ -431,7 +431,7 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
     return 1;
 }
 
-void httpp_deletevar(http_parser_t *parser, const char *name)
+void httpp_deletevar(http_parser_t *parser, const char *name : itype(_Nt_array_ptr<const char>))
 {
     http_var_t var;
 
@@ -463,7 +463,7 @@ void httpp_setvar(http_parser_t *parser, const char *name, const char *value)
     }
 }
 
-const char *httpp_getvar(http_parser_t *parser, const char *name)
+const char *httpp_getvar(http_parser_t *parser, const char *name : itype(_Nt_array_ptr<const char>))
 {
     http_var_t var;
     http_var_t *found;
@@ -503,7 +503,7 @@ void httpp_set_query_param(http_parser_t *parser, const char *name, const char *
     }
 }
 
-const char *httpp_get_query_param(http_parser_t *parser, const char *name)
+const char *httpp_get_query_param(http_parser_t *parser, const char *name : itype(_Nt_array_ptr<const char>))
 {
     http_var_t var;
     http_var_t *found;

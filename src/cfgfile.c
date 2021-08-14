@@ -834,9 +834,9 @@ static void _parse_mount(xmlDocPtr doc, xmlNodePtr node,
 static void _parse_http_headers(xmlDocPtr doc, xmlNodePtr node, ice_config_http_header_t **http_headers) {
     ice_config_http_header_t *header;
     ice_config_http_header_t *next;
-    char *name = NULL;
-    char *value = NULL;
-    char *tmp;
+    _Nt_array_ptr<char> name = NULL;
+    _Nt_array_ptr<char> value = NULL;
+    _Nt_array_ptr<char> tmp = NULL;
     int status;
     http_header_type type;
 
@@ -844,11 +844,11 @@ static void _parse_http_headers(xmlDocPtr doc, xmlNodePtr node, ice_config_http_
         if (node == NULL) break;
         if (xmlIsBlankNode(node)) continue;
         if (xmlStrcmp (node->name, XMLSTR("header")) != 0) break;
-        if (!(name = (char *)xmlGetProp(node, XMLSTR("name")))) break;
-        if (!(value = (char *)xmlGetProp(node, XMLSTR("value")))) break;
+        if (!(name = _Assume_bounds_cast<_Nt_array_ptr<char>>(xmlGetProp(node, XMLSTR("name")), byte_count(0)))) break;
+        if (!(value = _Assume_bounds_cast<_Nt_array_ptr<char>>( xmlGetProp(node, XMLSTR("value")), byte_count(0))))break;
 
         type = HTTP_HEADER_TYPE_STATIC; /* default */
-        if ((tmp = (char *)xmlGetProp(node, XMLSTR("type")))) {
+        if ((tmp = _Assume_bounds_cast<_Nt_array_ptr<char>>(xmlGetProp(node, XMLSTR("type")), byte_count(0)))) {
             if (strcmp(tmp, "static") == 0) {
                 type = HTTP_HEADER_TYPE_STATIC;
             } else {
@@ -860,7 +860,7 @@ static void _parse_http_headers(xmlDocPtr doc, xmlNodePtr node, ice_config_http_
         }
 
         status = 0; /* default: any */
-        if ((tmp = (char *)xmlGetProp(node, XMLSTR("status")))) {
+        if ((tmp = _Assume_bounds_cast<_Nt_array_ptr<char>>(xmlGetProp(node, XMLSTR("status")), byte_count(0)))) {
             status = atoi(tmp);
             //xmlFree(tmp);
         }
@@ -893,9 +893,9 @@ static void _parse_relay(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
     char *tmp;
-    relay_server *relay = calloc(1, sizeof(relay_server));
-    relay_server *current = configuration->relay;
-    relay_server *last=NULL;
+    _Ptr<relay_server> relay = calloc(1, sizeof(relay_server));
+    _Ptr<relay_server> current = configuration->relay;
+    _Ptr<relay_server> last=NULL;
 
     while(current) {
         last = current;
@@ -919,8 +919,8 @@ static void _parse_relay(xmlDocPtr doc, xmlNodePtr node,
 
         if (xmlStrcmp (node->name, XMLSTR("server")) == 0) {
             //if (relay->server) xmlFree (relay->server);
-            relay->server = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //relay->server = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("port")) == 0) {
             tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
@@ -933,13 +933,13 @@ static void _parse_relay(xmlDocPtr doc, xmlNodePtr node,
         }
         else if (xmlStrcmp (node->name, XMLSTR("mount")) == 0) {
             //if (relay->mount) xmlFree (relay->mount);
-            relay->mount = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //relay->mount = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("local-mount")) == 0) {
             //if (relay->localmount) xmlFree (relay->localmount);
-            relay->localmount = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //relay->localmount = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("relay-shoutcast-metadata")) == 0) {
             tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
@@ -948,13 +948,13 @@ static void _parse_relay(xmlDocPtr doc, xmlNodePtr node,
         }
         else if (xmlStrcmp (node->name, XMLSTR("username")) == 0) {
             //if (relay->username) xmlFree (relay->username);
-            relay->username = (char *)xmlNodeListGetString(doc,
-                    node->xmlChildrenNode, 1);
+            //relay->username = (char *)xmlNodeListGetString(doc,
+            //        node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("password")) == 0) {
             //if (relay->password) xmlFree (relay->password);
-            relay->password = (char *)xmlNodeListGetString(doc,
-                    node->xmlChildrenNode, 1);
+            //relay->password = (char *)xmlNodeListGetString(doc,
+            //        node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("on-demand")) == 0) {
             tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
@@ -963,7 +963,7 @@ static void _parse_relay(xmlDocPtr doc, xmlNodePtr node,
         }
         else if (xmlStrcmp (node->name, XMLSTR("bind")) == 0) {
             //if (relay->bind) xmlFree (relay->bind);
-            relay->bind = (char *)xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+            //relay->bind = (char *)xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
         }
     } while ((node = node->next));
     //if (relay->localmount == NULL)

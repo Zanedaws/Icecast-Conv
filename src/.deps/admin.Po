@@ -161,10 +161,10 @@ admin.o: admin.c ../config.h \
   /usr/include/libxml2/libxml/xpath.h \
   /usr/include/libxml2/libxml/HTMLtree.h \
   /usr/include/libxml2/libxml/HTMLparser.h /usr/include/libxslt/xslt.h \
-  /usr/include/libxslt/xsltexports.h /usr/include/libxslt/transform.h \
+  /usr/include/libxslt/xsltexports.h \
   /usr/include/libxslt/xsltInternals.h /usr/include/libxslt/xsltlocale.h \
   /usr/include/libxslt/numbersInternals.h \
-  /usr/include/libxslt/xsltutils.h \
+  /usr/include/libxslt/transform.h /usr/include/libxslt/xsltutils.h \
   /usr/include/x86_64-linux-gnu/libxslt/xsltconfig.h fserve.h admin.h \
   logging.h log/log.h
 
@@ -628,13 +628,13 @@ xslt.h:
 
 /usr/include/libxslt/xsltexports.h:
 
-/usr/include/libxslt/transform.h:
-
 /usr/include/libxslt/xsltInternals.h:
 
 /usr/include/libxslt/xsltlocale.h:
 
 /usr/include/libxslt/numbersInternals.h:
+
+/usr/include/libxslt/transform.h:
 
 /usr/include/libxslt/xsltutils.h:
 
