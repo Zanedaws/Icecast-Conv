@@ -1,7 +1,6 @@
 #!/bin/bash
 /home/zane/Code/research/checkedC/build/bin/3c \
 -dump-stats \
--itypes-for-extern \
 -alltypes \
 -p \
 $BASEDIR/compile_commands.json \
