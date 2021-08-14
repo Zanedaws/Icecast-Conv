@@ -61,7 +61,7 @@ avl_node_new (void *        key,
   }
 }         
 
-_Itype_for_any(T) avl_tree *avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg : itype(_Ptr<T>))
+_Itype_for_any(T) avl_tree *avl_tree_new (avl_key_compare_fun_type compare_fun : itype(_Ptr<t>), void * compare_arg)
 {
   avl_tree * t = (avl_tree *) malloc (sizeof (avl_tree));
 
