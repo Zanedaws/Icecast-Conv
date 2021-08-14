@@ -553,7 +553,7 @@ update_relay_set (relay_server **current, relay_server *updated)
  * are separated and returned in a separate list
  */
 static relay_server *
-update_relays (relay_server **relay_list, relay_server *new_relay_list)
+update_relays (relay_server **relay_list : itype(_Array_ptr<_Ptr<relay_server>>), relay_server *new_relay_list : itype(_Ptr<relay_server>))
 {
     relay_server *active_relays, *cleanup_relays;
 
