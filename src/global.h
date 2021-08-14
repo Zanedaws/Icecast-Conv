@@ -38,7 +38,7 @@ typedef struct ice_global_tag
 
     avl_tree *source_tree;
     /* for locally defined relays */
-    struct _relay_server *relays;
+    struct _relay_server *relays : itype(_Ptr<struct _relay_server>);
     /* relays retrieved from master */
     struct _relay_server *master_relays : itype(_Ptr<struct _relay_server>);
 
