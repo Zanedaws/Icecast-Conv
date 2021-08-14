@@ -34,7 +34,7 @@
 static char *_lowercase(char *str);
 
 /* for avl trees */
-_Itype_for_any(T) static int _compare_vars(void *compare_arg, void *a : itype(_Ptr<T>) , void *b : itype(_Ptr<T>));
+static int _compare_vars(void *compare_arg, void *a, void *b);
 static int _free_vars(void *key);
 
 http_parser_t *httpp_create_parser(void)
