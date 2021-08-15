@@ -767,7 +767,7 @@ void fserve_recheck_mime_types (ice_config_t *config)
             *cur++ = 0;
             if(*ext)
             {
-                void *tmp;
+                _Ptr<void> tmp = NULL;
                 /* Add a new extension->type mapping */
                 mapping = malloc(sizeof(mime_type));
                 mapping->ext = strdup(ext);
