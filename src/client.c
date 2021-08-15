@@ -83,7 +83,7 @@ int client_create (client_t **c_ptr, connection_t *con : itype(_Ptr<connection_t
     return ret;
 }
 
-void client_destroy(client_t *client)
+void client_destroy(client_t *client : itype(_Ptr<client_t>))
 {
     if (client == NULL)
         return;
