@@ -132,9 +132,9 @@ source_t *source_find_mount_raw(const char *mount) : itype(_Ptr<source_t>)
     _Ptr<avl_node> node = NULL;
     int cmp;
 
-    if (!mount) {
-        return NULL;
-    }
+    //if (!mount) {
+    //    return NULL;
+    //}
     /* get the root node */
     node = global.source_tree->root->right;
     
@@ -145,8 +145,8 @@ source_t *source_find_mount_raw(const char *mount) : itype(_Ptr<source_t>)
             node = node->left;
         else if (cmp > 0)
             node = node->right;
-        else
-            return source;
+        //else
+        //    return source;
     }
     
     /* didn't find it */
