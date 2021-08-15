@@ -122,7 +122,7 @@ void client_destroy(client_t *client : itype(_Ptr<client_t>))
     free(client->username);
     free(client->password);
 
-    free(client);
+    //free(client);
 }
 
 /* return -1 for failed, 0 for authenticated, 1 for pending
