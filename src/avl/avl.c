@@ -38,7 +38,7 @@
 
 #include "avl.h"
 
-avl_node * avl_node_new (void * key, avl_node * parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
+avl_node * avl_node_new (void * key : itype(_Ptr<void>), avl_node * parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
 {
   avl_node * node = (avl_node *) malloc (sizeof (avl_node));
 
@@ -296,11 +296,9 @@ avl_insert (avl_tree * ob,
 }
 
 int
-avl_get_by_index (avl_tree * tree,
-           unsigned long index,
-           void ** value_address)
+avl_get_by_index (avl_tree * tree, unsigned long index, _Ptr<_Ptr<void>> value_address)
 {
-  avl_node * p = tree->root->right;
+  _Ptr<avl_node> p = tree->root->right;
   unsigned long m = index + 1;
   while (1) {
     if (!p) {
@@ -405,7 +403,7 @@ int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key, avl_free_key_f
   }
 
   if (x->left && x->right) {
-    void * temp_key;
+    _Ptr<void> temp_key = NULL;
 
     /* The complicated case.
      * reduce this to the simple case where we are deleting

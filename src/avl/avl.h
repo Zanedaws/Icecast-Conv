@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 typedef struct avl_node_tag {
-  void *        key;
+  void *        key : itype(_Ptr<void>);
   struct avl_node_tag *    left : itype(_Ptr<struct avl_node_tag>);
   struct avl_node_tag *    right : itype(_Ptr<struct avl_node_tag>);  
   struct avl_node_tag *    parent : itype(_Ptr<struct avl_node_tag>);
@@ -125,7 +125,7 @@ int avl_delete (
 int avl_get_by_index (
   avl_tree *        tree,
   unsigned long        index,
-  void **        value_address
+  _Ptr<_Ptr<void>>        value_address
   );
 
 _Itype_for_any(T) int avl_get_by_key (
