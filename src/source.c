@@ -1310,7 +1310,7 @@ void source_client_callback (client_t *client : itype(_Ptr<client_t>), void *arg
         source_free_source (source);
         return;
     }
-    client->refbuf = old_data->associated;
+    //client->refbuf = old_data->associated;
     old_data->associated = NULL;
     refbuf_release (old_data);
     stats_event (source->mount, "source_ip", source->client->con->ip);
