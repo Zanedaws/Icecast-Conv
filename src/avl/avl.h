@@ -53,7 +53,7 @@ typedef struct avl_node_tag {
 
 struct _avl_tree;
 
-typedef int (*avl_key_compare_fun_type)    (void * compare_arg, void * a, void * b);
+typedef int (*avl_key_compare_fun_type)    (void * compare_arg : itype(_Ptr<void>), void * a : itype(_Ptr<void>), void * b : itype(_Ptr<void>));
 typedef int (*avl_iter_fun_type)    (void * key, void * iter_arg);
 typedef int (*avl_iter_index_fun_type)    (unsigned long index, void * key, void * iter_arg);
 typedef int (*avl_free_key_fun_type)    (void * key);
