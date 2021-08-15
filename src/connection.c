@@ -388,7 +388,7 @@ static void recheck_ip_file (cache_file_contents *cache)
 /* return 0 if the passed ip address is not to be handled by icecast, non-zero otherwise */
 static int accept_ip_address (char *ip)
 {
-    void *result;
+    _Ptr<void> result = NULL;
 
     recheck_ip_file (&banned_ip);
     recheck_ip_file (&allowed_ip);

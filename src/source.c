@@ -323,10 +323,10 @@ void source_free_source (source_t *source)
 }
 
 
-client_t *source_find_client(source_t *source, int id)
+client_t *source_find_client(source_t *source, int id) : itype(_Ptr<client_t>)
 {
     client_t fakeclient;
-    void *result;
+    _Ptr<void> result = NULL;
     connection_t fakecon;
 
     fakeclient.con = &fakecon;
@@ -336,7 +336,7 @@ client_t *source_find_client(source_t *source, int id)
     if(avl_get_by_key(source->client_tree, &fakeclient, &result) == 0)
     {
         avl_tree_unlock(source->client_tree);
-        return result;
+        return _Dynamic_bounds_cast<_Ptr<client_t>>(result);
     }
 
     avl_tree_unlock(source->client_tree);

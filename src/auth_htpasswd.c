@@ -266,7 +266,7 @@ static auth_result htpasswd_adduser (auth_t *auth, const char *username, const c
     char *hashed_password = NULL;
     htpasswd_auth_state *state = auth->state;
     htpasswd_user entry;
-    void *result;
+    _Ptr<void> result = NULL;
 
     if (state->filename == NULL) {
         ICECAST_LOG_ERROR("No filename given in options for authenticator.");
