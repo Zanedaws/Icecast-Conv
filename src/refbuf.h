@@ -22,9 +22,9 @@ typedef struct _refbuf_tag
 {
     unsigned int len;
     unsigned int _count;
-    char *data;
-    struct _refbuf_tag *associated;
-    struct _refbuf_tag *next;
+    char *data : itype(_Nt_array_ptr<char>);
+    struct _refbuf_tag *associated : itype(_Ptr<struct _refbuf_tag>);
+    struct _refbuf_tag *next : itype(_Ptr<struct _refbuf_tag>);
     int sync_point;
 
 } refbuf_t;
@@ -32,9 +32,9 @@ typedef struct _refbuf_tag
 void refbuf_initialize(void);
 void refbuf_shutdown(void);
 
-refbuf_t *refbuf_new(unsigned int size);
-void refbuf_addref(refbuf_t *self);
-void refbuf_release(refbuf_t *self);
+refbuf_t *refbuf_new(unsigned int size) : itype(_Ptr<refbuf_t>);
+void refbuf_addref(refbuf_t *self : itype(_Ptr<refbuf_t>));
+void refbuf_release(refbuf_t *self : itype(_Ptr<refbuf_t>));
 
 #define PER_CLIENT_REFBUF_SIZE  4096
 

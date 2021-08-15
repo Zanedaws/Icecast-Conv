@@ -41,13 +41,13 @@ typedef struct _format_plugin_tag
     char *mount;
 
     const char *contenttype;
-    char *charset;
+    char *charset : itype(_Nt_array_ptr<char>);
     uint64_t read_bytes;
     uint64_t sent_bytes;
 
     refbuf_t *(*get_buffer)(struct source_tag *);
     int (*write_buf_to_client)(client_t *client);
-    void (*write_buf_to_file)(struct source_tag *source, refbuf_t *refbuf);
+    void (*write_buf_to_file)(struct source_tag *source, refbuf_t *refbuf : itype(_Ptr<refbuf_t>));
     int (*create_client_data)(struct source_tag *source, client_t *client);
     void (*set_tag)(struct _format_plugin_tag *plugin, const char *tag, const char *value, const char *charset);
     void (*free_plugin)(struct _format_plugin_tag *self);

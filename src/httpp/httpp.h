@@ -57,17 +57,17 @@ typedef struct http_parser_tag {
 # define httpp_clear _mangle(httpp_clear)
 #endif
 
-http_parser_t *httpp_create_parser(void);
-void httpp_initialize(http_parser_t *parser, http_varlist_t *defaults);
-int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len);
+http_parser_t *httpp_create_parser(void) : itype(_Ptr<http_parser_t>);
+void httpp_initialize(http_parser_t *parser : itype(_Ptr<http_parser_t>), http_varlist_t *defaults);
+int httpp_parse(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *http_data : itype(_Nt_array_ptr<const char>), unsigned long len);
 int httpp_parse_icy(http_parser_t *parser, const char *http_data, unsigned long len);
 int httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned long len, const char *uri);
 void httpp_setvar(http_parser_t *parser, const char *name, const char *value);
 void httpp_deletevar(http_parser_t *parser, const char *name);
-const char *httpp_getvar(http_parser_t *parser, const char *name);
+const char *httpp_getvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name);
 void httpp_set_query_param(http_parser_t *parser, const char *name, const char *value);
 const char *httpp_get_query_param(http_parser_t *parser, const char *name);
-void httpp_destroy(http_parser_t *parser);
+void httpp_destroy(http_parser_t *parser : itype(_Ptr<http_parser_t>));
 void httpp_clear(http_parser_t *parser);
  
 #endif

@@ -52,7 +52,7 @@
  * client_t is returned just in case a message needs to be returned. Should
  * be called with global lock held.
  */
-int client_create (client_t **c_ptr, connection_t *con, http_parser_t *parser)
+int client_create (client_t **c_ptr, connection_t *con : itype(_Ptr<connection_t>), http_parser_t *parser : itype(_Ptr<http_parser_t>))
 {
     ice_config_t *config;
     client_t *client = (client_t *)calloc(1, sizeof(client_t));
@@ -263,7 +263,7 @@ int client_send_bytes (client_t *client, const void *buf, unsigned len)
     return ret;
 }
 
-void client_set_queue (client_t *client, refbuf_t *refbuf)
+void client_set_queue (client_t *client, refbuf_t *refbuf : itype(_Ptr<refbuf_t>))
 {
     refbuf_t *to_release = client->refbuf;
 

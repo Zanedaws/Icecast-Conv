@@ -169,7 +169,7 @@ static int get_file_data (FILE *intro, client_t *client)
  */
 int format_check_file_buffer (source_t *source : itype(_Ptr<source_t>), client_t *client : itype(_Ptr<client_t>))
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
 
     if (refbuf == NULL)
     {
@@ -290,7 +290,7 @@ int format_advance_queue (source_t *source : itype(_Ptr<source_t>), client_t *cl
 static int format_prepare_headers (source_t *source, client_t *client)
 {
     unsigned remaining;
-    char *ptr;
+    _Nt_array_ptr<char> ptr = NULL;
     int bytes;
     int bitrate_filtered = 0;
     avl_node *node;
@@ -305,10 +305,10 @@ static int format_prepare_headers (source_t *source, client_t *client)
         client_send_500(client, "Header generation failed.");
         return -1;
     } else if ((bytes + 1024) >= remaining) { /* we don't know yet how much to follow but want at least 1kB free space */
-        void *new_ptr = realloc(ptr, bytes + 1024);
+        void *new_ptr = realloc(_Dynamic_bounds_cast<_Array_ptr<char>>(ptr, byte_count(1)), bytes + 1024);
         if (new_ptr) {
             ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
-            client->refbuf->data = ptr = new_ptr;
+            client->refbuf->data = ptr = _Assume_bounds_cast<_Nt_array_ptr<char>>(new_ptr, byte_count(0));
             client->refbuf->len = remaining = bytes + 1024;
             bytes = util_http_build_header(ptr, remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
             if (bytes <= 0 || bytes >= remaining) {
@@ -345,13 +345,13 @@ static int format_prepare_headers (source_t *source, client_t *client)
                 brfield = strstr(var->value, "bitrate=");
             if (brfield && sscanf (brfield, "bitrate=%u", &bitrate))
             {           
-                bytes = snprintf (ptr, remaining, "icy-br:%u\r\n", bitrate);
+                _Unchecked {bytes = snprintf ((char*)ptr, remaining, "icy-br:%u\r\n", bitrate);}
                 next = 0;
                 bitrate_filtered = 1;
             }
             else
                 /* show ice-audio_info header as well because of relays */
-                bytes = snprintf (ptr, remaining, "%s: %s\r\n", var->name, var->value);
+                _Unchecked {bytes = snprintf ((char *)ptr, remaining, "%s: %s\r\n", var->name, var->value);}
         }
         else
         {
@@ -413,7 +413,7 @@ static int format_prepare_headers (source_t *source, client_t *client)
     }
     avl_tree_unlock(source->parser->vars);
 
-    bytes = snprintf (ptr, remaining, "\r\n");
+    _Unchecked {bytes = snprintf ((char *)ptr, remaining, "\r\n");}
     if (bytes < 0 || bytes >= remaining) {
         ICECAST_LOG_ERROR("Can not allocate headers for client %p", client);
         client_send_500(client, "Header generation failed.");

@@ -84,12 +84,12 @@
 #define ICECAST_SOURCE_AUTH 0
 
 typedef struct client_queue_tag {
-    client_t *client;
+    client_t *client : itype(_Ptr<client_t>);
     int offset;
     int stream_offset;
     int shoutcast;
-    char *shoutcast_mount;
-    struct client_queue_tag *next;
+    char *shoutcast_mount : itype(_Nt_array_ptr<char>);
+    struct client_queue_tag *next : itype(_Ptr<struct client_queue_tag>);
 } client_queue_t;
 
 typedef struct _thread_queue_tag {
@@ -730,7 +730,7 @@ void connection_accept_loop (void)
         {
             client_queue_t *node;
             ice_config_t *config;
-            client_t *client = NULL;
+            _Ptr<client_t> client = NULL;
             listener_t *listener;
 
             global_lock();
@@ -1050,7 +1050,7 @@ int connection_check_pass (http_parser_t *parser, const char *user, const char *
 
 
 /* only called for native icecast source clients */
-static void _handle_source_request (client_t *client, const char *uri)
+static void _handle_source_request (client_t *client : itype(_Ptr<client_t>), const char *uri)
 {
     ICECAST_LOG_INFO("Source logging in at mountpoint \"%s\" from %s",
         uri, client->con->ip);
@@ -1078,7 +1078,7 @@ static void _handle_source_request (client_t *client, const char *uri)
 }
 
 
-void source_startup (client_t *client, const char *uri, int auth_style)
+void source_startup (client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>), int auth_style)
 {
     source_t *source;
     source = source_reserve (uri);
@@ -1102,7 +1102,7 @@ void source_startup (client_t *client, const char *uri, int auth_style)
         }
         else
         {
-            refbuf_t *ok = refbuf_new (PER_CLIENT_REFBUF_SIZE);
+            _Ptr<refbuf_t> ok = refbuf_new (PER_CLIENT_REFBUF_SIZE);
             client->respcode = 200;
             snprintf (ok->data, PER_CLIENT_REFBUF_SIZE,
                     "HTTP/1.0 200 OK\r\n\r\n");
@@ -1121,7 +1121,7 @@ void source_startup (client_t *client, const char *uri, int auth_style)
 }
 
 
-static void _handle_stats_request (client_t *client, char *uri)
+static void _handle_stats_request (client_t *client : itype(_Ptr<client_t>), char *uri)
 {
     stats_event_inc(NULL, "stats_connections");
 
@@ -1139,7 +1139,7 @@ static void _handle_stats_request (client_t *client, char *uri)
     fserve_add_client_callback (client, stats_callback, NULL);
 }
 
-static void _handle_get_request (client_t *client, char *passed_uri)
+static void _handle_get_request (client_t *client : itype(_Ptr<client_t>), char *passed_uri)
 {
     char *serverhost = NULL;
     int serverport = 0;
@@ -1192,14 +1192,14 @@ static void _handle_get_request (client_t *client, char *passed_uri)
     if (uri != passed_uri) free (uri);
 }
 
-static void _handle_shoutcast_compatible (client_queue_t *node)
+static void _handle_shoutcast_compatible (client_queue_t *node : itype(_Ptr<client_queue_t>))
 {
-    char *http_compliant;
+    _Nt_array_ptr<char> http_compliant = NULL;
     int http_compliant_len = 0;
-    http_parser_t *parser;
+    _Ptr<http_parser_t> parser = NULL;
     ice_config_t *config = config_get_config ();
-    char *shoutcast_mount;
-    client_t *client = node->client;
+    _Nt_array_ptr<char> shoutcast_mount = NULL;
+    _Ptr<client_t> client = node->client;
 
     if (node->shoutcast_mount)
         shoutcast_mount = node->shoutcast_mount;
@@ -1272,25 +1272,25 @@ static void _handle_shoutcast_compatible (client_queue_t *node)
         return;
     }
     /* actually make a copy as we are dropping the config lock */
-    shoutcast_mount = strdup (shoutcast_mount);
+    _Checked {shoutcast_mount = strdup (shoutcast_mount);}
     config_release_config();
     /* Here we create a valid HTTP request based of the information
        that was passed in via the non-HTTP style protocol above. This
        means we can use some of our existing code to handle this case */
     http_compliant_len = 20 + strlen (shoutcast_mount) + node->offset;
-    http_compliant = (char *)calloc(1, http_compliant_len);
-    snprintf (http_compliant, http_compliant_len,
-            "SOURCE %s HTTP/1.0\r\n%s", shoutcast_mount, client->refbuf->data);
+    _Checked {http_compliant = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char>(1, http_compliant_len), byte_count(1));}
+    _Unchecked {snprintf ((char*)http_compliant, http_compliant_len,
+            "SOURCE %s HTTP/1.0\r\n%s", shoutcast_mount, client->refbuf->data);}
     parser = httpp_create_parser();
     httpp_initialize(parser, NULL);
-    if (httpp_parse (parser, http_compliant, strlen(http_compliant)))
+    _Checked {if (httpp_parse (parser, http_compliant, strlen(http_compliant)))
     {
         /* we may have more than just headers, so prepare for it */
         if (node->stream_offset == node->offset)
             client->refbuf->len = 0;
         else
         {
-            char *ptr = client->refbuf->data;
+            _Nt_array_ptr<char> ptr = client->refbuf->data;
             client->refbuf->len = node->offset - node->stream_offset;
             memmove (ptr, ptr + node->stream_offset, client->refbuf->len);
         }
@@ -1300,7 +1300,7 @@ static void _handle_shoutcast_compatible (client_queue_t *node)
     else {
         httpp_destroy (parser);
         client_destroy (client);
-    }
+    }}
     free (http_compliant);
     free (shoutcast_mount);
     free (node->shoutcast_mount);
@@ -1315,7 +1315,7 @@ static void _handle_shoutcast_compatible (client_queue_t *node)
  */
 static void _handle_connection(void)
 {
-    http_parser_t *parser;
+    _Ptr<http_parser_t> parser = NULL;
     const char *rawuri;
     client_queue_t *node;
 
@@ -1324,7 +1324,7 @@ static void _handle_connection(void)
         node = _get_connection();
         if (node)
         {
-            client_t *client = node->client;
+            _Ptr<client_t> client = node->client;
 
             /* Check for special shoutcast compatability processing */
             if (node->shoutcast)

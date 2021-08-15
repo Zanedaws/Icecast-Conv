@@ -92,7 +92,7 @@ static auth_client *auth_client_setup (const char *mount, client_t *client)
 
 static void queue_auth_client (auth_client *auth_user, mount_proxy *mountinfo)
 {
-    auth_t *auth;
+    _Ptr<auth_t> auth = NULL;
 
     if (auth_user == NULL)
         return;

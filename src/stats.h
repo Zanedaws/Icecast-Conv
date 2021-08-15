@@ -76,7 +76,7 @@ void stats_shutdown(void);
 
 void stats_global(ice_config_t *config);
 stats_t *stats_get_stats(void);
-refbuf_t *stats_get_streams (void);
+refbuf_t *stats_get_streams (void) : itype(_Ptr<refbuf_t>);
 void stats_clear_virtual_mounts (void);
 
 void stats_event(const char *source, const char *name, const char *value);

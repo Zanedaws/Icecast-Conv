@@ -291,7 +291,7 @@ static void *fserv_thread_function(void *arg)
             if (fclient->ready)
             {
                 client_t *client = fclient->client;
-                refbuf_t *refbuf = client->refbuf;
+                _Ptr<refbuf_t> refbuf = client->refbuf;
                 fclient->ready = 0;
                 if (client->pos == refbuf->len)
                 {

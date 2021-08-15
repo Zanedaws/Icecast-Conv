@@ -79,7 +79,7 @@ int format_mp3_get_plugin (source_t *source)
     const char *metadata;
     format_plugin_t *plugin;
     mp3_state *state = calloc(1, sizeof(mp3_state));
-    refbuf_t *meta;
+    _Ptr<refbuf_t> meta = NULL;
 
     plugin = (format_plugin_t *)calloc(1, sizeof(format_plugin_t));
 
@@ -125,10 +125,10 @@ int format_mp3_get_plugin (source_t *source)
 }
 
 
-static void mp3_set_tag (format_plugin_t *plugin, const char *tag, const char *in_value, const char *charset)
+static void mp3_set_tag (format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), const char *tag, const char *in_value : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Nt_array_ptr<const char>))
 {
     mp3_state *source_mp3 = plugin->_state;
-    char *value = NULL;
+    _Nt_array_ptr<char> value = NULL;
 
     /* protect against multiple updaters */
     thread_mutex_lock (&source_mp3->url_lock);
@@ -142,9 +142,9 @@ static void mp3_set_tag (format_plugin_t *plugin, const char *tag, const char *i
 
     if (in_value)
     {
-        value = util_conv_string (in_value, charset, plugin->charset);
+        _Checked {value = util_conv_string (in_value, charset, plugin->charset);}
         if (value == NULL)
-            value = strdup (in_value);
+            _Checked {value = strdup (in_value);}
     }
 
     if (strcmp (tag, "title") == 0 || strcmp (tag, "song") == 0)
@@ -241,7 +241,7 @@ static void mp3_set_title (source_t *source)
     const char streamurl[] = "StreamUrl='";
     size_t size;
     unsigned char len_byte;
-    refbuf_t *p;
+    _Ptr<refbuf_t> p = NULL;
     unsigned int len = sizeof(streamtitle) + 2; /* the StreamTitle, quotes, ; and null */
     mp3_state *source_mp3 = source->format->_state;
 
@@ -617,7 +617,7 @@ static refbuf_t *mp3_get_filter_meta (source_t *source)
         if (source_mp3->build_metadata_len > 1 &&
                 strcmp (source_mp3->build_metadata+1, source_mp3->metadata->data+1) != 0)
         {
-            refbuf_t *meta = refbuf_new (source_mp3->build_metadata_len);
+            _Ptr<refbuf_t> meta = refbuf_new (source_mp3->build_metadata_len);
             memcpy (meta->data, source_mp3->build_metadata,
                     source_mp3->build_metadata_len);
 

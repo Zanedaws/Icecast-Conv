@@ -295,7 +295,7 @@ void admin_send_response (xmlDocPtr doc, client_t *client,
             new_data = realloc(client->refbuf->data, buf_len);
             if (new_data) {
                 ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
-                client->refbuf->data = new_data;
+                client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(new_data, byte_count(64));
                 client->refbuf->len = buf_len;
                 ret = util_http_build_header(client->refbuf->data, buf_len, 0,
                                              0, 200, NULL,

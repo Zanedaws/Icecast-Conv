@@ -91,7 +91,7 @@ int  auth_release_listener (client_t *client);
 void auth_initialise (void);
 void auth_shutdown (void);
 
-auth_t  *auth_get_authenticator (xmlNodePtr node);
+auth_t  *auth_get_authenticator (xmlNodePtr node) : itype(_Ptr<auth_t>);
 void    auth_release (auth_t *authenticator);
 
 /* call to trigger an event when a stream starts */

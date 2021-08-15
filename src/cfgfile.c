@@ -177,7 +177,7 @@ static inline ice_config_http_header_t * config_copy_http_header(ice_config_http
     return ret;
 }
 
-static void config_clear_mount (mount_proxy *mount)
+static void config_clear_mount (mount_proxy *mount : itype(_Ptr<mount_proxy>))
 {
     config_options_t *option;
 
@@ -451,11 +451,11 @@ static void _set_defaults(ice_config_t *configuration)
 }
 
 static void _parse_root(xmlDocPtr doc, xmlNodePtr node, 
-        ice_config_t *configuration)
+        ice_config_t *configuration : itype(_Ptr<ice_config_t>))
 {
     char *tmp;
 
-    configuration->listen_sock = calloc (1, sizeof (*configuration->listen_sock));
+    configuration->listen_sock = _Dynamic_bounds_cast<_Ptr<listener_t>>(calloc (1, sizeof (*configuration->listen_sock)));
     configuration->listen_sock->port = 8000;
     configuration->listen_sock_count = 1;
 
@@ -465,13 +465,13 @@ static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
 
         if (xmlStrcmp (node->name, XMLSTR("location")) == 0) {
             //if (configuration->location) xmlFree(configuration->location);
-            configuration->location = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->location = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("admin")) == 0) {
             //if (configuration->admin) xmlFree(configuration->admin);
-            configuration->admin = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->admin = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("server-id")) == 0) {
             //xmlFree (configuration->server_id);
-            configuration->server_id = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->server_id = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             ICECAST_LOG_WARN("Warning, server version string override detected. This may lead to unexpected client software behavior.");
         } else if(xmlStrcmp (node->name, XMLSTR("authentication")) == 0) {
             _parse_authentication(doc, node->xmlChildrenNode, configuration);
@@ -479,29 +479,29 @@ static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
             /* TODO: This is the backwards-compatibility location */
             ICECAST_LOG_WARN("<source-password> defined outside <authentication>. This is deprecated.");
             //if (configuration->source_password) xmlFree(configuration->source_password);
-            configuration->source_password = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->source_password = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("icelogin")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             configuration->ice_login = atoi(tmp);
             //if (tmp) xmlFree(tmp);
         } else if (xmlStrcmp (node->name, XMLSTR("fileserve")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             configuration->fileserve = atoi(tmp);
             //if (tmp) xmlFree(tmp);
         } else if (xmlStrcmp (node->name, XMLSTR("relays-on-demand")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             configuration->on_demand = atoi(tmp);
             //if (tmp) xmlFree(tmp);
         } else if (xmlStrcmp (node->name, XMLSTR("hostname")) == 0) {
             //if (configuration->hostname) xmlFree(configuration->hostname);
-            configuration->hostname = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->hostname = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("mime-types")) == 0) {
             //if (configuration->mimetypes_fn) xmlFree(configuration->mimetypes_fn);
-            configuration->mimetypes_fn = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->mimetypes_fn = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("listen-socket")) == 0) {
             _parse_listen_socket(doc, node->xmlChildrenNode, configuration);
         } else if (xmlStrcmp (node->name, XMLSTR("port")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             if (tmp) {
                 configuration->port = atoi(tmp);
                 configuration->listen_sock->port = atoi(tmp);
@@ -515,13 +515,13 @@ static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
             configuration->listen_sock->bind_address = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("master-server")) == 0) {
             //if (configuration->master_server) xmlFree(configuration->master_server);
-            configuration->master_server = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->master_server = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("master-username")) == 0) {
             //if (configuration->master_username) xmlFree(configuration->master_username);
-            configuration->master_username = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->master_username = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("master-password")) == 0) {
             //if (configuration->master_password) xmlFree(configuration->master_password);
-            configuration->master_password = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->master_password = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("master-server-port")) == 0) {
             tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             configuration->master_server_port = atoi(tmp);
@@ -532,7 +532,7 @@ static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
             //xmlFree (tmp);
         } else if (xmlStrcmp (node->name, XMLSTR("shoutcast-mount")) == 0) {
             //if (configuration->shoutcast_mount) xmlFree(configuration->shoutcast_mount);
-            configuration->shoutcast_mount = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->shoutcast_mount = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("limits")) == 0) {
             _parse_limits(doc, node->xmlChildrenNode, configuration);
         } else if (xmlStrcmp (node->name, XMLSTR("http-headers")) == 0) {
@@ -639,9 +639,9 @@ static void _parse_mount(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
     char *tmp;
-    mount_proxy *mount = calloc(1, sizeof(mount_proxy));
-    mount_proxy *current = configuration->mounts;
-    mount_proxy *last=NULL;
+    _Ptr<mount_proxy> mount = calloc(1, sizeof(mount_proxy));
+    _Ptr<mount_proxy> current = configuration->mounts;
+    _Ptr<mount_proxy> last=NULL;
     
     /* default <mount> settings */
     mount->mounttype = MOUNT_TYPE_NORMAL;
@@ -674,49 +674,49 @@ static void _parse_mount(xmlDocPtr doc, xmlNodePtr node,
         if (xmlIsBlankNode(node)) continue;
 
         if (xmlStrcmp (node->name, XMLSTR("mount-name")) == 0) {
-            mount->mountname = (char *)xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+            //mount->mountname = (char *)xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("username")) == 0) {
-            mount->username = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //mount->username = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("password")) == 0) {
-            mount->password = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //mount->password = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("dump-file")) == 0) {
-            mount->dumpfile = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //mount->dumpfile = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("intro")) == 0) {
-            mount->intro_filename = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //mount->intro_filename = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("fallback-mount")) == 0) {
-            mount->fallback_mount = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //mount->fallback_mount = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("fallback-when-full")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             mount->fallback_when_full = atoi(tmp);
             //if(tmp) xmlFree(tmp);
         }
         else if (xmlStrcmp (node->name, XMLSTR("max-listeners")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             mount->max_listeners = atoi(tmp);
             //if(tmp) xmlFree(tmp);
         }
         else if (xmlStrcmp (node->name, XMLSTR("charset")) == 0) {
-            mount->charset = (char *)xmlNodeListGetString(doc,
-                    node->xmlChildrenNode, 1);
+            //mount->charset = (char *)xmlNodeListGetString(doc,
+            //        node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("mp3-metadata-interval")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             mount->mp3_meta_interval = atoi(tmp);
             //if(tmp) xmlFree(tmp);
         }
         else if (xmlStrcmp (node->name, XMLSTR("fallback-override")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             mount->fallback_override = atoi(tmp);
             //if(tmp) xmlFree(tmp);
         }
@@ -739,62 +739,62 @@ static void _parse_mount(xmlDocPtr doc, xmlNodePtr node,
             mount->auth = auth_get_authenticator (node);
         }
         else if (xmlStrcmp (node->name, XMLSTR("on-connect")) == 0) {
-            mount->on_connect = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //mount->on_connect = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("on-disconnect")) == 0) {
-            mount->on_disconnect = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+            //mount->on_disconnect = (char *)xmlNodeListGetString(
+            //        doc, node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("max-listener-duration")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             mount->max_listener_duration = atoi(tmp);
             //if(tmp) xmlFree(tmp);
         }
         else if (xmlStrcmp (node->name, XMLSTR("queue-size")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             mount->queue_size_limit = atoi (tmp);
             //if(tmp) xmlFree(tmp);
         }
         else if (xmlStrcmp (node->name, XMLSTR("source-timeout")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             if (tmp)
             {
                 mount->source_timeout = atoi (tmp);
                 //xmlFree(tmp);
             }
         } else if (xmlStrcmp (node->name, XMLSTR("burst-size")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             mount->burst_size = atoi(tmp);
             //if (tmp) xmlFree(tmp);
         } else if (xmlStrcmp (node->name, XMLSTR("cluster-password")) == 0) {
-            mount->cluster_password = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+           // mount->cluster_password = (char *)xmlNodeListGetString(
+           //         doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("stream-name")) == 0) {
-            mount->stream_name = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+           // mount->stream_name = (char *)xmlNodeListGetString(
+           //         doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("stream-description")) == 0) {
-            mount->stream_description = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+           // mount->stream_description = (char *)xmlNodeListGetString(
+           //         doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("stream-url")) == 0) {
-            mount->stream_url = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+           // mount->stream_url = (char *)xmlNodeListGetString(
+           //         doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("genre")) == 0) {
-            mount->stream_genre = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+           // mount->stream_genre = (char *)xmlNodeListGetString(
+           //         doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("bitrate")) == 0) {
-            mount->bitrate = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+           // mount->bitrate = (char *)xmlNodeListGetString(
+           //         doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("public")) == 0) {
-            tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
-            mount->yp_public = atoi (tmp);
-            //if(tmp) xmlFree(tmp);
+           // tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+           // mount->yp_public = atoi (tmp);
+           // if(tmp) xmlFree(tmp);
         } else if (xmlStrcmp (node->name, XMLSTR("type")) == 0) {
-            mount->type = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+           // mount->type = (char *)xmlNodeListGetString(
+           //         doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("subtype")) == 0) {
-            mount->subtype = (char *)xmlNodeListGetString(
-                    doc, node->xmlChildrenNode, 1);
+           // mount->subtype = (char *)xmlNodeListGetString(
+           //         doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("http-headers")) == 0) {
             _parse_http_headers(doc, node->xmlChildrenNode, &(mount->http_headers));
         }
@@ -1056,29 +1056,29 @@ static void _parse_authentication(xmlDocPtr doc, xmlNodePtr node,
             else {
                 //if (configuration->source_password)
                     //xmlFree(configuration->source_password);
-                configuration->source_password = 
-                    (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+                //configuration->source_password = 
+                //    (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             }
         } else if (xmlStrcmp (node->name, XMLSTR("admin-password")) == 0) {
             //if(configuration->admin_password)
                 //xmlFree(configuration->admin_password);
-            configuration->admin_password =
-                (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->admin_password =
+            //    (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("admin-user")) == 0) {
             //if(configuration->admin_username)
                // xmlFree(configuration->admin_username);
-            configuration->admin_username =
-                (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->admin_username =
+            //    (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("relay-password")) == 0) {
             //if(configuration->relay_password)
                 //xmlFree(configuration->relay_password);
-            configuration->relay_password =
-                (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->relay_password =
+            //    (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("relay-user")) == 0) {
             //if(configuration->relay_username)
                 //xmlFree(configuration->relay_username);
-            configuration->relay_username =
-                (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->relay_username =
+            //    (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         }
     } while ((node = node->next));
 }
@@ -1123,8 +1123,10 @@ static void _parse_directory(xmlDocPtr doc, xmlNodePtr node,
 static void _parse_paths(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
-    char *temp;
-    aliases *alias, *current, *last;
+    _Nt_array_ptr<char> temp = NULL;
+    _Ptr<aliases> alias = NULL;
+    _Ptr<aliases> current = NULL;
+    _Ptr<aliases> last = NULL;
 
     do {
         if (node == NULL) break;
@@ -1132,9 +1134,10 @@ static void _parse_paths(xmlDocPtr doc, xmlNodePtr node,
 
         if (xmlStrcmp (node->name, XMLSTR("basedir")) == 0) {
             //if (configuration->base_dir) xmlFree(configuration->base_dir);
-            configuration->base_dir = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->base_dir = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("logdir")) == 0) {
-            if (!(temp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            //if (!(temp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            if (1) {
                 ICECAST_LOG_WARN("<logdir> must not be empty.");
                 continue;
             }
@@ -1142,21 +1145,22 @@ static void _parse_paths(xmlDocPtr doc, xmlNodePtr node,
             configuration->log_dir = temp;
         } else if (xmlStrcmp (node->name, XMLSTR("pidfile")) == 0) {
             //if (configuration->pidfile) xmlFree(configuration->pidfile);
-            configuration->pidfile = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->pidfile = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("deny-ip")) == 0) {
             //if (configuration->banfile) xmlFree(configuration->banfile);
-            configuration->banfile = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->banfile = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("allow-ip")) == 0) {
             //if (configuration->allowfile) xmlFree(configuration->allowfile);
-            configuration->allowfile = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->allowfile = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("ssl-certificate")) == 0) {
             //if (configuration->cert_file) xmlFree(configuration->cert_file);
-            configuration->cert_file = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->cert_file = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("ssl-allowed-ciphers")) == 0) {
             //if (configuration->cipher_list) xmlFree(configuration->cipher_list);
-            configuration->cipher_list = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->cipher_list = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("webroot")) == 0) {
-            if (!(temp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            //if (!(temp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            if(1) {
                 ICECAST_LOG_WARN("<webroot> must not be empty.");
                 continue;
             }
@@ -1165,40 +1169,41 @@ static void _parse_paths(xmlDocPtr doc, xmlNodePtr node,
             if(configuration->webroot_dir[strlen(configuration->webroot_dir)-1] == '/')
                 configuration->webroot_dir[strlen(configuration->webroot_dir)-1] = 0;
         } else if (xmlStrcmp (node->name, XMLSTR("adminroot")) == 0) {
-            if (!(temp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            //if (!(temp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            if(1) {
                 ICECAST_LOG_WARN("<adminroot> must not be empty.");
                 continue;
             }
             //if (configuration->adminroot_dir) 
                // xmlFree(configuration->adminroot_dir);
-            configuration->adminroot_dir = (char *)temp;
+            configuration->adminroot_dir = temp;
             if(configuration->adminroot_dir[strlen(configuration->adminroot_dir)-1] == '/')
                 configuration->adminroot_dir[strlen(configuration->adminroot_dir)-1] = 0;
         } else if (xmlStrcmp (node->name, XMLSTR("alias")) == 0) {
             alias = malloc(sizeof(aliases));
             alias->next = NULL;
-            alias->source = (char *)xmlGetProp(node, XMLSTR("source"));
+            //alias->source = (char *)xmlGetProp(node, XMLSTR("source"));
             if(alias->source == NULL) {
                 free(alias);
                 continue;
             }
-            alias->destination = (char *)xmlGetProp(node, XMLSTR("destination"));
+            //alias->destination = (char *)xmlGetProp(node, XMLSTR("destination"));
             if (!alias->destination)
-                alias->destination = (char *)xmlGetProp(node, XMLSTR("dest"));
+                //alias->destination = (char *)xmlGetProp(node, XMLSTR("dest"));
             if(alias->destination == NULL) {
                 //xmlFree(alias->source);
                 free(alias);
                 continue;
             }
             temp = NULL;
-            temp = (char *)xmlGetProp(node, XMLSTR("port"));
+            //temp = (char *)xmlGetProp(node, XMLSTR("port"));
             if(temp != NULL) {
                 alias->port = atoi(temp);
                 //xmlFree(temp);
             }
             else
                 alias->port = -1;
-            alias->bind_address = (char *)xmlGetProp(node, XMLSTR("bind-address"));
+            //alias->bind_address = (char *)xmlGetProp(node, XMLSTR("bind-address"));
             current = configuration->aliases;
             last = NULL;
             while(current) {
@@ -1216,20 +1221,22 @@ static void _parse_paths(xmlDocPtr doc, xmlNodePtr node,
 static void _parse_logging(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
-    char *tmp;
+    _Nt_array_ptr<char> tmp = NULL;
     do {
         if (node == NULL) break;
         if (xmlIsBlankNode(node)) continue;
 
         if (xmlStrcmp (node->name, XMLSTR("accesslog")) == 0) {
-            if (!(tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            //if (!(tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            if(1) {
                 ICECAST_LOG_WARN("<accesslog> must not be empty.");
                 continue;
             }
             //if (configuration->access_log) xmlFree(configuration->access_log);
             configuration->access_log = tmp;
         } else if (xmlStrcmp (node->name, XMLSTR("errorlog")) == 0) {
-            if (!(tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            //if (!(tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1))) {
+            if(1) {
                 ICECAST_LOG_WARN("<errorlog> must not be empty.");
                 continue;
             }
@@ -1237,7 +1244,7 @@ static void _parse_logging(xmlDocPtr doc, xmlNodePtr node,
             configuration->error_log = tmp;
         } else if (xmlStrcmp (node->name, XMLSTR("playlistlog")) == 0) {
             //if (configuration->playlist_log) xmlFree(configuration->playlist_log);
-            configuration->playlist_log = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->playlist_log = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("logsize")) == 0) {
             char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             configuration->logsize = atoi(tmp);
@@ -1277,10 +1284,10 @@ static void _parse_security(xmlDocPtr doc, xmlNodePtr node,
                if(xmlIsBlankNode(node)) continue;
                if(xmlStrcmp (node->name, XMLSTR("user")) == 0) {
                    //if(configuration->user) xmlFree(configuration->user);
-                   configuration->user = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+                   //configuration->user = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
                } else if(xmlStrcmp (node->name, XMLSTR("group")) == 0) {
                    //if(configuration->group) xmlFree(configuration->group);
-                   configuration->group = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+                   //configuration->group = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
                }
            } while((node = node->next));
            node = oldnode;

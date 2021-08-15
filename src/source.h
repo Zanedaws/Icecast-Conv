@@ -63,7 +63,7 @@ typedef struct source_tag
     /* per source burst handling for connecting clients */
     unsigned int burst_size;    /* trigger level for burst on connect */
     unsigned int burst_offset; 
-    refbuf_t *burst_point;
+    refbuf_t *burst_point : itype(_Ptr<refbuf_t>);
 
     unsigned int queue_size;
     unsigned int queue_size_limit;
@@ -75,8 +75,8 @@ typedef struct source_tag
     time_t last_read;
     int short_delay;
 
-    refbuf_t *stream_data;
-    refbuf_t *stream_data_tail;
+    refbuf_t *stream_data : itype(_Ptr<refbuf_t>);
+    refbuf_t *stream_data_tail : itype(_Ptr<refbuf_t>);
 
 } source_t;
 

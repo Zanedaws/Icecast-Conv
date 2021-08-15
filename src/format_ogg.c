@@ -88,25 +88,26 @@ refbuf_t *make_refbuf_with_page (ogg_page *page)
  */
 void format_ogg_attach_header (ogg_state_t *ogg_info, ogg_page *page)
 {
-    refbuf_t *refbuf = make_refbuf_with_page (page);
+    //_Ptr<refbuf_t> refbuf = make_refbuf_with_page (page);
+    refbuf_t * a = NULL;
 
     if (ogg_page_bos (page))
     {
         ICECAST_LOG_DEBUG("attaching BOS page");
         if (*ogg_info->bos_end == NULL)
-            ogg_info->header_pages_tail = refbuf;
-        refbuf->next = *ogg_info->bos_end;
-        *ogg_info->bos_end = refbuf;
-        ogg_info->bos_end = &refbuf->next;
+            //ogg_info->header_pages_tail = refbuf;
+        //refbuf->next = *ogg_info->bos_end;
+        //*ogg_info->bos_end = refbuf;
+        //ogg_info->bos_end = &refbuf->next;
         return;
     }
     ICECAST_LOG_DEBUG("attaching header page");
-    if (ogg_info->header_pages_tail)
-        ogg_info->header_pages_tail->next = refbuf;
-    ogg_info->header_pages_tail = refbuf;
+    //if (ogg_info->header_pages_tail)
+        //ogg_info->header_pages_tail->next = refbuf;
+    //ogg_info->header_pages_tail = refbuf;
 
-    if (ogg_info->header_pages == NULL)
-        ogg_info->header_pages = refbuf;
+    //if (ogg_info->header_pages == NULL)
+        //ogg_info->header_pages = refbuf;
 }
 
 
@@ -349,7 +350,7 @@ static refbuf_t *complete_buffer (source_t *source, refbuf_t *refbuf)
         refbuf_addref (header);
         header = header->next;
     }
-    refbuf->associated = ogg_info->header_pages;
+    //refbuf->associated = ogg_info->header_pages;
 
     if (ogg_info->log_metadata)
     {

@@ -70,21 +70,21 @@ typedef enum _mount_type {
 } mount_type;
 
 typedef struct _mount_proxy {
-    char *mountname; /* The mountpoint this proxy is used for */
+    char *mountname : itype(_Nt_array_ptr<char>); /* The mountpoint this proxy is used for */
 
     mount_type mounttype; /* The type of the mount point */
 
-    char *username; /* Username and password for this mountpoint. If unset, */
-    char *password; /* falls back to global source password */
+    char *username : itype(_Nt_array_ptr<char>); /* Username and password for this mountpoint. If unset, */
+    char *password : itype(_Nt_array_ptr<char>); /* falls back to global source password */
 
-    char *dumpfile; /* Filename to dump this stream to (will be appended). NULL
+    char *dumpfile : itype(_Nt_array_ptr<char>); /* Filename to dump this stream to (will be appended). NULL
                        to not dump. */
-    char *intro_filename;   /* Send contents of file to client before the stream */
+    char *intro_filename : itype(_Nt_array_ptr<char>);   /* Send contents of file to client before the stream */
     int fallback_when_full; /* switch new listener to fallback source
                                when max listeners reached */
     int max_listeners; /* Max listeners for this mountpoint only. -1 to not 
                           limit here (i.e. only use the global limit) */
-    char *fallback_mount; /* Fallback mountname */
+    char *fallback_mount : itype(_Nt_array_ptr<char>); /* Fallback mountname */
 
     int fallback_override; /* When this source arrives, do we steal back
                               clients from the fallback? */
@@ -95,37 +95,37 @@ typedef struct _mount_proxy {
     unsigned int queue_size_limit;
     int hidden; /* Do we list this on the xsl pages */
     unsigned int source_timeout;  /* source timeout in seconds */
-    char *charset;  /* character set if not utf8 */
+    char *charset : itype(_Nt_array_ptr<char>);  /* character set if not utf8 */
     int mp3_meta_interval; /* outgoing per-stream metadata interval */
 
-    ice_config_http_header_t *http_headers; /* additional HTTP headers */
+    ice_config_http_header_t *http_headers : itype(_Ptr<ice_config_http_header_t>); /* additional HTTP headers */
 
-    char *auth_type; /* Authentication type */
-    struct auth_tag *auth;
-    char *cluster_password;
-    config_options_t *auth_options; /* Options for this type */
-    char *on_connect;
-    char *on_disconnect;
+    char *auth_type : itype(_Nt_array_ptr<char>); /* Authentication type */
+    struct auth_tag *auth : itype(_Ptr<struct auth_tag>);
+    char *cluster_password : itype(_Nt_array_ptr<char>);
+    config_options_t *auth_options : itype(_Ptr<config_options_t>); /* Options for this type */
+    char *on_connect : itype(_Nt_array_ptr<char>);
+    char *on_disconnect : itype(_Nt_array_ptr<char>);
     unsigned int max_listener_duration;
 
-    char *stream_name;
-    char *stream_description;
-    char *stream_url;
-    char *stream_genre;
-    char *bitrate;
-    char *type;
-    char *subtype;
+    char *stream_name : itype(_Nt_array_ptr<char>);
+    char *stream_description : itype(_Nt_array_ptr<char>);
+    char *stream_url : itype(_Nt_array_ptr<char>);
+    char *stream_genre : itype(_Nt_array_ptr<char>);
+    char *bitrate : itype(_Nt_array_ptr<char>);
+    char *type : itype(_Nt_array_ptr<char>);
+    char *subtype : itype(_Nt_array_ptr<char>);
     int yp_public;
 
-    struct _mount_proxy *next;
+    struct _mount_proxy *next : itype(_Ptr<struct _mount_proxy>);
 } mount_proxy;
 
 typedef struct _aliases {
-    char *source;
-    char *destination;
+    char *source : itype(_Nt_array_ptr<char>);
+    char *destination : itype(_Nt_array_ptr<char>);
     int port;
-    char *bind_address;
-    struct _aliases *next;
+    char *bind_address : itype(_Nt_array_ptr<char>);
+    struct _aliases *next : itype(_Ptr<struct _aliases>);
 } aliases;
 
 typedef struct _listener_t {
@@ -139,10 +139,10 @@ typedef struct _listener_t {
 } listener_t;
 
 typedef struct ice_config_tag {
-    char *config_filename;
+    char *config_filename : itype(_Nt_array_ptr<char>);
 
-    char *location;
-    char *admin;
+    char *location : itype(_Nt_array_ptr<char>);
+    char *admin : itype(_Nt_array_ptr<char>);
 
     int client_limit;
     int source_limit;
@@ -156,58 +156,58 @@ typedef struct ice_config_tag {
     int fileserve;
     int on_demand; /* global setting for all relays */
 
-    char *shoutcast_mount;
-    char *source_password;
-    char *admin_username;
-    char *admin_password;
-    char *relay_username;
-    char *relay_password;
+    char *shoutcast_mount : itype(_Nt_array_ptr<char>);
+    char *source_password : itype(_Nt_array_ptr<char>);
+    char *admin_username : itype(_Nt_array_ptr<char>);
+    char *admin_password : itype(_Nt_array_ptr<char>);
+    char *relay_username : itype(_Nt_array_ptr<char>);
+    char *relay_password : itype(_Nt_array_ptr<char>);
 
     int touch_interval;
     ice_config_dir_t *dir_list;
 
-    char *hostname;
+    char *hostname : itype(_Nt_array_ptr<char>);
     int port;
-    char *mimetypes_fn;
+    char *mimetypes_fn : itype(_Nt_array_ptr<char>);
 
-    listener_t *listen_sock;
+    listener_t *listen_sock : itype(_Ptr<listener_t>);
     unsigned int listen_sock_count;
 
-    char *master_server;
+    char *master_server : itype(_Nt_array_ptr<char>);
     int master_server_port;
     int master_update_interval;
-    char *master_username;
-    char *master_password;
+    char *master_username : itype(_Nt_array_ptr<char>);
+    char *master_password : itype(_Nt_array_ptr<char>);
 
-    ice_config_http_header_t *http_headers;
+    ice_config_http_header_t *http_headers : itype(_Ptr<ice_config_http_header_t>);
 
     relay_server *relay : itype(_Ptr<relay_server>);
 
-    mount_proxy *mounts;
+    mount_proxy *mounts : itype(_Ptr<mount_proxy>);
 
-    char *server_id;
-    char *base_dir;
-    char *log_dir;
-    char *pidfile;
-    char *banfile;
-    char *allowfile;
-    char *cert_file;
-    char *cipher_list;
-    char *webroot_dir;
-    char *adminroot_dir;
-    aliases *aliases;
+    char *server_id : itype(_Nt_array_ptr<char>);
+    char *base_dir : itype(_Nt_array_ptr<char>);
+    char *log_dir : itype(_Nt_array_ptr<char>);
+    char *pidfile : itype(_Nt_array_ptr<char>);
+    char *banfile : itype(_Nt_array_ptr<char>);
+    char *allowfile : itype(_Nt_array_ptr<char>);
+    char *cert_file : itype(_Nt_array_ptr<char>);
+    char *cipher_list : itype(_Nt_array_ptr<char>);
+    char *webroot_dir : itype(_Nt_array_ptr<char>);
+    char *adminroot_dir : itype(_Nt_array_ptr<char>);
+    aliases *aliases : itype(_Ptr<aliases>);
 
-    char *access_log;
-    char *error_log;
-    char *playlist_log;
+    char *access_log : itype(_Nt_array_ptr<char>);
+    char *error_log : itype(_Nt_array_ptr<char>);
+    char *playlist_log : itype(_Nt_array_ptr<char>);
     int loglevel;
     int logsize;
     int logarchive;
 
     int chroot;
     int chuid;
-    char *user;
-    char *group;
+    char *user : itype(_Nt_array_ptr<char>);
+    char *group : itype(_Nt_array_ptr<char>);
     char *yp_url[MAX_YP_DIRECTORIES];
     int    yp_url_timeout[MAX_YP_DIRECTORIES];
     int    yp_touch_interval[MAX_YP_DIRECTORIES];
@@ -226,9 +226,9 @@ int config_parse_file(const char *filename, ice_config_t *configuration);
 int config_initial_parse_file(const char *filename);
 int config_parse_cmdline(int arg, char **argv);
 void config_set_config(ice_config_t *config);
-listener_t *config_clear_listener (listener_t *listener);
+listener_t *config_clear_listener (listener_t *listener) : itype(_Ptr<listener_t>);
 void config_clear(ice_config_t *config);
-mount_proxy *config_find_mount (ice_config_t *config, const char *mount, mount_type type);
+mount_proxy *config_find_mount (ice_config_t *config, const char *mount : itype(_Nt_array_ptr<const char>), mount_type type);
 listener_t *config_get_listen_sock (ice_config_t *config, connection_t *con);
 
 int config_rehash(void);

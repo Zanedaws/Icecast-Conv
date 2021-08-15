@@ -464,7 +464,7 @@ void source_move_clients (source_t *source, source_t *dest)
  * and sent back, however NULL is also valid as in the case of a short
  * timeout and there's no data pending.
  */
-static refbuf_t *get_next_buffer (source_t *source)
+static refbuf_t *get_next_buffer (source_t *source : itype(_Ptr<source_t>)) : itype(_Ptr<refbuf_t>)
 {
     refbuf_t *refbuf = NULL;
     int delay = 250;
@@ -703,9 +703,9 @@ static void source_init (source_t *source)
 }
 
 
-void source_main (source_t *source)
+void source_main (source_t *source : itype(_Ptr<source_t>))
 {
-    refbuf_t *refbuf;
+    _Ptr<refbuf_t> refbuf = NULL;
     client_t *client;
     avl_node *client_node;
 

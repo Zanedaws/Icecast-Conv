@@ -59,7 +59,7 @@ char *util_url_escape(const char *src);
  */
 struct source_tag; /* use forward decleration so we do not need to
                     * include <source.h> that would cause other conflicts. */
-ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
+ssize_t util_http_build_header(char * out : itype(_Nt_array_ptr<char>), size_t len, ssize_t offset,
         int cache,
         int status, const char * statusmsg,
         const char * contenttype, const char * charset,
@@ -84,7 +84,7 @@ char *util_dict_urlencode(util_dict *dict, char delim);
 #ifndef HAVE_LOCALTIME_R
 struct tm *localtime_r (const time_t *timep, struct tm *result);
 #endif
-char *util_conv_string (const char *string, const char *in_charset, const char *out_charset);
+char *util_conv_string (const char *string : itype(_Nt_array_ptr<const char>), const char *in_charset : itype(_Nt_array_ptr<const char>), const char *out_charset : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
 
 int get_line(FILE *file, char *buf, size_t siz);
 #endif  /* __UTIL_H__ */

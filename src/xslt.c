@@ -239,7 +239,7 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
     {
         ssize_t ret;
         int failed = 0;
-        refbuf_t *refbuf;
+        _Ptr<refbuf_t> refbuf = NULL;
         size_t full_len = strlen (mediatype) + len + 1024;
         if (full_len < 4096)
             full_len = 4096;
@@ -253,9 +253,9 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
             client_send_500(client, "Header generation failed.");
         } else {
             if ( full_len < (ret + len + 64) ) {
-                void *new_data;
+                _Nt_array_ptr<char> new_data = NULL;
                 full_len = ret + len + 64;
-                new_data = realloc(refbuf->data, full_len);
+                new_data = _Assume_bounds_cast<_Nt_array_ptr<char>>(realloc(refbuf->data, full_len), byte_count(1));
                 if (new_data) {
                     ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
                     refbuf->data = new_data;
