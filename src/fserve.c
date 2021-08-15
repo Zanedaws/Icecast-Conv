@@ -711,11 +711,10 @@ static int _delete_mapping(void *mapping) {
     return 1;
 }
 
-static int _compare_mappings(void *arg, void *a, void *b)
+static int _compare_mappings(void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
-    return strcmp(
-            ((mime_type *)a)->ext,
-            ((mime_type *)b)->ext);
+    int res = strcmp(((mime_type *)a)->ext, ((mime_type *)b)->ext);
+    return res;
 }
 
 void fserve_recheck_mime_types (ice_config_t *config)
