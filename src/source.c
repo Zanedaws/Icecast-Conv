@@ -1295,7 +1295,7 @@ _Itype_for_any(T) void *source_client_thread (void *arg : itype(_Ptr<T>))
 }
 
 
-void source_client_callback (client_t *client, void *arg)
+void source_client_callback (client_t *client : itype(_Ptr<client_t>), void *arg)
 {
     const char *agent;
     source_t *source = arg;
