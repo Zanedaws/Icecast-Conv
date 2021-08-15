@@ -155,7 +155,7 @@ void slave_shutdown(void)
 /* Actually open the connection and do some http parsing, handle any 302
  * responses within here.
  */
-static client_t *open_relay_connection (relay_server *relay)
+static client_t *open_relay_connection (relay_server *relay) : itype(_Ptr<client_t>)
 {
     int redirects = 0;
     char *server_id = NULL;
@@ -317,7 +317,7 @@ static void *start_relay_stream (void *arg)
 {
     relay_server *relay = arg;
     source_t *src = relay->source;
-    client_t *client;
+    _Ptr<client_t> client = NULL;
 
     ICECAST_LOG_INFO("Starting relayed source at mountpoint \"%s\"", relay->localmount);
     do

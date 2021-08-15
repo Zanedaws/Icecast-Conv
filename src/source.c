@@ -1295,11 +1295,11 @@ _Itype_for_any(T) void *source_client_thread (void *arg : itype(_Ptr<T>))
 }
 
 
-void source_client_callback (client_t *client : itype(_Ptr<client_t>), void *arg)
+void source_client_callback (client_t *client : itype(_Ptr<client_t>), void *arg : itype(_Ptr<void>))
 {
-    const char *agent;
-    source_t *source = arg;
-    refbuf_t *old_data = client->refbuf;
+    _Nt_array_ptr<const char> agent = NULL;
+    _Ptr<source_t> source = _Dynamic_bounds_cast<_Ptr<source_t>>(arg);
+    _Ptr<refbuf_t> old_data = client->refbuf;
 
     if (client->con->error)
     {
@@ -1314,7 +1314,7 @@ void source_client_callback (client_t *client : itype(_Ptr<client_t>), void *arg
     old_data->associated = NULL;
     refbuf_release (old_data);
     stats_event (source->mount, "source_ip", source->client->con->ip);
-    agent = httpp_getvar (source->client->parser, "user-agent");
+    _Checked {agent = httpp_getvar (source->client->parser, "user-agent");}
     if (agent)
         stats_event (source->mount, "user_agent", agent);
 

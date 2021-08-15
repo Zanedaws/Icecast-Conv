@@ -24,7 +24,7 @@
 typedef struct source_tag
 {
     mutex_t lock;
-    client_t *client;
+    client_t *client : itype(_Ptr<client_t>);
     connection_t *con;
     http_parser_t *parser;
     time_t client_stats_update;
@@ -85,12 +85,12 @@ void *source_client_thread (void *arg);
 void source_startup (client_t *client, const char *uri, int auth_style);
 void source_client_callback (client_t *client, void *source);
 void source_update_settings (ice_config_t *config, source_t *source, mount_proxy *mountinfo);
-void source_clear_source (source_t *source);
+void source_clear_source (source_t *source : itype(_Ptr<source_t>));
 source_t *source_find_mount(const char *mount);
 source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<source_t>);
 client_t *source_find_client(source_t *source, int id);
 int source_compare_sources(void *arg, void *a, void *b);
-void source_free_source(source_t *source);
+void source_free_source(source_t *source : itype(_Ptr<source_t>));
 void source_move_clients (source_t *source, source_t *dest);
 int source_remove_client(void *key);
 void source_main(source_t *source);

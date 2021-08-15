@@ -64,7 +64,7 @@ int httpp_parse_icy(http_parser_t *parser, const char *http_data, unsigned long 
 int httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned long len, const char *uri);
 void httpp_setvar(http_parser_t *parser, const char *name, const char *value);
 void httpp_deletevar(http_parser_t *parser, const char *name);
-const char *httpp_getvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name);
+const char *httpp_getvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<const char>);
 void httpp_set_query_param(http_parser_t *parser, const char *name, const char *value);
 const char *httpp_get_query_param(http_parser_t *parser, const char *name);
 void httpp_destroy(http_parser_t *parser : itype(_Ptr<http_parser_t>));
