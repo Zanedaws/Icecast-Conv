@@ -62,7 +62,7 @@ char *format_get_mimetype(format_type_t type);
 int format_get_plugin(format_type_t type, struct source_tag *source);
 
 int format_generic_write_to_client (client_t *client);
-int format_advance_queue (struct source_tag *source, client_t *client);
+int format_advance_queue (struct source_tag *source : itype(_Ptr<struct source_tag>), client_t *client : itype(_Ptr<client_t>));
 int format_check_http_buffer (struct source_tag *source, client_t *client);
 int format_check_file_buffer (struct source_tag *source, client_t *client);
 
