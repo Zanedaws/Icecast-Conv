@@ -183,7 +183,7 @@ static auth_result htpasswd_auth (auth_client *auth_user)
     htpasswd_auth_state *htpasswd = auth->state;
     client_t *client = auth_user->client;
     htpasswd_user entry;
-    void *result;
+    _Ptr<void> result = NULL;
 
     if (client->username == NULL || client->password == NULL)
         return AUTH_FAILED;
@@ -204,7 +204,7 @@ static auth_result htpasswd_auth (auth_client *auth_user)
     entry.name = client->username;
     if (avl_get_by_key (htpasswd->users, &entry, &result) == 0)
     {
-        htpasswd_user *found = result;
+        _Ptr<htpasswd_user> found = _Dynamic_bounds_cast<_Ptr<htpasswd_user>>(result);
         char *hashed_pw;
 
         thread_rwlock_unlock (&htpasswd->file_rwlock);
