@@ -83,10 +83,10 @@ static char *get_hash(const char *data, int len)
 }
 
 
-static int compare_users (void *arg, void *a, void *b)
+static int compare_users (void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
-    htpasswd_user *user1 = (htpasswd_user *)a;
-    htpasswd_user *user2 = (htpasswd_user *)b;
+    _Ptr<htpasswd_user> user1 = _Dynamic_bounds_cast<_Ptr<htpasswd_user>>(a);
+    _Ptr<htpasswd_user> user2 = _Dynamic_bounds_cast<_Ptr<htpasswd_user>>(b);
 
     return strcmp (user1->name, user2->name);
 }

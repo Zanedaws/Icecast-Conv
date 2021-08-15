@@ -1000,18 +1000,18 @@ xmlDocPtr stats_get_xml(int show_hidden, const char *show_mount)
 }
 
 
-static int _compare_stats(void *arg, void *a, void *b)
+static int _compare_stats(void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
-    stats_node_t *nodea = (stats_node_t *)a;
-    stats_node_t *nodeb = (stats_node_t *)b;
+    _Ptr<stats_node_t> nodea = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(a);
+    _Ptr<stats_node_t> nodeb = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(b);
 
     return strcmp(nodea->name, nodeb->name);
 }
 
-static int _compare_source_stats(void *arg, void *a, void *b)
+static int _compare_source_stats(void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
-    stats_source_t *nodea = (stats_source_t *)a;
-    stats_source_t *nodeb = (stats_source_t *)b;
+    _Ptr<stats_source_t> nodea = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(a);
+    _Ptr<stats_source_t> nodeb = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(b); 
 
     return strcmp(nodea->source, nodeb->source);
 }
