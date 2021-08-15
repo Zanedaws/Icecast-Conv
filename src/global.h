@@ -36,7 +36,7 @@ typedef struct ice_global_tag
     int clients;
     int schedule_config_reread;
 
-    avl_tree *source_tree;
+    avl_tree *source_tree : itype(_Ptr<avl_tree>);
     /* for locally defined relays */
     struct _relay_server *relays : itype(_Ptr<struct _relay_server>);
     /* relays retrieved from master */

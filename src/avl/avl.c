@@ -38,9 +38,7 @@
 
 #include "avl.h"
 
-avl_node *
-avl_node_new (void *        key,
-          avl_node *    parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
+avl_node * avl_node_new (void * key, avl_node * parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
 {
   avl_node * node = (avl_node *) malloc (sizeof (avl_node));
 
@@ -61,9 +59,9 @@ avl_node_new (void *        key,
   }
 }         
 
-avl_tree *avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg)
+avl_tree *avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg) : itype(_Ptr<avl_tree>)
 {
-  avl_tree * t = (avl_tree *) malloc (sizeof (avl_tree));
+  _Ptr<avl_tree> t =  malloc<avl_tree>(sizeof (avl_tree));
 
   if (!t) {
     return NULL;

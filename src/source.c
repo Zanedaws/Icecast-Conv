@@ -126,7 +126,7 @@ source_t *source_reserve (const char *mount)
 /* Find a mount with this raw name - ignoring fallbacks. You should have the
  * global source tree locked to call this.
  */
-source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<source_t>)
+source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<source_t>) _Checked
 {
     _Ptr<source_t> source = NULL;
     _Ptr<avl_node> node = NULL;
@@ -139,7 +139,7 @@ source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const ch
     node = global.source_tree->root->right;
     
     while (node) {
-        source = _Assume_bounds_cast<_Ptr<source_t>>(node->key);
+        _Unchecked {source = _Assume_bounds_cast<_Ptr<source_t>>(node->key);}
         _Unchecked {cmp = strcmp((char*)mount, (char*)source->mount);}
         if (cmp < 0) 
             node = node->left;
