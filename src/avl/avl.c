@@ -59,7 +59,7 @@ avl_node * avl_node_new (void * key : itype(_Ptr<void>), avl_node * parent : ity
   }
 }         
 
-avl_tree *avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg) : itype(_Ptr<avl_tree>)
+avl_tree *avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg : itype(_Ptr<void>)) : itype(_Ptr<avl_tree>)
 {
   _Ptr<avl_tree> t =  malloc<avl_tree>(sizeof (avl_tree));
 
@@ -115,9 +115,7 @@ avl_tree_free (avl_tree* tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type fre
   free (tree);
 }
 
-int
-avl_insert (avl_tree * ob,
-           void * key)
+int avl_insert (avl_tree * ob, void * key : itype(_Ptr<void>))
 {
   if (!(ob->root->right)) {
     _Ptr<avl_node> node = avl_node_new (key, ob->root);
@@ -316,10 +314,7 @@ avl_get_by_index (avl_tree * tree, unsigned long index, _Ptr<_Ptr<void>> value_a
   }
 }
            
-_Itype_for_any(T) int avl_get_by_key (avl_tree * tree,
-         void * key : itype(_Ptr<void>),
-         void **value_address : itype(_Ptr<_Ptr<T>>))
-{
+int avl_get_by_key (avl_tree * tree, void * key : itype(_Ptr<void>), void **value_address : itype(_Ptr<_Ptr<void>>)) {
   avl_node * x = tree->root->right;
   if (!x) {
     return -1;
@@ -345,7 +340,7 @@ _Itype_for_any(T) int avl_get_by_key (avl_tree * tree,
   }
 }
 
-int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key, avl_free_key_fun_type free_key_fun)
+int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key : itype(_Ptr<void>), avl_free_key_fun_type free_key_fun)
 {
   _Ptr<avl_node> x = NULL;
   _Ptr<avl_node> y = NULL; 
@@ -773,7 +768,7 @@ avl_iterate_index_range (avl_tree * tree,
 
 static avl_node *
 avl_get_index_by_key (avl_tree * tree,
-          void * key,
+          void * key : itype(_Ptr<void>),
           unsigned long * index)
 {
   avl_node * x = tree->root->right;
@@ -814,7 +809,7 @@ avl_get_index_by_key (avl_tree * tree,
 
 int
 avl_get_span_by_key (avl_tree * tree,
-         void * key,
+         void * key : itype(_Ptr<void>),
          unsigned long * low,
          unsigned long * high)
 {
@@ -857,8 +852,8 @@ avl_get_span_by_key (avl_tree * tree,
 
 int
 avl_get_span_by_two_keys (avl_tree * tree,
-              void * low_key,
-              void * high_key,
+              void * low_key : itype(_Ptr<void>),
+              void * high_key : itype(_Ptr<void>),
               unsigned long * low,
               unsigned long * high)
 {
