@@ -150,7 +150,8 @@ source_t *source_find_mount_raw(const char *mount) : itype(_Ptr<source_t>)
     }
     
     /* didn't find it */
-    return NULL;
+    //return NULL;
+    return source;
 }
 
 
