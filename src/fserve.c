@@ -349,13 +349,13 @@ char *fserve_content_type (const char *path)
 {
     char *ext = util_get_extension(path);
     mime_type exttype = {ext, NULL};
-    void *result;
+    _Ptr<void> result = NULL;
     char *type;
 
     thread_spin_lock (&pending_lock);
     if (mimetypes && !avl_get_by_key (mimetypes, &exttype, &result))
     {
-        mime_type *mime = result;
+        _Ptr<mime_type> mime = _Dynamic_bounds_cast<_Ptr<mime_type>>(result);
         type = strdup (mime->type);
     }
     else {
