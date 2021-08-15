@@ -140,7 +140,7 @@ source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const ch
     
     while (node) {
         source = _Assume_bounds_cast<_Ptr<source_t>>(node->key);
-        cmp = strcmp(mount, source->mount);
+        _Unchecked {cmp = strcmp((char*)mount, (char*)source->mount);}
         if (cmp < 0) 
             node = node->left;
         else if (cmp > 0)
