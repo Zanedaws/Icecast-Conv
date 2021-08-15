@@ -955,11 +955,11 @@ _Itype_for_any(T) void stats_callback (client_t *client : itype(_Ptr<client_t>),
 {
     if (client->con->error)
     {
-        client_destroy (client);
+        //client_destroy (client);
         return;
     }
     client_set_queue (client, NULL);
-    //thread_create("Stats Connection", stats_connection, _Dynamic_bounds_cast<_Ptr<void>>(client), THREAD_DETACHED);
+    thread_create("Stats Connection", stats_connection, _Dynamic_bounds_cast<_Ptr<void>>(client), THREAD_DETACHED);
 }
 
 
