@@ -358,12 +358,12 @@ static int process_vorbis_headers (ogg_state_t *ogg_info, ogg_codec_t *codec)
 /* check if the provided BOS page is the start of a vorbis stream. If so
  * then setup a structure so it can be used
  */
-ogg_codec_t *initial_vorbis_page (format_plugin_t *plugin, ogg_page *page)
+ogg_codec_t *initial_vorbis_page (format_plugin_t *plugin, ogg_page *page) : itype(_Ptr<ogg_codec_t>)
 {
-    ogg_codec_t *codec = calloc (1, sizeof (ogg_codec_t));
+    _Ptr<ogg_codec_t> codec = calloc (1, sizeof (ogg_codec_t));
     ogg_packet packet;
 
-    vorbis_codec_t *vorbis = calloc (1, sizeof (vorbis_codec_t));
+    _Ptr<vorbis_codec_t> vorbis = calloc (1, sizeof (vorbis_codec_t));
 
 //   ogg_stream_init (&codec->os, ogg_page_serialno (page));
 //   ogg_stream_pagein (&codec->os, page);
@@ -384,7 +384,7 @@ ogg_codec_t *initial_vorbis_page (format_plugin_t *plugin, ogg_page *page)
         return NULL;
     }
     ICECAST_LOG_INFO("seen initial vorbis header");
-    codec->specific = vorbis;
+    codec->specific = _Dynamic_bounds_cast<_Ptr<void>>(vorbis);
     codec->codec_free = vorbis_codec_free;
     codec->headers = 1;
     codec->name = "Vorbis";
