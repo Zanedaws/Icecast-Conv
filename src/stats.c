@@ -1000,7 +1000,7 @@ xmlDocPtr stats_get_xml(int show_hidden, const char *show_mount)
 }
 
 
-static int _compare_stats(void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
+_Itype_for_any(T) static int _compare_stats(void *arg : itype(_Ptr<T>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
     _Ptr<stats_node_t> nodea = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(a);
     _Ptr<stats_node_t> nodeb = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(b);
