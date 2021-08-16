@@ -423,11 +423,12 @@ char *util_bin_to_hex(unsigned char *data, int len)
 }
 
 /* This isn't efficient, but it doesn't need to be */
-char *util_base64_encode(const char *data)
+char *util_base64_encode(const char *data : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
     int len = strlen(data);
-    char *out = malloc(len*4/3 + 4);
-    char *result = out;
+    int tmp = strlen(data);
+    _Nt_array_ptr<char> out : byte_count(tmp * 4/3 + 4)= _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc(tmp*4/3 + 4), byte_count(tmp*4/3 + 4));
+    _Nt_array_ptr<char> result : byte_count(tmp * 4/3 + 4)= out;
     int chunk;
 
     while(len > 0) {
