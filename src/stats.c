@@ -85,8 +85,8 @@ static volatile event_listener_t *_event_listeners;
 
 
 static void *_stats_thread(void *arg);
-static int _compare_stats(void *a, void *b, void *arg);
-static int _compare_source_stats(void *a, void *b, void *arg);
+static int _compare_stats(void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>), void *arg : itype(_Ptr<void>));
+static int _compare_source_stats(void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>), void *arg : itype(_Ptr<void>));
 static int _free_stats(void *key);
 static int _free_source_stats(void *key);
 static void _add_event_to_queue(stats_event_t *event, event_queue_t *queue);
@@ -1000,7 +1000,7 @@ xmlDocPtr stats_get_xml(int show_hidden, const char *show_mount)
 }
 
 
-_Itype_for_any(T) static int _compare_stats(void *arg : itype(_Ptr<T>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
+static int _compare_stats(void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
     _Ptr<stats_node_t> nodea = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(a);
     _Ptr<stats_node_t> nodeb = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(b);
