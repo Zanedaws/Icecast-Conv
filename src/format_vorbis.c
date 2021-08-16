@@ -102,9 +102,9 @@ static void vorbis_codec_free (ogg_state_t *ogg_info, ogg_codec_t *codec)
 }
 
 
-static ogg_packet *copy_ogg_packet (ogg_packet *packet)
+static ogg_packet *copy_ogg_packet (ogg_packet *packet) : itype(_Ptr<ogg_packet>)
 {
-    ogg_packet *next;
+    _Ptr<ogg_packet> next = NULL;
     do
     {
         next = malloc (sizeof (ogg_packet));
