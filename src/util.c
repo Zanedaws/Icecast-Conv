@@ -457,18 +457,19 @@ char *util_base64_encode(const char *data : itype(_Nt_array_ptr<const char>)) : 
     return result;
 }
 
-char *util_base64_decode(const char *data)
+char *util_base64_decode(const char *data) : itype(_Nt_array_ptr<char>)
 {
     const unsigned char *input = (const unsigned char *)data;
     int len = strlen (data);
-    char *out = malloc(len*3/4 + 5);
-    char *result = out;
+    int tmp = strlen (data);
+    _Nt_array_ptr<char> out : byte_count(tmp * 3/4 + 5) = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc(tmp*3/4 + 5), byte_count(tmp*3/4 + 5));
+    _Nt_array_ptr<char> result : byte_count(tmp * 3/4 + 5)= out;
     signed char vals[4];
 
     while(len > 0) {
         if(len < 4)
         {
-            free(result);
+            free(_Dynamic_bounds_cast<_Array_ptr<void>>(result, byte_count(0)));
             return NULL; /* Invalid Base64 data */
         }
 
@@ -746,7 +747,8 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
   TODO: Memory management needs overhaul. */
 char *util_dict_urlencode(util_dict *dict, char delim)
 {
-    char *res, *tmp;
+    char *res;
+    char *tmp;
     char *enc;
     int start = 1;
 
