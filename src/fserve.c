@@ -711,7 +711,7 @@ static int _delete_mapping(void *mapping) {
     return 1;
 }
 
-static int _compare_mappings(void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
+static int _compare_mappings(void *arg : itype(_Ptr<void>), void *a, void *b : itype(_Ptr<void>))
 {
     int res = strcmp(((mime_type *)a)->ext, ((mime_type *)b)->ext);
     return res;

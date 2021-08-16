@@ -764,7 +764,7 @@ static int _compare_mutexes(void *compare_arg, void *a, void *b)
 }
 #endif
 
-static int _compare_threads(void *compare_arg, void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
+static int _compare_threads(void *compare_arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
     _Ptr<thread_type> t1 = NULL;
     _Ptr<thread_type> t2 = NULL;
