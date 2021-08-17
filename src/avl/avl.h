@@ -111,9 +111,9 @@ void avl_tree_free (
   avl_free_key_fun_type    free_key_fun
   );
 
-int avl_insert (
+_Itype_for_any(T) int avl_insert (
   avl_tree *        ob,
-  void *        key
+  void *        key : itype(_Ptr<T>)
   );
 
 int avl_delete (

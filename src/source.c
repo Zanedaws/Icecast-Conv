@@ -84,9 +84,9 @@ static void source_run_script (char *command, char *mountpoint);
  * exists with that mountpoint in the global source tree then return
  * NULL.
  */
-source_t *source_reserve (const char *mount)
+source_t *source_reserve (const char *mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<source_t>)
 {
-    source_t *src = NULL;
+    _Ptr<source_t> src = NULL;
 
     if(mount[0] != '/')
         ICECAST_LOG_WARN("Source at \"%s\" does not start with '/', clients will be "
@@ -159,9 +159,9 @@ source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const ch
  * check the fallback, and so on.  Must have a global source lock to call
  * this function.
  */
-source_t *source_find_mount (const char *mount)
+source_t *source_find_mount (const char *mount) : itype(_Ptr<source_t>)
 {
-    source_t *source = NULL;
+    _Ptr<source_t> source = NULL;
     ice_config_t *config;
     mount_proxy *mountinfo;
     int depth = 0;
@@ -1215,7 +1215,7 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
  * mountinfo can be NULL in which case default settings should be taken
  * This function is called by the Slave thread
  */
-void source_update_settings (ice_config_t *config, source_t *source, mount_proxy *mountinfo)
+void source_update_settings (ice_config_t *config, source_t *source : itype(_Ptr<source_t>), mount_proxy *mountinfo)
 {
     thread_mutex_lock(&source->lock);
     /*  skip if source is a fallback to file */
@@ -1475,7 +1475,7 @@ void source_recheck_mounts (int update_all)
         if (mount->mounttype != MOUNT_TYPE_NORMAL)
 	    continue;
 
-        source_t *source = source_find_mount (mount->mountname);
+        _Ptr<source_t> source = source_find_mount (mount->mountname);
 
         if (source)
         {
