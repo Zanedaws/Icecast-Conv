@@ -1100,7 +1100,7 @@ void stats_clear_virtual_mounts (void)
     while (snode)
     {
         stats_source_t *src = (stats_source_t *)snode->key;
-        source_t *source = source_find_mount_raw (src->source);
+        _Ptr<source_t> source = source_find_mount_raw (src->source);
 
         if (source == NULL)
         {

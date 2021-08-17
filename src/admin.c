@@ -188,7 +188,7 @@ static void command_kill_source(client_t *client, source_t *source,
         int response);
 static void command_updatemetadata(client_t *client, source_t *source,
         int response);
-static void admin_handle_mount_request(client_t *client, source_t *source,
+static void admin_handle_mount_request(client_t *client, source_t *source : itype(_Ptr<source_t>),
         int command);
 static void admin_handle_general_request(client_t *client, int command);
 
@@ -403,7 +403,7 @@ void admin_handle_request(client_t *client, const char *uri)
     mount = httpp_get_query_param(client->parser, "mount");
 
     if(mount != NULL) {
-        source_t *source;
+        _Ptr<source_t> source = NULL;
 
         /* this request does not require auth but can apply to files on webroot */
         if (command == COMMAND_BUILDM3U)
