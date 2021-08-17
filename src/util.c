@@ -745,7 +745,7 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
    stringify it in order as key=val&key=val... if val 
    is set, or just key&key if val is NULL.
   TODO: Memory management needs overhaul. */
-_Unchecked char *util_dict_urlencode(util_dict *dict, char delim)
+char *util_dict_urlencode(util_dict *dict, char delim)
 {
     char *res;
     char *tmp;
