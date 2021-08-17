@@ -139,8 +139,8 @@ source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const ch
     node = global.source_tree->root->right;
     
     while (node) {
-        _Unchecked {source = _Assume_bounds_cast<_Ptr<source_t>>(node->key);}
-        //_Unchecked {cmp = strcmp((char*)mount, (char*)source->mount);}
+        source = _Dynamic_bounds_cast<_Ptr<source_t>>(node->key);
+        cmp = strcmp(mount, source->mount);
         cmp = 0;
         if (cmp < 0) 
             node = node->left;

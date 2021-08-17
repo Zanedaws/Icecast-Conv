@@ -29,7 +29,7 @@ typedef struct source_tag
     http_parser_t *parser;
     time_t client_stats_update;
     
-    char *mount;
+    char *mount : itype(_Nt_array_ptr<char>);
 
     /* If this source drops, try to move all clients to this fallback */
     char *fallback_mount;
