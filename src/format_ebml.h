@@ -24,12 +24,12 @@ typedef struct ebml_source_state_st ebml_source_state_t;
 
 struct ebml_source_state_st {
 
-    ebml_t *ebml;
-    refbuf_t *header;
+    ebml_t *ebml : itype(_Ptr<ebml_t>);
+    refbuf_t *header : itype(_Ptr<refbuf_t>);
     int file_headers_written;
 
 };
 
-int format_ebml_get_plugin (source_t *source);
+int format_ebml_get_plugin (source_t *source : itype(_Ptr<source_t>));
 
 #endif  /* __FORMAT_EBML_H__ */

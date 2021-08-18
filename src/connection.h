@@ -44,25 +44,25 @@ typedef struct connection_tag
 #ifdef HAVE_OPENSSL
     SSL *ssl;   /* SSL handler */
 #endif
-    int (*send)(struct connection_tag *handle, const void *buf, size_t len);
-    int (*read)(struct connection_tag *handle, void *buf, size_t len);
+    int ((*send)(struct connection_tag * handle, const void * buf, size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, const void *buf, size_t len)>);
+    int ((*read)(struct connection_tag * handle, void * buf, size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, void *buf, size_t len)>);
 
     char *ip;
-    char *host;
+    char *host : itype(_Ptr<char>);
 
 } connection_t;
 
 void connection_initialize(void);
 void connection_shutdown(void);
 void connection_accept_loop(void);
-int  connection_setup_sockets (struct ice_config_tag *config);
-void connection_close(connection_t *con);
-connection_t *connection_create (sock_t sock, sock_t serversock, char *ip);
-int connection_complete_source (struct source_tag *source, int response);
+int  connection_setup_sockets (struct ice_config_tag *config : itype(_Ptr<struct ice_config_tag>));
+void connection_close(connection_t *con : itype(_Ptr<connection_t>));
+connection_t *connection_create(sock_t sock, sock_t serversock, char *ip : itype(_Nt_array_ptr<char>)) : itype(_Ptr<connection_t>);
+int connection_complete_source (struct source_tag *source : itype(_Ptr<struct source_tag>), int response);
 
-int connection_check_pass (http_parser_t *parser, const char *user, const char *pass);
-int connection_check_relay_pass(http_parser_t *parser);
-int connection_check_admin_pass(http_parser_t *parser);
+int connection_check_pass (http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *user : itype(_Nt_array_ptr<const char>) byte_count(6), const char *pass : itype(_Nt_array_ptr<const char>));
+int connection_check_relay_pass(http_parser_t *parser : itype(_Ptr<http_parser_t>));
+int connection_check_admin_pass(http_parser_t *parser : itype(_Ptr<http_parser_t>));
 
 extern rwlock_t _source_shutdown_rwlock;
 

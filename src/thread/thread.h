@@ -28,13 +28,13 @@
 typedef struct {
     /* the local id for the thread, and it's name */
     long thread_id;
-    char *name;
+    char *name : itype(_Ptr<char>);
 
     /* the time the thread was created */
     time_t create_time;
     
     /* the file and line which created this thread */
-    char *file;
+    char *file : itype(_Ptr<char>);
     int line;
 
     /* is the thread running detached? */
@@ -95,10 +95,10 @@ typedef struct
     pthread_spinlock_t lock;
 } spin_t;
 
-void thread_spin_create (spin_t *spin);
-void thread_spin_destroy (spin_t *spin);
-void thread_spin_lock (spin_t *spin);
-void thread_spin_unlock (spin_t *spin);
+void thread_spin_create (spin_t *spin : itype(_Ptr<spin_t>));
+void thread_spin_destroy (spin_t *spin : itype(_Ptr<spin_t>));
+void thread_spin_lock (spin_t *spin : itype(_Ptr<spin_t>));
+void thread_spin_unlock (spin_t *spin : itype(_Ptr<spin_t>));
 #else
 typedef mutex_t spin_t;
 #define thread_spin_create(x)  thread_mutex_create(x)
@@ -163,24 +163,23 @@ void thread_initialize_with_log_id(int log_id);
 void thread_shutdown(void);
 
 /* creation, destruction, locking, unlocking, signalling and waiting */
-_Itype_for_any(T) thread_type *thread_create_c(char *name, void *(*start_routine)(void *), 
-        void *arg : itype(_Array_ptr<T>) , int detached, int line, char *file) : itype(_Ptr<thread_type>);
-void thread_mutex_create_c(mutex_t *mutex, int line, char *file);
-void thread_mutex_lock_c(mutex_t *mutex, int line, char *file);
-void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file);
-void thread_mutex_destroy(mutex_t *mutex);
-void thread_cond_create_c(cond_t *cond, int line, char *file);
-void thread_cond_signal_c(cond_t *cond, int line, char *file);
-void thread_cond_broadcast_c(cond_t *cond, int line, char *file);
-void thread_cond_wait_c(cond_t *cond, int line, char *file);
-void thread_cond_timedwait_c(cond_t *cond, int millis, int line, char *file);
-void thread_cond_destroy(cond_t *cond);
-void thread_rwlock_create_c(rwlock_t *rwlock, int line, char *file);
-void thread_rwlock_rlock_c(rwlock_t *rwlock, int line, char *file);
-void thread_rwlock_wlock_c(rwlock_t *rwlock, int line, char *file);
-void thread_rwlock_unlock_c(rwlock_t *rwlock, int line, char *file);
-void thread_rwlock_destroy(rwlock_t *rwlock);
-void thread_exit_c(long val, int line, char *file);
+_Itype_for_any(T) thread_type *thread_create_c(char *name : itype(_Nt_array_ptr<char>), void * ((*start_routine)(void *)) : itype(_Ptr<void *(void *)>), void *arg : itype(_Array_ptr<T>), int detached, int line, char *file : itype(_Nt_array_ptr<char>)) : itype(_Ptr<thread_type>);
+void thread_mutex_create_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>));
+void thread_mutex_lock_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>));
+void thread_mutex_unlock_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>));
+void thread_mutex_destroy(mutex_t *mutex : itype(_Ptr<mutex_t>));
+void thread_cond_create_c(cond_t *cond : itype(_Ptr<cond_t>), int line, char *file : itype(_Ptr<char>));
+void thread_cond_signal_c(cond_t *cond : itype(_Ptr<cond_t>), int line, char *file : itype(_Ptr<char>));
+void thread_cond_broadcast_c(cond_t *cond : itype(_Ptr<cond_t>), int line, char *file : itype(_Ptr<char>));
+void thread_cond_wait_c(cond_t *cond : itype(_Ptr<cond_t>), int line, char *file : itype(_Ptr<char>));
+void thread_cond_timedwait_c(cond_t *cond : itype(_Ptr<cond_t>), int millis, int line, char *file : itype(_Ptr<char>));
+void thread_cond_destroy(cond_t *cond : itype(_Ptr<cond_t>));
+void thread_rwlock_create_c(rwlock_t *rwlock : itype(_Ptr<rwlock_t>), int line, char *file : itype(_Ptr<char>));
+void thread_rwlock_rlock_c(rwlock_t *rwlock : itype(_Ptr<rwlock_t>), int line, char *file : itype(_Ptr<char>));
+void thread_rwlock_wlock_c(rwlock_t *rwlock : itype(_Ptr<rwlock_t>), int line, char *file : itype(_Ptr<char>));
+void thread_rwlock_unlock_c(rwlock_t *rwlock : itype(_Ptr<rwlock_t>), int line, char *file : itype(_Ptr<char>));
+void thread_rwlock_destroy(rwlock_t *rwlock : itype(_Ptr<rwlock_t>));
+void thread_exit_c(long val, int line, char *file : itype(_Ptr<char>));
 
 /* sleeping */
 void thread_sleep(unsigned long len);
@@ -194,7 +193,7 @@ void thread_library_unlock(void);
 thread_type *thread_self(void);
 
 /* renames current thread */
-void thread_rename(const char *name);
+void thread_rename(const char *name : itype(_Nt_array_ptr<const char>));
 
 /* waits until thread_exit is called for another thread */
 void thread_join(thread_type *thread);

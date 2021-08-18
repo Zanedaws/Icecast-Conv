@@ -23,18 +23,18 @@
 #define MAX_LINE_LEN 512
 
 int util_timed_wait_for_fd(sock_t fd, int timeout);
-int util_read_header(sock_t sock, char *buff, unsigned long len, int entire);
-int util_check_valid_extension(const char *uri);
-char *util_get_extension(const char *path);
-char *util_get_path_from_uri(char *uri);
-char *util_get_path_from_normalised_uri(const char *uri);
-char *util_normalise_uri(const char *uri);
-char *util_base64_encode(const char *data);
-char *util_base64_decode(const char *input);
-char *util_bin_to_hex(unsigned char *data, int len);
+int util_read_header(sock_t sock, char *buff : itype(_Array_ptr<char>) count(len), unsigned long len, int entire);
+int util_check_valid_extension(const char *uri : itype(_Nt_array_ptr<const char>));
+char *util_get_extension(const char *path : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
+char *util_get_path_from_uri(char *uri : itype(_Nt_array_ptr<char>)) : itype(_Ptr<char>);
+char *util_get_path_from_normalised_uri(const char *uri : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
+char *util_normalise_uri(const char *uri : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
+char *util_base64_encode(const char *data : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
+char *util_base64_decode(const char *input : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
+char *util_bin_to_hex(unsigned char *data : itype(_Array_ptr<unsigned char>) count(len), int len) : itype(_Nt_array_ptr<char>);
 
-char *util_url_unescape(const char *src);
-char *util_url_escape(const char *src);
+char *util_url_unescape(const char *src : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
+char *util_url_escape(const char *src : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
 
 /* Function to build up a HTTP header.
  * out is the pointer to storage.
@@ -59,32 +59,27 @@ char *util_url_escape(const char *src);
  */
 struct source_tag; /* use forward decleration so we do not need to
                     * include <source.h> that would cause other conflicts. */
-ssize_t util_http_build_header(char * out : itype(_Nt_array_ptr<char>), size_t len, ssize_t offset,
-        int cache,
-        int status, const char * statusmsg,
-        const char * contenttype, const char * charset,
-        const char * datablock,
-        struct source_tag * source);
+ssize_t util_http_build_header(char *out : itype(_Nt_array_ptr<char>), size_t len, ssize_t offset, int cache, int status, const char *statusmsg : itype(_Nt_array_ptr<const char>), const char *contenttype : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Nt_array_ptr<const char>) count(5), const char *datablock : itype(_Nt_array_ptr<const char>), struct source_tag *source : itype(_Ptr<struct source_tag>));
 
 /* String dictionary type, without support for NULL keys, or multiple
  * instances of the same key */
 typedef struct _util_dict {
-  char *key;
-  char *val;
-  struct _util_dict *next;
+  char *key : itype(_Nt_array_ptr<char>);
+  char *val : itype(_Nt_array_ptr<char>);
+  struct _util_dict *next : itype(_Ptr<struct _util_dict>);
 } util_dict;
 
-util_dict *util_dict_new(void);
-void util_dict_free(util_dict *dict);
+util_dict *util_dict_new(void) : itype(_Ptr<util_dict>);
+void util_dict_free(util_dict *dict : itype(_Ptr<util_dict>));
 /* dict, key must not be NULL. */
-int util_dict_set(util_dict *dict, const char *key, const char *val);
-const char *util_dict_get(util_dict *dict, const char *key);
-char *util_dict_urlencode(util_dict *dict, char delim);
+int util_dict_set(util_dict *dict : itype(_Ptr<util_dict>), const char *key : itype(_Nt_array_ptr<const char>) count(100), const char *val : itype(_Nt_array_ptr<const char>));
+const char *util_dict_get(util_dict *dict : itype(_Ptr<util_dict>), const char *key : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<const char>);
+char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) : itype(_Ptr<char>);
 
 #ifndef HAVE_LOCALTIME_R
 struct tm *localtime_r (const time_t *timep, struct tm *result);
 #endif
-char *util_conv_string (const char *string : itype(_Nt_array_ptr<const char>), const char *in_charset : itype(_Nt_array_ptr<const char>), const char *out_charset : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
+char *util_conv_string(const char *string : itype(_Nt_array_ptr<const char>), const char *in_charset : itype(_Ptr<const char>), const char *out_charset : itype(_Ptr<const char>)) : itype(_Nt_array_ptr<char>);
 
-int get_line(FILE *file, char *buf, size_t siz);
+int get_line(FILE *file : itype(_Ptr<FILE>), char *buf : itype(_Nt_array_ptr<char>) count(siz), size_t siz);
 #endif  /* __UTIL_H__ */

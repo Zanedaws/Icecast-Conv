@@ -27,7 +27,7 @@
 
 typedef struct ice_global_tag
 {
-    sock_t *serversock;
+    int *serversock : itype(_Array_ptr<sock_t>) count(server_sockets);
     int server_sockets;
 
     int running;

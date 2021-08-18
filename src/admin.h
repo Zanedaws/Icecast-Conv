@@ -23,8 +23,7 @@
 #define TRANSFORMED 2
 #define PLAINTEXT   3
 
-void admin_handle_request(client_t *client, const char *uri);
-void admin_send_response(xmlDocPtr doc, client_t *client, 
-        int response, const char *xslt_template);
+void admin_handle_request(client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>));
+void admin_send_response(xmlDocPtr doc, client_t *client : itype(_Ptr<client_t>), int response, const char *xslt_template : itype(_Nt_array_ptr<const char>) byte_count(8));
 
 #endif  /* __ADMIN_H__ */

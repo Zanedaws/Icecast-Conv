@@ -38,6 +38,6 @@ void slave_initialize(void);
 void slave_shutdown(void);
 void slave_update_all_mounts (void);
 void slave_rebuild_mounts (void);
-relay_server *relay_free (relay_server *relay : itype(_Ptr<relay_server>)) : itype(_Ptr<relay_server>);
+relay_server *relay_free(relay_server *relay : itype(_Ptr<relay_server>)) : itype(_Ptr<relay_server>);
 
 #endif  /* __SLAVE_H__ */

@@ -34,7 +34,7 @@
 #include "stats.h"
 
 
-void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client);
+void xslt_transform(xmlDocPtr doc, const char *xslfilename : itype(_Nt_array_ptr<const char>), client_t *client : itype(_Ptr<client_t>));
 void xslt_initialize(void);
 void xslt_shutdown(void);
 
