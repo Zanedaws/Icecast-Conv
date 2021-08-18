@@ -208,9 +208,9 @@ typedef struct ice_config_tag {
     int chuid;
     char *user : itype(_Nt_array_ptr<char>);
     char *group : itype(_Nt_array_ptr<char>);
-    char *[25] yp_url : itype(char * _Checked[MAX_YP_DIRECTORIES]);
-    int [25] yp_url_timeout : itype(int _Checked[MAX_YP_DIRECTORIES]);
-    int [25] yp_touch_interval : itype(int _Checked[MAX_YP_DIRECTORIES]);
+    char * yp_url[25] : itype(char * _Checked[MAX_YP_DIRECTORIES]);
+    int yp_url_timeout[25] : itype(int _Checked[MAX_YP_DIRECTORIES]);
+    int yp_touch_interval[25] : itype(int _Checked[MAX_YP_DIRECTORIES]);
     int num_yp_directories;
 } ice_config_t;
 

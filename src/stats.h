@@ -91,7 +91,7 @@ void stats_event_time (const char *mount : itype(_Nt_array_ptr<const char>), con
 void stats_event_time_iso8601 (const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(20));
 
 void *stats_connection(void *arg);
-void stats_callback (client_t *client : itype(_Ptr<client_t>), void *notused : itype(_Ptr<T>));
+_Itype_for_any(T) void stats_callback (client_t *client : itype(_Ptr<client_t>), void *notused : itype(_Ptr<T>));
 
 void stats_transform_xslt(client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>));
 void stats_sendxml(client_t *client);
