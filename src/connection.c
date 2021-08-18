@@ -266,7 +266,7 @@ static int connection_read_ssl (connection_t *con, void *buf, size_t len)
     return bytes;
 }
 
-static int connection_send_ssl (connection_t *con, const void *buf, size_t len)
+_Itype_for_any(T) static int connection_send_ssl (connection_t *con, const void *buf : itype(_Array_ptr<const T>), size_t len)
 {
     int bytes = SSL_write (con->ssl, buf, len);
 
@@ -308,7 +308,7 @@ static int connection_read (connection_t *con, void *buf, size_t len)
     return bytes;
 }
 
-static int connection_send (connection_t *con, const void *buf, size_t len)
+_Itype_for_any(T) static int connection_send (connection_t *con, const void *buf : itype(_Array_ptr<const T>), size_t len)
 {
     int bytes = sock_write_bytes (con->sock, buf, len);
     if (bytes < 0)
