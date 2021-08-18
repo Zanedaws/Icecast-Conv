@@ -3,6 +3,7 @@
 -dump-stats \
 -itypes-for-extern \
 -itypes-for-extern \
+-itypes-for-extern \
 -alltypes \
 -p \
 $BASEDIR/compile_commands.json \
