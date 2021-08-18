@@ -347,7 +347,7 @@ ssize_t sock_writev (sock_t sock, const struct iovec *iov, size_t count)
 ** write bytes to the socket
 ** this function will _NOT_ block
 */
-int sock_write_bytes(sock_t sock, const void *buff, size_t len)
+_Itype_for_any(T) int sock_write_bytes(sock_t sock, const void *buff : itype(_Array_ptr<const T>), size_t len)
 {
     /* sanity check */
     if (!buff) {
