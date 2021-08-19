@@ -253,7 +253,7 @@ void client_send_500(client_t *client, const char *message) {
 }
 
 /* helper function for sending the data to a client */
-_Itype_for_any(T) int client_send_bytes (client_t *client, const void *buf : itype(_Array_ptr<const T>), unsigned len)
+_Itype_for_any(T) int client_send_bytes (client_t *client : itype(_Ptr<client_t>), const void *buf : itype(_Array_ptr<const T>), unsigned len)
 {
     int ret = client->con->send (client->con, buf, len);
 

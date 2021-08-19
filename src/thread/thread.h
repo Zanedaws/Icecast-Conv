@@ -28,13 +28,13 @@
 typedef struct {
     /* the local id for the thread, and it's name */
     long thread_id;
-    char *name : itype(_Ptr<char>);
+    char *name : itype(_Nt_array_ptr<char>);
 
     /* the time the thread was created */
     time_t create_time;
     
     /* the file and line which created this thread */
-    char *file : itype(_Ptr<char>);
+    char *file : itype(_Nt_array_ptr<char>);
     int line;
 
     /* is the thread running detached? */

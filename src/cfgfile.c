@@ -813,7 +813,7 @@ static void _parse_mount(xmlDocPtr doc, xmlNodePtr node,
     if (mount->auth && mount->mountname) {
         mount->auth->mount = strdup ((char *)mount->mountname);
     } else if (mount->auth && mount->mounttype == MOUNT_TYPE_DEFAULT ) {
-        mount->auth->mount = strdup ("(default mount)");
+       _Checked { mount->auth->mount = strdup ("(default mount)");}
     }
     while(current) {
         last = current;
@@ -831,8 +831,8 @@ static void _parse_mount(xmlDocPtr doc, xmlNodePtr node,
         configuration->mounts = mount;
 }
 
-static void _parse_http_headers(xmlDocPtr doc, xmlNodePtr node, ice_config_http_header_t **http_headers) {
-    ice_config_http_header_t *header;
+static void _parse_http_headers(xmlDocPtr doc, xmlNodePtr node, ice_config_http_header_t **http_headers : itype(_Array_ptr<_Ptr<ice_config_http_header_t>>)) {
+    _Ptr<ice_config_http_header_t> header = NULL;
     ice_config_http_header_t *next;
     _Nt_array_ptr<char> name = NULL;
     _Nt_array_ptr<char> value = NULL;
@@ -974,7 +974,7 @@ static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
     char *tmp;
-    listener_t *listener = calloc (1, sizeof(listener_t));
+    _Ptr<listener_t> listener = calloc (1, sizeof(listener_t));
 
     if (listener == NULL)
         return;
@@ -1029,7 +1029,7 @@ static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
     configuration->listen_sock_count++;
     if (listener->shoutcast_mount)
     {
-        listener_t *sc_port = calloc (1, sizeof (listener_t));
+        _Ptr<listener_t> sc_port = calloc (1, sizeof (listener_t));
         sc_port->port = listener->port+1;
         sc_port->shoutcast_compat = 1;
         //sc_port->shoutcast_mount = (char*)xmlStrdup (XMLSTR(listener->shoutcast_mount));
@@ -1298,7 +1298,8 @@ static void _parse_security(xmlDocPtr doc, xmlNodePtr node,
 static void _add_server(xmlDocPtr doc, xmlNodePtr node, 
         ice_config_t *configuration)
 {
-    ice_config_dir_t *dirnode, *server;
+    ice_config_dir_t *dirnode;
+    _Ptr<ice_config_dir_t> server = NULL;
     int addnode;
     char *tmp;
 

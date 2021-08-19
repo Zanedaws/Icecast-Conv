@@ -20,7 +20,7 @@
 struct MD5Context
 {       
     uint32_t     buf[4];
-    uint32_t [2] bits : itype(uint32_t _Checked[2]);
+    uint32_t  bits[2] : itype(uint32_t _Checked[2]);
     unsigned char in[64];
 };
 

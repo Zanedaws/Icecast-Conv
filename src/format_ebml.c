@@ -51,18 +51,18 @@ struct ebml_client_data_st {
 
 struct ebml_st {
 
-    char *cluster_id;
+    char *cluster_id : itype(_Nt_array_ptr<char>);
     int cluster_start;
     
     int position;
-    unsigned char *input_buffer;
-    unsigned char *buffer;
+    unsigned char *input_buffer : itype(_Nt_array_ptr<unsigned char>);
+    unsigned char *buffer : itype(_Nt_array_ptr<unsigned char>);
 
     int header_read;
     int header_size;
     int header_position;
     int header_read_position;
-    unsigned char *header;
+    unsigned char *header : itype(_Nt_array_ptr<unsigned char>);
 
 };
 
@@ -73,7 +73,7 @@ static void  ebml_write_buf_to_file (source_t *source, refbuf_t *refbuf);
 static int  ebml_create_client_data (source_t *source, client_t *client);
 static void ebml_free_client_data (client_t *client);
 
-static ebml_t *ebml_create();
+static ebml_t *ebml_create(void) : itype(_Ptr<ebml_t>);
 static void ebml_destroy(ebml_t *ebml);
 static int ebml_read_space(ebml_t *ebml);
 static int ebml_read(ebml_t *ebml, char *buffer, int len);
@@ -84,8 +84,8 @@ static int ebml_wrote(ebml_t *ebml, int len);
 int format_ebml_get_plugin (source_t *source)
 {
 
-    ebml_source_state_t *ebml_source_state = calloc(1, sizeof(ebml_source_state_t));
-    format_plugin_t *plugin = calloc(1, sizeof(format_plugin_t));
+    _Ptr<ebml_source_state_t> ebml_source_state = calloc(1, sizeof(ebml_source_state_t));
+    _Ptr<format_plugin_t> plugin = calloc(1, sizeof(format_plugin_t));
 
     plugin->get_buffer = ebml_get_buffer;
     plugin->write_buf_to_client = ebml_write_buf_to_client;
@@ -97,10 +97,10 @@ int format_ebml_get_plugin (source_t *source)
 
     plugin->contenttype = httpp_getvar (source->parser, "content-type");
 
-    plugin->_state = ebml_source_state;
+    plugin->_state = _Dynamic_bounds_cast<_Ptr<void>>(ebml_source_state);
     source->format = plugin;
 
-    ebml_source_state->ebml = ebml_create();
+    ebml_source_state->ebml = _Dynamic_bounds_cast<_Ptr<ebml_t>>(ebml_create());
     return 0;
 }
 
@@ -157,14 +157,14 @@ static int ebml_write_buf_to_client (client_t *client)
 
 }
 
-static refbuf_t *ebml_get_buffer (source_t *source)
+static refbuf_t *ebml_get_buffer (source_t *source) : itype(_Ptr<refbuf_t>)
 {
 
     ebml_source_state_t *ebml_source_state = source->format->_state;
     format_plugin_t *format = source->format;
     char *data = NULL;
     int bytes = 0;
-    refbuf_t *refbuf;
+    _Ptr<refbuf_t> refbuf = NULL;
     int ret;
 
     while (1)
@@ -285,10 +285,10 @@ static void ebml_destroy(ebml_t *ebml)
 
 }
 
-static ebml_t *ebml_create()
+static ebml_t *ebml_create(void) : itype(_Ptr<ebml_t>)
 {
 
-    ebml_t *ebml = calloc(1, sizeof(ebml_t));
+    _Ptr<ebml_t> ebml = calloc(1, sizeof(ebml_t));
 
     ebml->header = calloc(1, EBML_HEADER_MAX_SIZE);
     ebml->buffer = calloc(1, EBML_SLICE_SIZE * 4);

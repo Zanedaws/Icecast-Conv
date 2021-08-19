@@ -41,7 +41,7 @@
 static void auth_postprocess_source (auth_client *auth_user);
 
 
-static auth_client *auth_client_setup (const char *mount, client_t *client)
+static auth_client *auth_client_setup (const char *mount, _Ptr<client_t> client)
 {
     /* This will look something like "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==" */
     const char *header = httpp_getvar(client->parser, "authorization");

@@ -48,7 +48,7 @@ typedef struct auth_client_tag
 
 typedef struct auth_tag
 {
-    char *mount : itype(_Ptr<char>);
+    char *mount : itype(_Nt_array_ptr<char>);
 
     /* Authenticate using the given username and password */
     auth_result ((*authenticate)(auth_client * aclient)) : itype(_Ptr<auth_result (_Ptr<auth_client> aclient)>);

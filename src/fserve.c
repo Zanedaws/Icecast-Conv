@@ -71,8 +71,8 @@
 
 static volatile int __inited = 0;
 
-static fserve_t *active_list = NULL;
-static fserve_t *pending_list = NULL;
+static _Ptr<fserve_t> active_list = NULL;
+static _Ptr<fserve_t> pending_list = NULL;
 
 static spin_t pending_lock;
 static avl_tree *mimetypes = NULL;
@@ -93,7 +93,7 @@ typedef struct {
     char *type;
 } mime_type;
 
-static void fserve_client_destroy(fserve_t *fclient);
+static void fserve_client_destroy(fserve_t *fclient : itype(_Ptr<fserve_t>));
 static int _delete_mapping(void *mapping);
 static void *fserv_thread_function(void *arg);
 
@@ -131,7 +131,7 @@ void fserve_shutdown(void)
     }
     while (active_list)
     {
-        fserve_t *to_go = active_list;
+        _Ptr<fserve_t> to_go = active_list;
         active_list = to_go->next;
         fserve_client_destroy (to_go);
     }
@@ -147,7 +147,7 @@ void fserve_shutdown(void)
 #ifdef HAVE_POLL
 int fserve_client_waiting (void)
 {
-    fserve_t *fclient;
+    _Ptr<fserve_t> fclient = NULL;
     unsigned int i = 0;
 
     /* only rebuild ufds if there are clients added/removed */
@@ -241,7 +241,7 @@ int fserve_client_waiting (void)
 
 static int wait_for_fds(void)
 {
-    fserve_t *fclient;
+    _Ptr<fserve_t> fclient = NULL;
     int ret;
 
     while (run_fserv)
@@ -251,10 +251,10 @@ static int wait_for_fds(void)
         {
             thread_spin_lock (&pending_lock);
 
-            fclient = (fserve_t*)pending_list;
+            fclient = _Dynamic_bounds_cast<_Ptr<fserve_t>>(pending_list);
             while (fclient)
             {
-                fserve_t *to_move = fclient;
+                _Ptr<fserve_t> to_move = fclient;
                 fclient = fclient->next;
                 to_move->next = active_list;
                 active_list = to_move;
@@ -274,7 +274,8 @@ static int wait_for_fds(void)
 
 static void *fserv_thread_function(void *arg)
 {
-    fserve_t *fclient, **trail;
+    _Ptr<fserve_t> fclient = NULL;
+    _Ptr<_Ptr<fserve_t>> trail = NULL;
     size_t bytes;
 
     while (1)
@@ -304,7 +305,7 @@ static void *fserv_thread_function(void *arg)
                     {
                         if (refbuf->next == NULL)
                         {
-                            fserve_t *to_go = fclient;
+                            _Ptr<fserve_t> to_go = fclient;
                             fclient = fclient->next;
                             *trail = fclient;
                             fserve_client_destroy (to_go);
@@ -327,7 +328,7 @@ static void *fserv_thread_function(void *arg)
 
                 if (client->con->error)
                 {
-                    fserve_t *to_go = fclient;
+                    _Ptr<fserve_t> to_go = fclient;
                     fclient = fclient->next;
                     *trail = fclient;
                     fserve_clients--;
@@ -336,7 +337,7 @@ static void *fserv_thread_function(void *arg)
                     continue;
                 }
             }
-            trail = &fclient->next;
+            trail = _Dynamic_bounds_cast<_Ptr<_Ptr<fserve_t>>>(&fclient->next);
             fclient = fclient->next;
         }
     }
@@ -642,7 +643,7 @@ fail:
 /* Routine to actually add pre-configured client structure to pending list and
  * then to start off the file serving thread if it is not already running
  */
-static void fserve_add_pending (fserve_t *fclient)
+static void fserve_add_pending (fserve_t *fclient : itype(_Ptr<fserve_t>))
 {
     thread_spin_lock (&pending_lock);
     fclient->next = (fserve_t *)pending_list;

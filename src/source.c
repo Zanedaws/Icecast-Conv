@@ -593,7 +593,7 @@ static void send_to_listener (source_t *source, client_t *client, int deletion_e
 /* Open the file for stream dumping.
  * This function should do all processing of the filename.
  */
-static FILE * source_open_dumpfile(const char * filename) {
+static FILE * source_open_dumpfile(const char * filename) : itype(_Ptr<FILE>) {
 #ifndef _WIN32
     /* some of the below functions seems not to be standard winapi functions */
     char buffer[PATH_MAX];
@@ -1182,7 +1182,7 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
         char *path = malloc (len);
         if (path)
         {
-            FILE *f;
+            _Ptr<FILE> f = NULL;
             snprintf (path, len, "%s" PATH_SEPARATOR "%s", config->webroot_dir,
                     mountinfo->intro_filename);
 
@@ -1397,10 +1397,10 @@ static void *source_fallback_file (void *arg)
     char *type;
     char *path;
     unsigned int len;
-    FILE *file = NULL;
+    _Ptr<FILE> file = NULL;
     source_t *source = NULL;
     ice_config_t *config;
-    http_parser_t *parser;
+    _Ptr<http_parser_t> parser = NULL;
 
     do
     {

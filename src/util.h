@@ -74,12 +74,12 @@ void util_dict_free(util_dict *dict : itype(_Ptr<util_dict>));
 /* dict, key must not be NULL. */
 int util_dict_set(util_dict *dict : itype(_Ptr<util_dict>), const char *key : itype(_Nt_array_ptr<const char>) count(100), const char *val : itype(_Nt_array_ptr<const char>));
 const char *util_dict_get(util_dict *dict : itype(_Ptr<util_dict>), const char *key : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<const char>);
-char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) : itype(_Ptr<char>);
+char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) : itype(_Nt_array_ptr<char>);
 
 #ifndef HAVE_LOCALTIME_R
 struct tm *localtime_r (const time_t *timep, struct tm *result);
 #endif
-char *util_conv_string(const char *string : itype(_Nt_array_ptr<const char>), const char *in_charset : itype(_Ptr<const char>), const char *out_charset : itype(_Ptr<const char>)) : itype(_Nt_array_ptr<char>);
+char *util_conv_string(const char *string : itype(_Nt_array_ptr<const char>), const char *in_charset : itype(_Nt_array_ptr<const char>), const char *out_charset : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
 
 int get_line(FILE *file : itype(_Ptr<FILE>), char *buf : itype(_Nt_array_ptr<char>) count(siz), size_t siz);
 #endif  /* __UTIL_H__ */

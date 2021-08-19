@@ -416,12 +416,12 @@ ogg_codec_t *initial_vorbis_page (format_plugin_t *plugin, ogg_page *page) : ity
 /* called from the admin interface, here we update the artist/title info
  * and schedule a new set of header pages
  */
-static void vorbis_set_tag (format_plugin_t *plugin, const char *tag, const char *in_value, const char *charset)
+static void vorbis_set_tag (format_plugin_t *plugin, const char *tag, const char *in_value : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Nt_array_ptr<const char>))
 {   
     ogg_state_t *ogg_info = plugin->_state;
     ogg_codec_t *codec = ogg_info->codecs;
     vorbis_codec_t *source_vorbis;
-    char *value;
+    _Nt_array_ptr<char> value = NULL;
 
     /* avoid updating if multiple codecs in use */
     if (codec && codec->next == NULL)
@@ -436,9 +436,9 @@ static void vorbis_set_tag (format_plugin_t *plugin, const char *tag, const char
         return;
     }
 
-    value = util_conv_string (in_value, charset, "UTF-8");
+    _Checked {value = util_conv_string (in_value, charset, "UTF-8");}
     if (value == NULL)
-        value = strdup (in_value);
+        _Checked {value = strdup (in_value);}
 
     if (strcmp (tag, "artist") == 0)
     {

@@ -160,8 +160,8 @@ static void free_ogg_codecs (ogg_state_t *ogg_info)
 
 int format_ogg_get_plugin (source_t *source)
 {
-    format_plugin_t *plugin;
-    ogg_state_t *state = calloc (1, sizeof (ogg_state_t));
+    _Ptr<format_plugin_t> plugin = NULL;
+    _Ptr<ogg_state_t> state = calloc (1, sizeof (ogg_state_t));
 
     plugin = (format_plugin_t *)calloc(1, sizeof(format_plugin_t));
 
@@ -207,7 +207,7 @@ static void format_ogg_free_plugin (format_plugin_t *plugin)
 static int process_initial_page (format_plugin_t *plugin, ogg_page *page)
 {
     ogg_state_t *ogg_info = plugin->_state;
-    ogg_codec_t *codec;
+    _Ptr<ogg_codec_t> codec = NULL;
 
     if (ogg_info->bos_completed)
     {
@@ -370,7 +370,7 @@ static refbuf_t *complete_buffer (source_t *source, refbuf_t *refbuf)
  */
 static refbuf_t *process_ogg_page (ogg_state_t *ogg_info, ogg_page *page)
 {
-    ogg_codec_t *codec = ogg_info->codecs;
+    _Ptr<ogg_codec_t> codec = ogg_info->codecs;
     refbuf_t *refbuf = NULL;
 
     while (codec)

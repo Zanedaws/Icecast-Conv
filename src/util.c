@@ -295,10 +295,10 @@ char *util_url_escape (const char *src)
     return dst;
 }
 
-char *util_url_unescape (const char *src) : itype(_Array_ptr<char>)
+char *util_url_unescape (const char *src : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
     int len = strlen(src);
-    _Array_ptr<char> decoded : byte_count(len + 1)= calloc<char>(1, len+1);
+    _Nt_array_ptr<char> decoded : byte_count(len + 1)= _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char>(1, len+1), byte_count(len+1));
     int i;
     _Array_ptr<char> dst = NULL;
     int done = 0;
@@ -746,7 +746,7 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
    stringify it in order as key=val&key=val... if val 
    is set, or just key&key if val is NULL.
   TODO: Memory management needs overhaul. */
-char *util_dict_urlencode(util_dict *dict, char delim) : itype(_Nt_array_ptr<char>) 
+char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) : itype(_Nt_array_ptr<char>) 
 {
     char *res = NULL;
     char *tmp;
@@ -817,7 +817,7 @@ struct tm *localtime_r (const time_t *timep, struct tm *result)
 /* helper function for converting a passed string in one character set to another
  * we use libxml2 for this
  */
-char *util_conv_string (const char *string, const char *in_charset, const char *out_charset)
+char *util_conv_string (const char *string, const char *in_charset, const char *out_charset) : itype(_Nt_array_ptr<char>)
 {
     xmlCharEncodingHandlerPtr in, out;
     char *ret = NULL;

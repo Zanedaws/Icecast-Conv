@@ -178,10 +178,10 @@ static refbuf_t *process_kate_page (ogg_state_t *ogg_info, ogg_codec_t *codec, o
 /* Check if specified BOS page is the start of a kate stream and
  * if so, create a codec structure for handling it
  */
-ogg_codec_t *initial_kate_page (format_plugin_t *plugin, ogg_page *page)
+ogg_codec_t *initial_kate_page (format_plugin_t *plugin, ogg_page *page) : itype(_Ptr<ogg_codec_t>)
 {
     ogg_state_t *ogg_info = plugin->_state;
-    ogg_codec_t *codec = calloc (1, sizeof (ogg_codec_t));
+    _Ptr<ogg_codec_t> codec = calloc (1, sizeof (ogg_codec_t));
     ogg_packet packet;
 
     _Ptr<kate_codec_t> kate_codec = calloc (1, sizeof (kate_codec_t));

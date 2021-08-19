@@ -56,7 +56,7 @@ typedef struct ogg_codec_tag
     refbuf_t *page : itype(_Ptr<refbuf_t>);
 
     refbuf_t * ((*process)(ogg_state_t * ogg_info, struct ogg_codec_tag * codec)) : itype(_Ptr<_Ptr<refbuf_t> (_Ptr<ogg_state_t> ogg_info, _Ptr<struct ogg_codec_tag> codec)>);
-    refbuf_t * ((*process_page)(ogg_state_t * ogg_info, struct ogg_codec_tag * codec, ogg_page * page)) : itype(_Ptr<_Ptr<refbuf_t> (_Ptr<ogg_state_t> ogg_info, _Ptr<struct ogg_codec_tag> codec, _Ptr<ogg_page> page)>);
+    refbuf_t * ((*process_page)(ogg_state_t * ogg_info : itype(_Ptr<ogg_state_t>), struct ogg_codec_tag * codec : itype(_Ptr<struct ogg_codec_tag>), ogg_page * page : itype(_Ptr<ogg_page>))) : itype(_Ptr<_Ptr<refbuf_t> (_Ptr<ogg_state_t> ogg_info, _Ptr<struct ogg_codec_tag> codec, _Ptr<ogg_page> page)>);
     void ((*codec_free)(ogg_state_t * ogg_info, struct ogg_codec_tag * codec)) : itype(_Ptr<void (_Ptr<ogg_state_t> ogg_info, _Ptr<struct ogg_codec_tag> codec)>);
 } ogg_codec_t;
 

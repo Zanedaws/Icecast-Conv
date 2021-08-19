@@ -77,8 +77,8 @@ typedef struct {
 int format_mp3_get_plugin (source_t *source)
 {
     const char *metadata;
-    format_plugin_t *plugin;
-    mp3_state *state = calloc(1, sizeof(mp3_state));
+    _Ptr<format_plugin_t> plugin = NULL;
+    _Ptr<mp3_state> state = calloc(1, sizeof(mp3_state));
     _Ptr<refbuf_t> meta = NULL;
 
     plugin = (format_plugin_t *)calloc(1, sizeof(format_plugin_t));
@@ -98,7 +98,7 @@ int format_mp3_get_plugin (source_t *source)
         plugin->contenttype = "audio/mpeg";
     }
 
-    plugin->_state = state;
+    plugin->_state = _Dynamic_bounds_cast<_Ptr<void>>(state);
 
     /* initial metadata needs to be blank for sending to clients and for
        comparing with new metadata */
