@@ -38,7 +38,7 @@
 
 #include "avl.h"
 
-avl_node * avl_node_new (void * key : itype(_Ptr<void>), avl_node * parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
+_Itype_for_any(T) avl_node * avl_node_new (void * key : itype(_Ptr<T>), avl_node * parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
 {
   avl_node * node = (avl_node *) malloc (sizeof (avl_node));
 
