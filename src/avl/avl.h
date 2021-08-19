@@ -110,7 +110,7 @@ _Itype_for_any(T) void avl_tree_free (avl_tree *tree : itype(_Ptr<avl_tree>), av
 
 _Itype_for_any(T) int avl_insert (avl_tree *ob : itype(_Ptr<avl_tree>), void *        key : itype(_Ptr<T>));
 
-int avl_delete (avl_tree *tree : itype(_Ptr<avl_tree>), void *        key : itype(_Ptr<void>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (void *)>));
+_Itype_for_any(T) int avl_delete (avl_tree *tree : itype(_Ptr<avl_tree>), void *        key : itype(_Ptr<void>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (_Ptr<T>)>));
 
 int avl_get_by_index (avl_tree *tree : itype(_Ptr<avl_tree>), unsigned long        index, _Ptr<_Ptr<void>>        value_address);
 
