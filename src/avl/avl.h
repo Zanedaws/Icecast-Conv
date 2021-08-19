@@ -56,7 +56,7 @@ struct _avl_tree;
 typedef int (*avl_key_compare_fun_type) (void * compare_arg : itype(_Array_ptr<void>) byte_count(0), void * a : itype(_Array_ptr<void>) byte_count(0), void * b : itype(_Array_ptr<void>) byte_count(0));
 typedef int (*avl_iter_fun_type)    (void * key, void * iter_arg);
 typedef int (*avl_iter_index_fun_type)    (unsigned long index, void * key, void * iter_arg);
-typedef int (*avl_free_key_fun_type)    (void * key);
+_Itype_for_any(T) typedef int (*avl_free_key_fun_type)    (void * key : itype(_Ptr<T>));
 typedef int (*avl_key_printer_fun_type)    (char *, void *);
 
 /*
