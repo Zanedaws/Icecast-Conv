@@ -705,7 +705,7 @@ static void process_request_queue (void)
 /* add node to the queue of requests. This is where the clients are when
  * initial http details are read.
  */
-static void _add_request_queue (client_queue_t *node)
+static void _add_request_queue (client_queue_t *node : itype(_Ptr<client_queue_t>))
 {
     *_req_queue_tail = node;
     _req_queue_tail = (volatile client_queue_t **)&node->next;
@@ -1192,12 +1192,12 @@ static void _handle_get_request (client_t *client : itype(_Ptr<client_t>), char 
     if (uri != passed_uri) free (uri);
 }
 
-static void _handle_shoutcast_compatible (client_queue_t *node : itype(_Ptr<client_queue_t>))
+_Checked static void _handle_shoutcast_compatible (client_queue_t *node : itype(_Ptr<client_queue_t>))
 {
     _Nt_array_ptr<char> http_compliant = NULL;
     int http_compliant_len = 0;
     _Ptr<http_parser_t> parser = NULL;
-    ice_config_t *config = config_get_config ();
+    _Ptr<ice_config_t> config = config_get_config ();
     _Nt_array_ptr<char> shoutcast_mount = NULL;
     _Ptr<client_t> client = node->client;
 
@@ -1208,8 +1208,10 @@ static void _handle_shoutcast_compatible (client_queue_t *node : itype(_Ptr<clie
 
     if (node->shoutcast == 1)
     {
-        char *source_password, *ptr, *headers;
-        mount_proxy *mountinfo = config_find_mount (config, shoutcast_mount, MOUNT_TYPE_NORMAL);
+        _Nt_array_ptr<char> source_password = NULL;
+        _Nt_array_ptr<char> ptr = NULL;
+        _Nt_array_ptr<char> headers = NULL;
+        _Ptr<mount_proxy> mountinfo = config_find_mount (config, shoutcast_mount, MOUNT_TYPE_NORMAL);
 
         if (mountinfo && mountinfo->password)
             source_password = strdup (mountinfo->password);
@@ -1242,9 +1244,9 @@ static void _handle_shoutcast_compatible (client_queue_t *node : itype(_Ptr<clie
         if (ptr == NULL)
         {
             client_destroy (client);
-            free (source_password);
-            free (node->shoutcast_mount);
-            free (node);
+            free<char>(source_password);
+            free<char>(node->shoutcast_mount);
+            free<client_queue_t>(node);
             return;
         }
         *ptr = '\0';
@@ -1254,21 +1256,21 @@ static void _handle_shoutcast_compatible (client_queue_t *node : itype(_Ptr<clie
             client->respcode = 200;
             /* send this non-blocking but if there is only a partial write
              * then leave to header timeout */
-            client_send_bytes(client, "OK2\r\nicy-caps:11\r\n\r\n", 20); /* TODO: Replace Magic Number! */
+            client_send_bytes<char>(client, "OK2\r\nicy-caps:11\r\n\r\n", 20); /* TODO: Replace Magic Number! */
             node->offset -= (headers - client->refbuf->data);
-            memmove<char>(client->refbuf->data, headers, node->offset+1);
+            memmove(client->refbuf->data, headers, node->offset+1);
             node->shoutcast = 2;
             /* we've checked the password, now send it back for reading headers */
             _add_request_queue (node);
-            free (source_password);
+            free<char>(source_password);
             return;
         }
         else
-            ICECAST_LOG_INFO("password does not match \"%s\"", client->refbuf->data);
+            _Unchecked{ICECAST_LOG_INFO("password does not match \"%s\"", client->refbuf->data);}
         client_destroy (client);
-        free (source_password);
-        free (node->shoutcast_mount);
-        free (node);
+        free<char>(source_password);
+        free<char>(node->shoutcast_mount);
+        free<client_queue_t>(node);
         return;
     }
     /* actually make a copy as we are dropping the config lock */
@@ -1301,10 +1303,10 @@ static void _handle_shoutcast_compatible (client_queue_t *node : itype(_Ptr<clie
         httpp_destroy (parser);
         client_destroy (client);
     }}
-    free (http_compliant);
-    free (shoutcast_mount);
-    free (node->shoutcast_mount);
-    free (node);
+    free<char>(http_compliant);
+    free<char>(shoutcast_mount);
+    free<char>(node->shoutcast_mount);
+    free<client_queue_t>(node);
     return;
 }
 
