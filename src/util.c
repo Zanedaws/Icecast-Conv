@@ -507,7 +507,7 @@ char *util_base64_decode(const char *data) : itype(_Nt_array_ptr<char>)
 }
 
 /* TODO, FIXME: handle memory allocation errors better. */
-static inline void   _build_headers_loop(char **ret, size_t *len, ice_config_http_header_t *header, int status) {
+static inline void   _build_headers_loop(char **ret : itype(_Ptr<_Ptr<char>>), size_t *len : itype(_Ptr<size_t>), ice_config_http_header_t *header : itype(_Ptr<ice_config_http_header_t>), int status) {
     size_t headerlen;
     const char *name;
     const char *value;
@@ -546,15 +546,15 @@ static inline void   _build_headers_loop(char **ret, size_t *len, ice_config_htt
     } while ((header = header->next));
     *ret = r;
 }
-static inline char * _build_headers(int status, ice_config_t *config, source_t *source) {
+static inline char * _build_headers(int status, ice_config_t *config : itype(_Ptr<ice_config_t>), source_t *source) : itype(_Ptr<char>){
     mount_proxy *mountproxy = NULL;
-    char *ret = NULL;
+    _Ptr<char> ret = NULL;
     size_t len = 1;
 
     if (source)
         mountproxy = config_find_mount(config, source->mount, MOUNT_TYPE_NORMAL);
 
-    ret = calloc(1, 1);
+    ret = _Dynamic_bounds_cast<_Ptr<char>>(calloc(1, 1));
     *ret = 0;
 
     _build_headers_loop(&ret, &len, config->http_headers, status);
@@ -746,7 +746,7 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
    stringify it in order as key=val&key=val... if val 
    is set, or just key&key if val is NULL.
   TODO: Memory management needs overhaul. */
-char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) : itype(_Nt_array_ptr<char>) 
+char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) : itype(_Nt_array_ptr<char>) _Unchecked
 {
     char *res = NULL;
     char *tmp;
