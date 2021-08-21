@@ -1256,7 +1256,7 @@ static void _handle_shoutcast_compatible (client_queue_t *node : itype(_Ptr<clie
              * then leave to header timeout */
             client_send_bytes(client, "OK2\r\nicy-caps:11\r\n\r\n", 20); /* TODO: Replace Magic Number! */
             node->offset -= (headers - client->refbuf->data);
-            memmove (client->refbuf->data, headers, node->offset+1);
+            memmove<char>(client->refbuf->data, headers, node->offset+1);
             node->shoutcast = 2;
             /* we've checked the password, now send it back for reading headers */
             _add_request_queue (node);
