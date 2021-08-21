@@ -1398,7 +1398,7 @@ static void *source_fallback_file (void *arg)
     char *path;
     unsigned int len;
     _Ptr<FILE> file = NULL;
-    source_t *source = NULL;
+    _Ptr<source_t> source = NULL;
     ice_config_t *config;
     _Ptr<http_parser_t> parser = NULL;
 

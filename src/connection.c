@@ -1080,7 +1080,7 @@ static void _handle_source_request (client_t *client : itype(_Ptr<client_t>), co
 
 void source_startup (client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>), int auth_style)
 {
-    source_t *source;
+    _Ptr<source_t> source = NULL;
     source = source_reserve (uri);
 
     if (source)
@@ -1110,7 +1110,7 @@ void source_startup (client_t *client : itype(_Ptr<client_t>), const char *uri :
             /* we may have unprocessed data read in, so don't overwrite it */
             ok->associated = client->refbuf;
             client->refbuf = ok;
-            fserve_add_client_callback (client, source_client_callback, source);
+            fserve_add_client_callback<source_t>(client, source_client_callback, source);
         }
     }
     else
