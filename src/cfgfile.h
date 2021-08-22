@@ -132,9 +132,9 @@ typedef struct _listener_t {
     struct _listener_t *next : itype(_Ptr<struct _listener_t>);
     int port;
     int so_sndbuf;
-    char *bind_address;
+    char *bind_address : itype(_Nt_array_ptr<char>);
     int shoutcast_compat;
-    char *shoutcast_mount;
+    char *shoutcast_mount : itype(_Nt_array_ptr<char>);
     int ssl;
 } listener_t;
 

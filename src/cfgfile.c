@@ -512,7 +512,7 @@ static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
         } else if (xmlStrcmp (node->name, XMLSTR("bind-address")) == 0) {
             //if (configuration->listen_sock->bind_address) 
                 //xmlFree(configuration->listen_sock->bind_address);
-            configuration->listen_sock->bind_address = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            //configuration->listen_sock->bind_address = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("master-server")) == 0) {
             //if (configuration->master_server) xmlFree(configuration->master_server);
             //configuration->master_server = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
@@ -1007,13 +1007,12 @@ static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
         }
         else if (xmlStrcmp (node->name, XMLSTR("shoutcast-mount")) == 0) {
             //if (listener->shoutcast_mount) xmlFree (listener->shoutcast_mount);
-            listener->shoutcast_mount = (char *)xmlNodeListGetString(doc, 
-                    node->xmlChildrenNode, 1);
+            //listener->shoutcast_mount = xmlNodeListGetString(doc, node->xmlChildrenNode, 1), byte_count(1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("bind-address")) == 0) {
             //if (listener->bind_address) xmlFree (listener->bind_address);
-            listener->bind_address = (char *)xmlNodeListGetString(doc, 
-                    node->xmlChildrenNode, 1);
+            //listener->bind_address = (char *)xmlNodeListGetString(doc, 
+            //        node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("so-sndbuf")) == 0) {
             tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
