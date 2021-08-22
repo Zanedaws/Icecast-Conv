@@ -458,9 +458,9 @@ char *util_base64_encode(const char *data : itype(_Nt_array_ptr<const char>)) : 
     return result;
 }
 
-char *util_base64_decode(const char *data) : itype(_Nt_array_ptr<char>)
+char *util_base64_decode(const char *data : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
-    const unsigned char *input = (const unsigned char *)data;
+    _Nt_array_ptr<const unsigned char> input = _Dynamic_bounds_cast<_Nt_array_ptr<const unsigned char>>(data, byte_count(1));
     int len = strlen (data);
     int tmp = strlen (data);
     _Nt_array_ptr<char> out : byte_count(tmp * 3/4 + 5) = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc(tmp*3/4 + 5), byte_count(tmp*3/4 + 5));
