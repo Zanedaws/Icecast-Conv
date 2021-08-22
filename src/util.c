@@ -267,17 +267,16 @@ static char safechars[256] = {
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 };
 
-char *util_url_escape (const char *src)
+char *util_url_escape (const char *src : itype(_Nt_array_ptr<const char>))
 {
-    size_t len;
-    char *dst; 
-    unsigned char *source = (unsigned char *)src;
-    size_t i, j;
-
     if (!src)
         return NULL;
+    size_t len = strlen(src);
+    char *dst; 
+    _Nt_array_ptr<unsigned char> source = _Dynamic_bounds_cast<_Nt_array_ptr<unsigned char>>(src, byte_count(len));
+    size_t i, j;
 
-    len = strlen(src);
+    
     /* Efficiency not a big concern here, keep the code simple/conservative */
     dst = calloc(1, len*3 + 1);
 
