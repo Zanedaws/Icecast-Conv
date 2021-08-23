@@ -764,13 +764,13 @@ static int _compare_mutexes(void *compare_arg, void *a, void *b)
 }
 #endif
 
-_Itype_for_any(T) static int _compare_threads(void *compare_arg : itype(_Ptr<void>), void *a : itype(_Ptr<T>), void *b : itype(_Ptr<T>))
+static int _compare_threads(void *compare_arg, void *a, void *b)
 {
-    _Ptr<thread_type> t1 = NULL;
-    _Ptr<thread_type> t2 = NULL;
+    thread_type *t1 = NULL;
+    thread_type *t2 = NULL;
 
-    t1 = _Dynamic_bounds_cast<_Ptr<thread_type>>(a);
-    t2 = _Dynamic_bounds_cast<_Ptr<thread_type>>(b);
+    t1 = (thread_type*) a;
+    t2 = (thread_type*) b;
 
     if (t1->thread_id > t2->thread_id)
         return 1;
