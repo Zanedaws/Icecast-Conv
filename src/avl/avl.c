@@ -901,10 +901,7 @@ avl_get_span_by_two_keys (avl_tree * tree,
 }
 
            
-int
-avl_get_item_by_key_most (avl_tree * tree,
-              void * key,
-              void **value_address)
+int avl_get_item_by_key_most (avl_tree * tree, void * key : itype(_Ptr<void>), void **value_address : itype(_Ptr<_Ptr<void>>)) 
 {
   avl_node * x = tree->root->right;
   *value_address = NULL;
