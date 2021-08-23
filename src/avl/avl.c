@@ -115,7 +115,7 @@ avl_tree_free (avl_tree* tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type fre
   free (tree);
 }
 
-_Itype_for_any(T) int avl_insert (avl_tree * ob : itype(_Ptr<avl_tree>), void * key : itype(_Ptr<T>))
+int avl_insert (avl_tree * ob : itype(_Ptr<avl_tree>), void * key : itype(_Ptr<void>))
 {
   if (!(ob->root->right)) {
     _Ptr<avl_node> node = avl_node_new (key, ob->root);
