@@ -758,7 +758,7 @@ char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) 
         if (!dict->key)
             continue;
         if (start) {
-            if (!(res = util_malloc(char*, strlen(dict->key) + 1))) {
+            if (!(res = util_malloc(char, strlen(dict->key) + 1))) {
                 return NULL;
             }
             //_Unchecked {sprintf(res, "%s", dict->key);}
