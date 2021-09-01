@@ -797,7 +797,7 @@ static int _free_mutex(void *key)
 }
 #endif
 
-static int _free_thread(void *key)
+_Itype_for_any(T) static int _free_thread(void *key : itype(_Ptr<T>))
 {
     thread_type *t;
 
