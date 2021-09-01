@@ -748,8 +748,8 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
   TODO: Memory management needs overhaul. */
 char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) : itype(_Nt_array_ptr<char>)
 {
-    char *res = NULL;
-    char *tmp;
+    _Nt_array_ptr<char> res = NULL;
+    _Nt_array_ptr<char> tmp = NULL;
     char *enc;
     int start = 1;
 
@@ -758,17 +758,29 @@ char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) 
         if (!dict->key)
             continue;
         if (start) {
-            if (!(res = util_malloc(char, strlen(dict->key) + 1))) {
+            size_t keyLen = strlen(dict -> key);
+            _Nt_array_ptr<char> res_with_len : byte_count(keyLen) = NULL;
+            _Unchecked {
+              res_with_len = _Assume_bounds_cast<_Nt_array_ptr<char>>(malloc(keyLen + 1), byte_count(keyLen));
+            }
+            if (!(res_with_len)) {
                 return NULL;
             }
+            res = res_with_len;
             //_Unchecked {sprintf(res, "%s", dict->key);}
             start = 0;
         } else {
-            if (!(tmp = realloc(res, strlen(res) + strlen(dict->key) + 2))) {
+            size_t keyLen = strlen(dict -> key);
+            size_t resLen = strlen(res);
+            _Nt_array_ptr<char> tmp_with_len : byte_count(resLen + keyLen + 2) = NULL;
+            _Unchecked {
+              tmp_with_len = _Assume_bounds_cast<_Nt_array_ptr<char>>(realloc(_Assume_bounds_cast<_Array_ptr<char>>(res, count(1)), resLen + keyLen + 2), byte_count(resLen + keyLen + 2));
+            }
+            if (!(tmp_with_len)) {
                 free(res);
                 return NULL;
             } else
-                res = tmp;
+                res = tmp_with_len;
             //_Unchecked {sprintf(res + strlen(res), "%c%s", delim, dict->key);}
         }
 
@@ -779,8 +791,14 @@ char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) 
             free(res);
             return NULL;
         }
-
-        if (!(tmp = realloc(res, strlen(res) + strlen(enc) + 2))) {
+        size_t resLen2 = strlen(res);
+        size_t encLen = strlen(enc);
+        _Nt_array_ptr<char> tmp_with_len2 : byte_count(resLen2 + encLen + 2) = NULL;
+        _Unchecked {
+          tmp_with_len2 = _Assume_bounds_cast<_Nt_array_ptr<char>>(realloc(_Assume_bounds_cast<_Array_ptr<char>>(res, count(1)), resLen2 + encLen + 2), byte_count(resLen2 + encLen + 2));
+        }
+        tmp = tmp_with_len2;
+        if (!(tmp)) {
             free(enc);
             free(res);
             return NULL;
