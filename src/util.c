@@ -230,14 +230,17 @@ char *util_get_path_from_uri(char *uri) {
     }
 }
 
-char *util_get_path_from_normalised_uri(const char *uri) {
-    char *fullpath;
+char *util_get_path_from_normalised_uri(const char *uri) : itype(_Nt_array_ptr<char>) {
+    _Nt_array_ptr<char> fullpath = NULL;
     char *webroot;
     ice_config_t *config = config_get_config();
 
     webroot = config->webroot_dir;
 
-    fullpath = malloc(strlen(uri) + strlen(webroot) + 1);
+    size_t uriLen = strlen(uri);
+    size_t webrootLen = strlen(webroot);
+
+    fullpath = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc(uriLen + webrootLen + 1), byte_count(uriLen + webrootLen + 1));
     if (fullpath)
         //_Unchecked {sprintf (fullpath, "%s%s", webroot, uri);}
     config_release_config();
