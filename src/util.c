@@ -408,9 +408,9 @@ static signed char base64decode[256] = {
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2
 };
 
-char *util_bin_to_hex(unsigned char *data, int len)
+char *util_bin_to_hex(unsigned char *data, int len) : itype(_Nt_array_ptr<char>)
 {
-    char *hex = malloc(len*2 + 1);
+    _Nt_array_ptr<char> hex : byte_count(len * 2 + 1) = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char>(len*2 + 1), byte_count(len * 2 + 1));
     int i;
 
     for(i = 0; i < len; i++) {
