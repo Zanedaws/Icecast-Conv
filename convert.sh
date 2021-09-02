@@ -3,6 +3,7 @@
 -dump-stats \
 -itypes-for-extern \
 -alltypes \
+-addcr \
 -p \
 $BASEDIR/compile_commands.json \
 -extra-arg=-w \
