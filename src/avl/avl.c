@@ -1032,7 +1032,7 @@ avl_verify_rank (avl_node * node)
       num_right = avl_verify_rank (node->right);
     }
     if (AVL_GET_RANK (node) != num_left + 1) {
-      fprintf (stderr, "invalid rank at node %ld\n", (long) node->key);
+      _Unchecked {fprintf (stderr, "invalid rank at node %ld\n", (long) node->key);}
       exit (1);
     }
     return (num_left + num_right + 1);
@@ -1087,14 +1087,14 @@ print_connectors (link_node * link)
   }
   if (link->parent && (link->parent->direction != link->direction) && (link->parent->parent)) {
     int i;
-    fprintf (stdout, "|");
+    _Unchecked {fprintf (stdout, "|");}
     for (i=0; i < (link->width - 1); i++) {
-      fprintf (stdout, " ");
+      _Unchecked {fprintf (stdout, " ");}
     }
   } else {
     int i;
     for (i=0; i < (link->width); i++) {
-      fprintf (stdout, " ");
+      _Unchecked {fprintf (stdout, " ");}
     }
   }
 }
@@ -1123,14 +1123,14 @@ print_node (avl_key_printer_fun_type key_printer,
     print_node (key_printer, node->right, &here);
   }
   print_connectors (link);
-  fprintf (stdout, "+-[%c %s %03d]",
+  _Unchecked {fprintf (stdout, "+-[%c %s %03d]",
        balance_chars[AVL_GET_BALANCE(node)+1],
        buffer,
-       (int)AVL_GET_RANK(node));
+       (int)AVL_GET_RANK(node));}
   if (node->left || node->right) {
-    fprintf (stdout, "-|\n");
+    _Unchecked {fprintf (stdout, "-|\n");}
   } else {
-    fprintf (stdout, "\n");
+    _Unchecked {fprintf (stdout, "\n");}
   }
   if (node->left) {
       link_node here;
@@ -1151,7 +1151,7 @@ avl_print_tree (avl_tree * tree, avl_key_printer_fun_type key_printer)
   if (tree->length) {
     print_node (key_printer, tree->root->right, &top);
   } else {
-    fprintf (stdout, "<empty tree>\n");
+    _Unchecked {fprintf (stdout, "<empty tree>\n");}
   }  
 }
 

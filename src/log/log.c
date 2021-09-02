@@ -365,15 +365,18 @@ static int create_log_entry (int log_id, const char *pre, const char *line)
 {
     log_entry_t *entry;
 
-    if (loglist[log_id].keep_entries == 0)
-        return fprintf (loglist[log_id].logfile, "%s%s\n", pre, line); 
+    if (loglist[log_id].keep_entries == 0) {
+        int printed;
+        _Unchecked {printed = fprintf (loglist[log_id].logfile, "%s%s\n", pre, line);} 
+        return printed;
+    }
     
     entry = calloc (1, sizeof (log_entry_t));
     entry->len = strlen (pre) + strlen (line) + 2;
     entry->line = malloc (entry->len);
     snprintf (entry->line, entry->len, "%s%s\n", pre, line);
     loglist [log_id].total += entry->len;
-    fprintf (loglist[log_id].logfile, "%s", entry->line);
+    _Unchecked {fprintf (loglist[log_id].logfile, "%s", entry->line);}
 
     *loglist [log_id].log_tail = entry;
     loglist [log_id].log_tail = &entry->next;

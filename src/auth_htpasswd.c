@@ -301,7 +301,7 @@ static auth_result htpasswd_adduser (auth_t *auth, const char *username, const c
 
     hashed_password = get_hash(password, strlen(password));
     if (hashed_password) {
-        fprintf(passwdfile, "%s:%s\n", username, hashed_password);
+        _Unchecked {fprintf(passwdfile, "%s:%s\n", username, hashed_password);}
         free(hashed_password);
     }
 
@@ -384,7 +384,7 @@ static auth_result htpasswd_deleteuser(auth_t *auth, const char *username)
             /* We did not match on the user, so copy it to the temp file */
             /* and put the : back in */
             *sep = ':';
-            fprintf(tmp_passwdfile, "%s\n", line);
+            _Unchecked {fprintf(tmp_passwdfile, "%s\n", line);}
         }
     }
 

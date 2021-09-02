@@ -84,7 +84,7 @@ static void _fatal_error(const char *perr)
 #elif defined(WIN32)
     MessageBox(NULL, perr, "Error", MB_OK);
 #else
-    fprintf(stdout, "%s\n", perr);
+    _Unchecked {fprintf(stdout, "%s\n", perr);}
 #endif
 }
 
@@ -162,7 +162,7 @@ static int _parse_config_opts(int argc, char **argv, char *filename, int size)
         if (strcmp(argv[i], "-b") == 0) {
 #ifndef WIN32
             pid_t pid;
-            fprintf(stdout, "Starting icecast2\nDetaching from the console\n");
+            _Unchecked {fprintf(stdout, "Starting icecast2\nDetaching from the console\n");}
 
             pid = fork();
 
@@ -171,14 +171,14 @@ static int _parse_config_opts(int argc, char **argv, char *filename, int size)
                 exit(0);
             }
             else if(pid < 0) {
-                fprintf(stderr, "FATAL: Unable to fork child!");
+                _Unchecked {fprintf(stderr, "FATAL: Unable to fork child!");}
                 exit(1);
             }
             background = 1;
 #endif
         }
         if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
-            fprintf(stdout, "%s\n", ICECAST_VERSION_STRING);
+            _Unchecked {fprintf(stdout, "%s\n", ICECAST_VERSION_STRING);}
             exit(0);
         }
 
@@ -324,7 +324,7 @@ static int _server_proc_init(void)
         pidfile = strdup (config->pidfile);
         if (pidfile && (f = fopen (config->pidfile, "w")) != NULL)
         {
-            fprintf (f, "%d\n", (int)getpid());
+            _Unchecked {fprintf (f, "%d\n", (int)getpid());}
             fclose (f);
         }
     }
@@ -367,7 +367,7 @@ static void _ch_root_uid_setup(void)
            if(user)
                uid = user->pw_uid;
            else
-               fprintf(stderr, "Couldn't find user \"%s\" in password file\n", conf->user);
+               _Unchecked {fprintf(stderr, "Couldn't find user \"%s\" in password file\n", conf->user);}
        }
        if(conf->group) {
            group = getgrnam(conf->group);
@@ -375,7 +375,7 @@ static void _ch_root_uid_setup(void)
            if(group)
                gid = group->gr_gid;
            else
-               fprintf(stderr, "Couldn't find group \"%s\" in groups file\n", conf->group);
+               _Unchecked {fprintf(stderr, "Couldn't find group \"%s\" in groups file\n", conf->group);}
        }
    }
 #endif
@@ -385,16 +385,16 @@ static void _ch_root_uid_setup(void)
    {
        if(getuid()) /* root check */
        {
-           fprintf(stderr, "WARNING: Cannot change server root unless running as root.\n");
+           _Unchecked {fprintf(stderr, "WARNING: Cannot change server root unless running as root.\n");}
            return;
        }
        if(chroot(conf->base_dir))
        {
-           fprintf(stderr,"WARNING: Couldn't change server root: %s\n", strerror(errno));
+           _Unchecked {fprintf(stderr,"WARNING: Couldn't change server root: %s\n", strerror(errno));}
            return;
        }
        else
-           fprintf(stdout, "Changed root successfully to \"%s\".\n", conf->base_dir);
+           _Unchecked {fprintf(stdout, "Changed root successfully to \"%s\".\n", conf->base_dir);}
 
    }   
 #endif
@@ -404,23 +404,23 @@ static void _ch_root_uid_setup(void)
    {
        if(getuid()) /* root check */
        {
-           fprintf(stderr, "WARNING: Can't change user id unless you are root.\n");
+           _Unchecked {fprintf(stderr, "WARNING: Can't change user id unless you are root.\n");}
            return;
        }
 
        if(uid != (uid_t)-1 && gid != (gid_t)-1) {
            if(!setgid(gid))
-               fprintf(stdout, "Changed groupid to %i.\n", (int)gid);
+               _Unchecked {fprintf(stdout, "Changed groupid to %i.\n", (int)gid);}
            else
-               fprintf(stdout, "Error changing groupid: %s.\n", strerror(errno));
+               _Unchecked {fprintf(stdout, "Error changing groupid: %s.\n", strerror(errno));}
            if(!initgroups(conf->user, gid))
-               fprintf(stdout, "Changed supplementary groups based on user: %s.\n", conf->user);
+               _Unchecked {fprintf(stdout, "Changed supplementary groups based on user: %s.\n", conf->user);}
 	   else
-               fprintf(stdout, "Error changing supplementary groups: %s.\n", strerror(errno));
+               _Unchecked {fprintf(stdout, "Error changing supplementary groups: %s.\n", strerror(errno));}
            if(!setuid(uid))
-               fprintf(stdout, "Changed userid to %i.\n", (int)uid);
+               _Unchecked {fprintf(stdout, "Changed userid to %i.\n", (int)uid);}
            else
-               fprintf(stdout, "Error changing userid: %s.\n", strerror(errno));
+               _Unchecked {fprintf(stdout, "Error changing userid: %s.\n", strerror(errno));}
        }
    }
 #endif
@@ -506,8 +506,8 @@ int main(int argc, char **argv)
      * assume */
     if(!getuid()) /* Running as root! Don't allow this */
     {
-        fprintf(stderr, "ERROR: You should not run icecast2 as root\n");
-        fprintf(stderr, "Use the changeowner directive in the config file\n");
+        _Unchecked {fprintf(stderr, "ERROR: You should not run icecast2 as root\n");}
+        _Unchecked {fprintf(stderr, "Use the changeowner directive in the config file\n");}
         shutdown_subsystems();
         return 1;
     }
