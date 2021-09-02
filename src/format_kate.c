@@ -35,6 +35,8 @@ typedef struct source_tag source_t;
 #define CATMODULE "format-kate"
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
+
 typedef struct _kate_codec_tag
 {
     int             headers_done;
@@ -53,7 +55,7 @@ static void kate_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec
 {
     _Ptr<kate_codec_t> kate = _Dynamic_bounds_cast<_Ptr<kate_codec_t>>(codec->specific);
 
-    ICECAST_LOG_DEBUG("freeing kate codec");
+    _Unchecked {ICECAST_LOG_DEBUG("freeing kate codec");}
     /* TODO: should i replace with something or just remove
     stats_event (ogg_info->mount, "video_bitrate", NULL);
     stats_event (ogg_info->mount, "video_quality", NULL);
@@ -64,7 +66,7 @@ static void kate_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec
     kate_info_clear (&kate->ki);
     kate_comment_clear (&kate->kc);
 #endif
-    ogg_stream_clear (&codec->os);
+    _Unchecked {ogg_stream_clear (&codec->os);}
     free<kate_codec_t> (kate);
     free<ogg_codec_t> (codec);
 }
@@ -87,8 +89,9 @@ static _Ptr<refbuf_t> process_kate_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
         return NULL;
     }
 //   granulepos = ogg_page_granulepos (page);
-
-    while (ogg_stream_packetout (&codec->os, &packet) > 0)
+    int packetout = 0;
+    _Unchecked {packetout = ogg_stream_packetout(&codec->os, &packet);}
+    while (packetout > 0)
     {
         if (!kate->headers_done)
         {
@@ -121,15 +124,17 @@ static _Ptr<refbuf_t> process_kate_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
             }
             continue;
 #else
-            header_page = (packet.bytes>0 && (packet.packet[0]&0x80));
+            _Unchecked {header_page = (packet.bytes>0 && (packet.packet[0]&0x80));}
             if (!header_page)
                 break;
             codec->headers++;
-            if (packet.packet[0]==0x80)
+            unsigned char tmpPacketVal;
+            _Unchecked {tmpPacketVal = packet.packet;}
+            if (tmpPacketVal==0x80)
             {
                 if (packet.bytes<64) return NULL;
                 /* we peek for the number of headers to expect */
-                kate->num_headers = packet.packet[11];
+                _Unchecked {kate->num_headers = packet.packet[11];}
             }
             continue;
 #endif
@@ -138,9 +143,10 @@ static _Ptr<refbuf_t> process_kate_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
         if (codec->headers < kate->num_headers)
         {
             ogg_info->error = 1;
-            ICECAST_LOG_ERROR("Not enough header packets");
+            _Unchecked {ICECAST_LOG_ERROR("Not enough header packets");}
             return NULL;
         }
+        _Unchecked {packetout = ogg_stream_packetout(&codec->os, &packet);}
     }
     if (header_page)
     {
@@ -193,9 +199,9 @@ ogg_codec_t *initial_kate_page(format_plugin_t *plugin : itype(_Ptr<format_plugi
     kate_comment_init (&kate_codec->kc);
 #endif
 
-    ogg_stream_packetout (&codec->os, &packet);
+    _Unchecked {ogg_stream_packetout (&codec->os, &packet);}
 
-    ICECAST_LOG_DEBUG("checking for kate codec");
+    _Unchecked {ICECAST_LOG_DEBUG("checking for kate codec");}
 #ifdef HAVE_KATE
     if (kate_ogg_decode_headerin (&kate_codec->ki, &kate_codec->kc, &packet) < 0)
     {
@@ -208,16 +214,18 @@ ogg_codec_t *initial_kate_page(format_plugin_t *plugin : itype(_Ptr<format_plugi
     }
 #else
     /* we don't have libkate, so we examine the packet magic by hand */
-    if ((packet.bytes<9) || memcmp(packet.packet, "\x80kate\0\0\0\0", 9))
+    int tmpMemcmpRes;
+    _Unchecked {tmpMemcmpRes = memcmp(packet.packet, "\x80\0\0\0\0", 9);}
+    if ((packet.bytes<9) || tmpMemcmpRes)
     {
-        ogg_stream_clear (&codec->os);
+        _Unchecked {ogg_stream_clear (&codec->os);}
         free<kate_codec_t> (kate_codec);
         free<ogg_codec_t> (codec);
         return NULL;
     }
 #endif
 
-    ICECAST_LOG_INFO("seen initial kate header");
+    _Unchecked {ICECAST_LOG_INFO("seen initial kate header");}
     codec->specific = _Dynamic_bounds_cast<_Ptr<void>>(kate_codec);
     codec->process_page = process_kate_page;
     codec->codec_free = kate_codec_free;
