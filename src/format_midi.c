@@ -31,19 +31,20 @@ typedef struct source_tag source_t;
 #define CATMODULE "format-midi"
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
 
-static void midi_codec_free (ogg_state_t *ogg_info, ogg_codec_t *codec)
+static void midi_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec)
 {
-    ICECAST_LOG_DEBUG("freeing MIDI codec");
-    ogg_stream_clear (&codec->os);
-    free (codec);
+    _Unchecked {ICECAST_LOG_DEBUG("freeing MIDI codec");}
+    _Unchecked {ogg_stream_clear (&codec->os);}
+    free<ogg_codec_t> (codec);
 }
 
 
 /* Here, we just verify the page is ok and then add it to the queue */
-static refbuf_t *process_midi_page (ogg_state_t *ogg_info, ogg_codec_t *codec, ogg_page *page)
+static _Ptr<refbuf_t> process_midi_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec, _Ptr<ogg_page> page)
 {
-    refbuf_t * refbuf;
+    _Ptr<refbuf_t> refbuf = ((void *)0);
 
 //   if (ogg_stream_pagein (&codec->os, page) < 0)
     {
@@ -57,28 +58,30 @@ static refbuf_t *process_midi_page (ogg_state_t *ogg_info, ogg_codec_t *codec, o
 
 /* Check for midi header in logical stream */
 
-ogg_codec_t *initial_midi_page (format_plugin_t *plugin, ogg_page *page)
+ogg_codec_t *initial_midi_page(format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<ogg_codec_t>)
 {
-    ogg_state_t *ogg_info = plugin->_state;
-    ogg_codec_t *codec = calloc (1, sizeof (ogg_codec_t));
+    _Ptr<ogg_state_t> ogg_info = _Dynamic_bounds_cast<_Ptr<ogg_state_t>>(plugin->_state);
+    _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
     ogg_packet packet;
 
 //   ogg_stream_init (&codec->os, ogg_page_serialno (page));
 //   ogg_stream_pagein (&codec->os, page);
 
-    ogg_stream_packetout (&codec->os, &packet);
+    _Unchecked {ogg_stream_packetout (&codec->os, &packet);}
 
-    ICECAST_LOG_DEBUG("checking for MIDI codec");
+    _Unchecked {ICECAST_LOG_DEBUG("checking for MIDI codec");}
+    int tmpMemcmpVar;
     do
     {
         if (packet.bytes < 9)
             break;
-        if (memcmp (packet.packet, "OggMIDI\000", 8) != 0)
+        _Unchecked {tmpMemcmpVar = memcmp(packet.packet, "OggMIDI\000", 8);}
+        if (tmpMemcmpVar != 0)
             break;
         if (packet.bytes != 12)
             break;
 
-        ICECAST_LOG_INFO("seen initial MIDI header");
+        _Unchecked {ICECAST_LOG_INFO("seen initial MIDI header");}
         codec->process_page = process_midi_page;
         codec->codec_free = midi_codec_free;
         codec->headers = 1;
@@ -88,8 +91,8 @@ ogg_codec_t *initial_midi_page (format_plugin_t *plugin, ogg_page *page)
         return codec;
     } while (0);
 
-    ogg_stream_clear (&codec->os);
-    free (codec);
+    _Unchecked {ogg_stream_clear (&codec->os);}
+    free<ogg_codec_t> (codec);
     return NULL;
 }
 
