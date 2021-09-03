@@ -388,7 +388,7 @@ ice_config_t *config_get_config(void)
     return &_current_configuration;
 }
 
-ice_config_t *config_grab_config(void)
+ice_config_t *config_grab_config(void) : itype(_Ptr<ice_config_t>)
 {
     thread_rwlock_wlock(&(_locks.config_lock));
     return &_current_configuration;
