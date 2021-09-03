@@ -46,7 +46,9 @@ static _Ptr<refbuf_t> process_midi_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
 {
     _Ptr<refbuf_t> refbuf = ((void *)0);
 
-//   if (ogg_stream_pagein (&codec->os, page) < 0)
+    int tmpRetVal;
+    _Unchecked {tmpRetVal = ogg_stream_pagein(&codec->os, (ogg_page *)page);}
+    if (tmpRetVal < 0)
     {
         ogg_info->error = 1;
         return NULL;
@@ -64,8 +66,8 @@ ogg_codec_t *initial_midi_page(format_plugin_t *plugin : itype(_Ptr<format_plugi
     _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
     ogg_packet packet;
 
-//   ogg_stream_init (&codec->os, ogg_page_serialno (page));
-//   ogg_stream_pagein (&codec->os, page);
+    _Unchecked {ogg_stream_init (&codec->os, ogg_page_serialno (page));}
+    _Unchecked {ogg_stream_pagein (&codec->os, page);}
 
     _Unchecked {ogg_stream_packetout (&codec->os, &packet);}
 

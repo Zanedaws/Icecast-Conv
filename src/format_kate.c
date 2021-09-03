@@ -82,13 +82,15 @@ static _Ptr<refbuf_t> process_kate_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
     int header_page = 0;
     _Ptr<refbuf_t> refbuf = NULL;
     ogg_int64_t granulepos;
-
-//   if (ogg_stream_pagein (&codec->os, page) < 0)
+    
+    int tmpRetVal;
+    _Unchecked {tmpRetVal = ogg_stream_pagein (&codec->os, (ogg_page *)page);}
+    if (tmpRetVal < 0)
     {
         ogg_info->error = 1;
         return NULL;
     }
-//   granulepos = ogg_page_granulepos (page);
+    _Unchecked {granulepos = ogg_page_granulepos ((const ogg_page *)page);}
     int packetout = 0;
     _Unchecked {packetout = ogg_stream_packetout(&codec->os, &packet);}
     while (packetout > 0)
@@ -191,8 +193,8 @@ ogg_codec_t *initial_kate_page(format_plugin_t *plugin : itype(_Ptr<format_plugi
 
     _Ptr<kate_codec_t> kate_codec = calloc<kate_codec_t> (1, sizeof (kate_codec_t));
 
-//   ogg_stream_init (&codec->os, ogg_page_serialno (page));
-//   ogg_stream_pagein (&codec->os, page);
+    _Unchecked {ogg_stream_init (&codec->os, ogg_page_serialno (page));}
+    _Unchecked {ogg_stream_pagein (&codec->os, page);}
 
 #ifdef HAVE_KATE
     kate_info_init (&kate_codec->ki);
