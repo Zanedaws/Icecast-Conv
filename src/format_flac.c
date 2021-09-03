@@ -31,32 +31,38 @@ typedef struct source_tag source_t;
 #define CATMODULE "format-flac"
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
 
-static void flac_codec_free (ogg_state_t *ogg_info, ogg_codec_t *codec)
+static void flac_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec)
 {
-    ICECAST_LOG_DEBUG("freeing FLAC codec");
+    _Unchecked {ICECAST_LOG_DEBUG("freeing FLAC codec");}
     stats_event (ogg_info->mount, "FLAC_version", NULL);
-    ogg_stream_clear (&codec->os);
-    free (codec);
+    _Unchecked {ogg_stream_clear (&codec->os);}
+    free<ogg_codec_t> (codec);
 }
 
 
 /* Here, we just verify the page is ok and then add it to the queue */
-static refbuf_t *process_flac_page (ogg_state_t *ogg_info, ogg_codec_t *codec, ogg_page *page)
+static _Ptr<refbuf_t> process_flac_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec, _Ptr<ogg_page> page)
 {
-    refbuf_t * refbuf;
+    _Ptr<refbuf_t> refbuf = ((void *)0);
 
     if (codec->headers)
     {
         ogg_packet packet;
-//       if (ogg_stream_pagein (&codec->os, page) < 0)
+        int tmpRetVal;
+        _Unchecked {tmpRetVal = ogg_stream_pagein (&codec->os, (ogg_page *)page);}
+        if (tmpRetVal < 0)
         {
             ogg_info->error = 1;
             return NULL;
         }
-        while (ogg_stream_packetout (&codec->os, &packet))
+        
+        _Unchecked {tmpRetVal = ogg_stream_packetout (&codec->os, &packet);}
+        while (tmpRetVal)
         {
-            int type = packet.packet[0];
+            int type;
+            _Unchecked {type = packet.packet[0];}
             if (type == 0xFF)
             {
                 codec->headers = 0;
@@ -82,21 +88,22 @@ static refbuf_t *process_flac_page (ogg_state_t *ogg_info, ogg_codec_t *codec, o
 
 /* Check for flac header in logical stream */
 
-ogg_codec_t *initial_flac_page (format_plugin_t *plugin, ogg_page *page)
+ogg_codec_t *initial_flac_page(format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<ogg_codec_t>)
 {
-    ogg_state_t *ogg_info = plugin->_state;
-    ogg_codec_t *codec = calloc (1, sizeof (ogg_codec_t));
+    _Ptr<ogg_state_t> ogg_info = _Dynamic_bounds_cast<_Ptr<ogg_state_t>>(plugin->_state);
+    _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
     ogg_packet packet;
 
-//   ogg_stream_init (&codec->os, ogg_page_serialno (page));
-//   ogg_stream_pagein (&codec->os, page);
+    _Unchecked {ogg_stream_init (&codec->os, ogg_page_serialno (page));}
+    _Unchecked {ogg_stream_pagein (&codec->os, page);}
 
-    ogg_stream_packetout (&codec->os, &packet);
+    _Unchecked {ogg_stream_packetout (&codec->os, &packet);}
 
-    ICECAST_LOG_DEBUG("checking for FLAC codec");
+    _Unchecked {ICECAST_LOG_DEBUG("checking for FLAC codec");}
     do
     {
-        unsigned char *parse = packet.packet;
+        _Nt_array_ptr<unsigned char> parse : byte_count(4)= NULL;
+        _Unchecked {parse = _Assume_bounds_cast<_Nt_array_ptr<unsigned char>>(packet.packet, byte_count(4));}
 
         if (page->header_len + page->body_len != 79)
             break;
@@ -106,10 +113,10 @@ ogg_codec_t *initial_flac_page (format_plugin_t *plugin, ogg_page *page)
         if (memcmp (parse, "FLAC", 4) != 0)
             break;
 
-        ICECAST_LOG_INFO("seen initial FLAC header");
+        _Unchecked {ICECAST_LOG_INFO("seen initial FLAC header");}
 
         parse += 4;
-        stats_event_args (ogg_info->mount, "FLAC_version", "%d.%d",  parse[0], parse[1]);
+        _Unchecked {stats_event_args (ogg_info->mount, "FLAC_version", "%d.%d",  parse[0], parse[1]);}
         codec->process_page = process_flac_page;
         codec->codec_free = flac_codec_free;
         codec->headers = 1;
@@ -119,8 +126,8 @@ ogg_codec_t *initial_flac_page (format_plugin_t *plugin, ogg_page *page)
         return codec;
     } while (0);
 
-    ogg_stream_clear (&codec->os);
-    free (codec);
+    _Unchecked {ogg_stream_clear (&codec->os);}
+    free<ogg_codec_t> (codec);
     return NULL;
 }
 
