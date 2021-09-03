@@ -47,15 +47,17 @@
 #undef CATMODULE
 #define CATMODULE "client"
 
+#pragma CHECKED_SCOPE on
+
 /* create a client_t with the provided connection and parser details. Return
  * 0 on success, -1 if server limit has been reached.  In either case a
  * client_t is returned just in case a message needs to be returned. Should
  * be called with global lock held.
  */
-int client_create (client_t **c_ptr, connection_t *con : itype(_Ptr<connection_t>), http_parser_t *parser : itype(_Ptr<http_parser_t>))
+int client_create (client_t **c_ptr : itype(_Ptr<_Ptr<client_t>>), connection_t *con : itype(_Ptr<connection_t>), http_parser_t *parser : itype(_Ptr<http_parser_t>))
 {
-    ice_config_t *config;
-    client_t *client = (client_t *)calloc(1, sizeof(client_t));
+    _Ptr<ice_config_t> config = ((void *)0);
+    _Ptr<client_t> client = (_Ptr<client_t>)calloc<client_t>(1, sizeof(client_t));
     int ret = -1;
 
     if (client == NULL)
@@ -65,13 +67,13 @@ int client_create (client_t **c_ptr, connection_t *con : itype(_Ptr<connection_t
 
     global.clients++;
     if (config->client_limit < global.clients)
-        ICECAST_LOG_WARN("server client limit reached (%d/%d)", config->client_limit, global.clients);
+        _Unchecked{ICECAST_LOG_WARN("server client limit reached (%d/%d)", config->client_limit, global.clients);}
     else
         ret = 0;
 
     config_release_config ();
 
-    stats_event_args (NULL, "clients", "%d", global.clients);
+    _Unchecked {stats_event_args (NULL, "clients", "%d", global.clients);}
     client->con = con;
     client->parser = parser;
     client->refbuf = refbuf_new (PER_CLIENT_REFBUF_SIZE);
@@ -112,28 +114,28 @@ void client_destroy(client_t *client : itype(_Ptr<client_t>))
 
     global_lock ();
     global.clients--;
-    stats_event_args (NULL, "clients", "%d", global.clients);
+    _Unchecked {stats_event_args (NULL, "clients", "%d", global.clients);}
     global_unlock ();
 
     /* we need to free client specific format data (if any) */
     if (client->free_client_data)
         client->free_client_data (client);
 
-    free(client->username);
-    free(client->password);
+    free<char>(client->username);
+    free<char>(client->password);
 
-    free(client);
+    free<client_t>(client);
 }
 
 /* return -1 for failed, 0 for authenticated, 1 for pending
  */
-int client_check_source_auth (client_t *client, const char *mount)
+int client_check_source_auth (client_t *client : itype(_Ptr<client_t>), const char *mount : itype(_Nt_array_ptr<const char>))
 {
-    ice_config_t *config = config_get_config();
-    char *pass = config->source_password;
-    char *user = "source";
+    _Ptr<ice_config_t> config = config_get_config();
+    _Nt_array_ptr<char> pass = config->source_password;
+    _Nt_array_ptr<char> user : byte_count(6) = "source";
     int ret = -1;
-    mount_proxy *mountinfo = config_find_mount (config, mount, MOUNT_TYPE_NORMAL);
+    _Ptr<mount_proxy> mountinfo = config_find_mount (config, mount, MOUNT_TYPE_NORMAL);
 
     do
     {
@@ -146,7 +148,7 @@ int client_check_source_auth (client_t *client, const char *mount)
             if (mountinfo->password)
                 pass = mountinfo->password;
             if (mountinfo->username)
-                user = mountinfo->username;
+                user = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(mountinfo->username, byte_count(6));
         }
         if (connection_check_pass (client->parser, user, pass) > 0)
             ret = 0;
@@ -157,7 +159,7 @@ int client_check_source_auth (client_t *client, const char *mount)
 
 
 /* helper function for reading data from a client */
-int client_read_bytes (client_t *client, void *buf, unsigned len)
+int client_read_bytes (client_t *client : itype(_Ptr<client_t>), void *buf : itype(_Array_ptr<void>), unsigned len)
 {
     int bytes;
 
@@ -166,88 +168,99 @@ int client_read_bytes (client_t *client, void *buf, unsigned len)
         /* we have data to read from a refbuf first */
         if (client->refbuf->len < len)
             len = client->refbuf->len;
-        memcpy (buf, client->refbuf->data, len);
+        _Unchecked {memcpy (buf, client->refbuf->data, len);}
         if (len < client->refbuf->len)
         {
-            char *ptr = client->refbuf->data;
-            memmove (ptr, ptr+len, client->refbuf->len - len);
+            _Array_ptr<char> ptr : count(3) = _Dynamic_bounds_cast<_Array_ptr<char>>(client->refbuf->data, byte_count(3));
+            _Unchecked {memmove (ptr, (char *)ptr+len, client->refbuf->len - len);}
         }
         client->refbuf->len -= len;
         return len;
     }
-    bytes = client->con->read (client->con, buf, len);
+    _Unchecked {bytes = client->con->read (client->con, buf, len);}
 
     if (bytes == -1 && client->con->error)
-        ICECAST_LOG_DEBUG("reading from connection has failed");
+        _Unchecked {ICECAST_LOG_DEBUG("reading from connection has failed");}
 
     return bytes;
 }
 
-void client_send_error(client_t *client, int status, int plain, const char *message)
+void client_send_error(client_t *client : itype(_Ptr<client_t>), int status, int plain, const char *message : itype(_Nt_array_ptr<const char>))
 {
     ssize_t ret;
+  
+    _Nt_array_ptr<char> argPlain = NULL;
+    _Nt_array_ptr<char> argPlain2 = NULL;
+    if (plain)
+    {
+      argPlain = "test/plain";
+      argPlain2 = message;
+    } else {
+      argPlain = "text/html";
+      argPlain2 = "";
+    }
 
     ret = util_http_build_header(client->refbuf->data, PER_CLIENT_REFBUF_SIZE, 0,
                                  0, status, NULL,
-                                 plain ? "text/plain" : "text/html", "utf-8",
-                                 plain ? message : "", NULL);
+                                 argPlain, "utf-8",
+                                 argPlain2, NULL);
 
     if (ret == -1 || ret >= PER_CLIENT_REFBUF_SIZE) {
-        ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
+        _Unchecked {ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");}
         client_send_500(client, "Header generation failed.");
         return;
     }
 
     if (!plain)
-        snprintf(client->refbuf->data + ret, PER_CLIENT_REFBUF_SIZE - ret,
+        _Unchecked {snprintf(client->refbuf->data + ret, PER_CLIENT_REFBUF_SIZE - ret,
                  "<html><head><title>Error %i</title></head><body><b>%i - %s</b></body></html>\r\n",
-                 status, status, message);
+                 status, status, message);}
 
     client->respcode = status;
     client->refbuf->len = strlen (client->refbuf->data);
     fserve_add_client (client, NULL);
 }
 
-void client_send_100(client_t *client)
+void client_send_100(client_t *client : itype(_Ptr<client_t>))
 {
     /* On demand inject a HTTP/1.1 100 Continue to make sure clients are happy */
-    static const char str[] = "HTTP/1.1 100 Continue\r\nContent-Length: 0\r\n\r\n";
+    static const char str _Nt_checked[] = "HTTP/1.1 100 Continue\r\nContent-Length: 0\r\n\r\n";
     const size_t len = strlen(str);
-    client_send_bytes(client, str, len);
+    client_send_bytes<const char>(client, str, len);
 }
 
-void client_send_400(client_t *client, const char *message)
+void client_send_400(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>))
 {
     client_send_error(client, 400, 0, message);
 }
 
-void client_send_404(client_t *client, const char *message)
+void client_send_404(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>))
 {
     client_send_error(client, 404, 0, message);
 }
 
-void client_send_401(client_t *client)
+void client_send_401(client_t *client : itype(_Ptr<client_t>))
 {
     client_send_error(client, 401, 1, "You need to authenticate\r\n");
 }
 
-void client_send_403(client_t *client, const char *message)
+void client_send_403(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>))
 {
     client_send_error(client, 403, 1, message);
 }
 
 /* this function is designed to work even if client is in bad state */
-void client_send_500(client_t *client, const char *message) {
-    const char header[] = "HTTP/1.0 500 Internal Server Error\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
+void client_send_500(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>) count(20)) {
+    const char header _Checked[] = "HTTP/1.0 500 Internal Server Error\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
                           "500 - Internal Server Error\n---------------------------\n";
     const size_t header_len = sizeof(header) - 1;
     int ret;
 
-    ret = client_send_bytes(client, header, header_len);
+    ret = client_send_bytes<const char>(client, header, header_len);
 
     /* only send message if we have one AND if header could have transmitted completly */
     if (message && ret == header_len)
-        client_send_bytes(client, message, strlen(message));
+        client_send_bytes<const char>(client, message, strlen(message));
 
     client_destroy(client);
 }
@@ -255,17 +268,18 @@ void client_send_500(client_t *client, const char *message) {
 /* helper function for sending the data to a client */
 _Itype_for_any(T) int client_send_bytes (client_t *client : itype(_Ptr<client_t>), const void *buf : itype(_Array_ptr<const T>), unsigned len)
 {
-    int ret = client->con->send (client->con, buf, len);
+    int ret;
+    _Unchecked {ret = client->con->send (client->con, buf, len);}
 
     if (client->con->error)
-        ICECAST_LOG_DEBUG("Client connection died");
+        _Unchecked {ICECAST_LOG_DEBUG("Client connection died");}
 
     return ret;
 }
 
-void client_set_queue (client_t *client, refbuf_t *refbuf : itype(_Ptr<refbuf_t>))
+void client_set_queue (client_t *client : itype(_Ptr<client_t>), refbuf_t *refbuf : itype(_Ptr<refbuf_t>))
 {
-    refbuf_t *to_release = client->refbuf;
+    _Ptr<refbuf_t> to_release = client->refbuf;
 
     client->refbuf = refbuf;
     if (refbuf)
