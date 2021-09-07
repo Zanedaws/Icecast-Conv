@@ -47,15 +47,16 @@
 #define CATMODULE "format"
 
 #ifdef WIN32
-//define strcasecmp stricmp
+#define strcasecmp stricmp
 #define strncasecmp strnicmp
 #define snprintf _snprintf
 #endif
 
-static int format_prepare_headers (source_t *source, client_t *client);
+static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client);
 
+#pragma CHECKED_SCOPE on
 
-format_type_t format_get_type (const char *contenttype)
+format_type_t format_get_type (const char *contenttype : itype(_Nt_array_ptr<const char>))
 {
     if(strcmp(contenttype, "application/x-ogg") == 0)
         return FORMAT_TYPE_OGG; /* Backwards compatibility */
@@ -79,11 +80,11 @@ format_type_t format_get_type (const char *contenttype)
         /* We default to the Generic format handler, which
            can handle many more formats than just mp3.
 	   Let's warn that this is not well supported */
-	ICECAST_LOG_WARN("Unsupported or legacy stream type: \"%s\". Falling back to generic minimal handler for best effort.", contenttype);
+	_Unchecked {ICECAST_LOG_WARN("Unsupported or legacy stream type: \"%s\". Falling back to generic minimal handler for best effort.", contenttype);}
         return FORMAT_TYPE_GENERIC;
 }
 
-int format_get_plugin(format_type_t type, source_t *source)
+int format_get_plugin(format_type_t type, struct source_tag *source : itype(_Ptr<struct source_tag>))
 {
     int ret = -1;
 
@@ -111,9 +112,9 @@ int format_get_plugin(format_type_t type, source_t *source)
 /* clients need to be start from somewhere in the queue so we will look for
  * a refbuf which has been previously marked as a sync point. 
  */
-static void find_client_start (source_t *source, client_t *client)
+static void find_client_start (_Ptr<source_t> source, _Ptr<client_t> client)
 {
-    refbuf_t *refbuf = source->burst_point;
+    _Ptr<refbuf_t> refbuf = source->burst_point;
 
     /* we only want to attempt a burst at connection time, not midstream
      * however streams like theora may not have the most recent page marked as
@@ -126,16 +127,16 @@ static void find_client_start (source_t *source, client_t *client)
         size_t size = client->intro_offset;
         refbuf = source->burst_point;
         while (size > 0 && refbuf && refbuf->next)
-        {
+        _Checked {
             size -= refbuf->len;
             refbuf = refbuf->next;
         }
     }
 
     while (refbuf)
-    {
+    _Checked {
         if (refbuf->sync_point)
-        {
+        _Unchecked {
             client_set_queue (client, refbuf);
             client->check_buffer = format_advance_queue;
             client->write_to_client = source->format->write_buf_to_client;
@@ -147,14 +148,14 @@ static void find_client_start (source_t *source, client_t *client)
 }
 
 
-static int get_file_data (FILE *intro, client_t *client)
+static int get_file_data (_Ptr<FILE> intro, _Ptr<client_t> client)
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
     size_t bytes;
 
     if (intro == NULL || fseek (intro, client->intro_offset, SEEK_SET) < 0)
         return 0;
-    bytes = fread (refbuf->data, 1, 4096, intro);
+    bytes = fread (_Dynamic_bounds_cast<_Nt_array_ptr<char>>(refbuf->data, byte_count(4096)), 1, 4096, intro);
     if (bytes == 0)
         return 0;
 
@@ -167,7 +168,7 @@ static int get_file_data (FILE *intro, client_t *client)
  * to right place in the queue at end of file else repeat file if queue
  * is not ready yet.
  */
-int format_check_file_buffer (source_t *source : itype(_Ptr<source_t>), client_t *client : itype(_Ptr<client_t>))
+int format_check_file_buffer (struct source_tag *source : itype(_Ptr<struct source_tag>), client_t *client : itype(_Ptr<client_t>))
 {
     _Ptr<refbuf_t> refbuf = client->refbuf;
 
@@ -212,20 +213,20 @@ int format_check_file_buffer (source_t *source : itype(_Ptr<source_t>), client_t
 /* call this to verify that the HTTP data has been sent and if so setup
  * callbacks to the appropriate format functions
  */
-int format_check_http_buffer (source_t *source : itype(_Ptr<source_t>), client_t *client : itype(_Ptr<client_t>))
+int format_check_http_buffer (struct source_tag *source : itype(_Ptr<struct source_tag>), client_t *client : itype(_Ptr<client_t>))
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
 
     if (refbuf == NULL)
         return -1;
 
     if (client->respcode == 0)
     {
-        ICECAST_LOG_DEBUG("processing pending client headers");
+        _Unchecked {ICECAST_LOG_DEBUG("processing pending client headers");}
 
         if (format_prepare_headers (source, client) < 0)
         {
-            ICECAST_LOG_ERROR("internal problem, dropping client");
+            _Unchecked {ICECAST_LOG_ERROR("internal problem, dropping client");}
             client->con->error = 1;
             return -1;
         }
@@ -247,14 +248,14 @@ int format_check_http_buffer (source_t *source : itype(_Ptr<source_t>), client_t
 }
 
 
-int format_generic_write_to_client (client_t *client)
+int format_generic_write_to_client (client_t *client : itype(_Ptr<client_t>))
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
     int ret;
-    const char *buf = refbuf->data + client->pos;
+    _Nt_array_ptr<const char> buf = refbuf->data + client->pos;
     unsigned int len = refbuf->len - client->pos;
 
-    ret = client_send_bytes (client, buf, len);
+    ret = client_send_bytes<const char> (client, buf, len);
 
     if (ret > 0)
         client->pos += ret;
@@ -267,9 +268,9 @@ int format_generic_write_to_client (client_t *client)
  * the next buffer in the queue if there is no more left to be written from 
  * the existing buffer.
  */
-int format_advance_queue (source_t *source : itype(_Ptr<source_t>), client_t *client : itype(_Ptr<client_t>))
+int format_advance_queue (struct source_tag *source : itype(_Ptr<struct source_tag>), client_t *client : itype(_Ptr<client_t>))
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
 
     if (refbuf == NULL)
         return -1;
@@ -287,37 +288,38 @@ int format_advance_queue (source_t *source : itype(_Ptr<source_t>), client_t *cl
 }
 
 
-static int format_prepare_headers (source_t *source, client_t *client)
+static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
 {
     unsigned remaining;
     _Nt_array_ptr<char> ptr = NULL;
     int bytes;
     int bitrate_filtered = 0;
-    avl_node *node;
+    _Ptr<avl_node> node = ((void *)0);
 
     remaining = client->refbuf->len;
     ptr = client->refbuf->data;
     client->respcode = 200;
 
-    bytes = util_http_build_header(ptr, remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
+    _Unchecked {bytes = util_http_build_header(ptr, remaining, 0, 0, 200, NULL, _Assume_bounds_cast<_Nt_array_ptr<const char>>(source->format->contenttype, byte_count(0)), NULL, NULL, source);}
     if (bytes <= 0) {
-        ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
+        _Unchecked {ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");}
         client_send_500(client, "Header generation failed.");
         return -1;
     } else if ((bytes + 1024) >= remaining) { /* we don't know yet how much to follow but want at least 1kB free space */
-        void *new_ptr = realloc(_Dynamic_bounds_cast<_Array_ptr<char>>(ptr, byte_count(1)), bytes + 1024);
+        _Array_ptr<void> new_ptr : byte_count(1024)= realloc<char>(_Dynamic_bounds_cast<_Array_ptr<char>>(ptr, byte_count(1)), 1024);
         if (new_ptr) {
-            ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
-            client->refbuf->data = ptr = _Assume_bounds_cast<_Nt_array_ptr<char>>(new_ptr, byte_count(0));
+            _Unchecked {ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");}
+            client->refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(new_ptr, byte_count(1024));
+            ptr = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(new_ptr, byte_count(1024));
             client->refbuf->len = remaining = bytes + 1024;
             bytes = util_http_build_header(ptr, remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
             if (bytes <= 0 || bytes >= remaining) {
-                ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
+                _Unchecked {ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");}
                 client_send_500(client, "Header generation failed.");
                 return -1;
             }
         } else {
-            ICECAST_LOG_ERROR("Client buffer reallocation failed. Dropping client.");
+            _Unchecked {ICECAST_LOG_ERROR("Client buffer reallocation failed. Dropping client.");}
             client_send_500(client, "Buffer reallocation failed.");
             return -1;
         }
@@ -332,76 +334,82 @@ static int format_prepare_headers (source_t *source, client_t *client)
     while (node)
     {
         int next = 1;
-        http_var_t *var = (http_var_t *)node->key;
+        _Ptr<http_var_t> var = _Dynamic_bounds_cast<_Ptr<http_var_t>>(node->key);
         bytes = 0;
-//       if (!strcasecmp(var->name, "ice-audio-info"))
-        if(1)
+        int tmpRetVal;
+        _Unchecked{tmpRetVal = strcasecmp(var->name, "ice-audio-info");}
+        if (!tmpRetVal)
         {
             /* convert ice-audio-info to icy-br */
-            char *brfield = NULL;
+            _Nt_array_ptr<char> brfield = NULL;
             unsigned int bitrate;
+            unsigned int tmpRetVar;
 
             if (bitrate_filtered == 0)
-                brfield = strstr(var->value, "bitrate=");
-            if (brfield && sscanf (brfield, "bitrate=%u", &bitrate))
-            {           
-                _Unchecked {bytes = snprintf ((char*)ptr, remaining, "icy-br:%u\r\n", bitrate);}
-                next = 0;
-                bitrate_filtered = 1;
+                brfield = ((_Nt_array_ptr<char> )strstr(var->value, "bitrate="));
+            if (brfield){
+                _Unchecked {tmpRetVar = sscanf(brfield, "bitrate=%u", &bitrate);}
+                if (tmpRetVar) {
+                    _Unchecked {bytes = snprintf ((char*)ptr, remaining, "icy-br:%u\r\n", bitrate);}
+                    next = 0;
+                    bitrate_filtered = 1;}
             }
             else
                 /* show ice-audio_info header as well because of relays */
-                _Unchecked {bytes = snprintf ((char *)ptr, remaining, "%s: %s\r\n", var->name, var->value);}
+                _Unchecked {bytes = snprintf ((char*)ptr, remaining, "%s: %s\r\n", var->name, var->value);}
         }
-        else
-        {
-//           if (strcasecmp(var->name, "ice-password") &&
-//               strcasecmp(var->name, "icy-metaint"))
-            if(1)
+        else{
+            int tmpRetVar;
+            int tmpRetVar2;
+            _Unchecked {tmpRetVar = strcasecmp(var->name, "ice-password");}
+            _Unchecked {tmpRetVar2 = strcasecmp(var->name, "icy-metaint");}
+            if (tmpRetVar &&
+               tmpRetVar2)
             {
-//	         if (!strcasecmp(var->name, "ice-name"))
-                if(1)
-                {
-                    ice_config_t *config;
-                    mount_proxy *mountinfo;
+                _Unchecked {tmpRetVar = strcasecmp(var->name, "ice-name");}
+                _Unchecked {tmpRetVar2 = strncasecmp("ice-", var->name, 4);}
+	              if (!tmpRetVar) {
+                    _Ptr<ice_config_t> config = ((void *)0);
+                    _Ptr<mount_proxy> mountinfo = ((void *)0);
 
                     config = config_get_config();
                     mountinfo = config_find_mount (config, source->mount, MOUNT_TYPE_NORMAL);
 
                     if (mountinfo && mountinfo->stream_name)
-                        bytes = snprintf (ptr, remaining, "icy-name:%s\r\n", mountinfo->stream_name);
+                        _Unchecked {bytes = snprintf ((char*)ptr, remaining, "icy-name:%s\r\n", mountinfo->stream_name);}
                     else
-                        bytes = snprintf (ptr, remaining, "icy-name:%s\r\n", var->value);
+                        _Unchecked {bytes = snprintf ((char*)ptr, remaining, "icy-name:%s\r\n", var->value);}
 
                     config_release_config();
                 }
-                //else if (!strncasecmp("ice-", var->name, 4))
-                else if(1)
-                {
-    //                   if (!strcasecmp("ice-public", var->name))
-                    if(1)
-                        bytes = snprintf (ptr, remaining, "icy-pub:%s\r\n", var->value);
-                    else
-    //                   if (!strcasecmp ("ice-bitrate", var->name))
-                    if(1)
-                        bytes = snprintf (ptr, remaining, "icy-br:%s\r\n", var->value);
-                    else
-                        bytes = snprintf (ptr, remaining, "icy%s:%s\r\n",
-                                    var->name + 3, var->value);
-                }
-                else
-                    //if (!strncasecmp("icy-", var->name, 4))
-                    if(1)
-                    {
-                        bytes = snprintf (ptr, remaining, "icy%s:%s\r\n",
-                                var->name + 3, var->value);
+                else if (!tmpRetVar2){
+                    _Unchecked {tmpRetVar = strcasecmp("ice-public", var->name);}      
+                    if (!tmpRetVar)
+                        _Unchecked {bytes = snprintf ((char*)ptr, remaining, "icy-pub:%s\r\n", var->value);}
+                    else{
+                        _Unchecked {tmpRetVar = strcasecmp("ice-bitrate", var->name);}
+                        if (!tmpRetVar)
+                            _Unchecked {bytes = snprintf ((char*)ptr, remaining, "icy-br:%s\r\n", var->value);}
+                    
+                        else
+                            _Unchecked {bytes = snprintf ((char*)ptr, remaining, "icy%s:%s\r\n", var->name + 3, var->value);}
                     }
+                }
+            
+                else{
+                    _Unchecked {tmpRetVar = strncasecmp("icy-", var->name, 4);}   
+                    if (!tmpRetVar) {
+                        _Unchecked { bytes = snprintf ((char*)ptr, remaining, "icy%s:%s\r\n", var->name + 3, var->value);}
+                    }
+                }
             }
         }
+    
+        
 
         if (bytes < 0 || bytes >= remaining) {
             avl_tree_unlock(source->parser->vars);
-            ICECAST_LOG_ERROR("Can not allocate headers for client %p", client);
+            _Unchecked {ICECAST_LOG_ERROR("Can not allocate headers for client %p", client);}
             client_send_500(client, "Header generation failed.");
             return -1;
         }
@@ -413,9 +421,9 @@ static int format_prepare_headers (source_t *source, client_t *client)
     }
     avl_tree_unlock(source->parser->vars);
 
-    _Unchecked {bytes = snprintf ((char *)ptr, remaining, "\r\n");}
+    _Unchecked {bytes = snprintf ((char*)ptr, remaining, "\r\n");}
     if (bytes < 0 || bytes >= remaining) {
-        ICECAST_LOG_ERROR("Can not allocate headers for client %p", client);
+        _Unchecked {ICECAST_LOG_ERROR("Can not allocate headers for client %p", client);}
         client_send_500(client, "Header generation failed.");
         return -1;
     }
@@ -425,8 +433,8 @@ static int format_prepare_headers (source_t *source, client_t *client)
     client->refbuf->len -= remaining;
     if (source->format->create_client_data)
         if (source->format->create_client_data (source, client) < 0) {
-            ICECAST_LOG_ERROR("Client format header generation failed. "
-                "(Likely not enough or wrong source data) Dropping client.");
+            _Unchecked {ICECAST_LOG_ERROR("Client format header generation failed. "
+                "(Likely not enough or wrong source data) Dropping client.");}
             client->respcode = 500;
             return -1;
         }

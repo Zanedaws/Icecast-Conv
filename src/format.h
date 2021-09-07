@@ -40,7 +40,7 @@ typedef struct _format_plugin_tag
     /* we need to know the mount to report statistics */
     char *mount : itype(_Ptr<char>);
 
-    const char *contenttype;
+    const char *contenttype : itype(_Nt_array_ptr<const char>);
     char *charset : itype(_Nt_array_ptr<char>);
     uint64_t read_bytes;
     uint64_t sent_bytes;
