@@ -460,7 +460,7 @@ static refbuf_t *ogg_get_buffer (source_t *source)
 
 static int create_ogg_client_data (source_t *source, client_t *client) 
 {
-    struct ogg_client *client_data = calloc (1, sizeof (struct ogg_client));
+    _Ptr<struct ogg_client> client_data = calloc (1, sizeof (struct ogg_client));
     int ret = -1;
 
     if (client_data)

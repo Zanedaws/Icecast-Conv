@@ -658,7 +658,7 @@ static refbuf_t *mp3_get_filter_meta (source_t *source)
 
 static int format_mp3_create_client_data(source_t *source, client_t *client)
 {
-    mp3_client_data *client_mp3 = calloc(1,sizeof(mp3_client_data));
+    _Ptr <mp3_client_data> client_mp3 = calloc(1,sizeof(mp3_client_data));
     mp3_state *source_mp3 = source->format->_state;
     const char *metadata;
     /* the +-2 is for overwriting the last set of \r\n */
