@@ -71,7 +71,7 @@ extern int playlistlog;
 #define LOGGING_FORMAT_CLF "%d/%b/%Y:%H:%M:%S %z"
 
 void logging_access(client_t *client : itype(_Ptr<client_t>));
-void logging_playlist(const char *mount : itype(_Ptr<const char>), const char *metadata : itype(_Ptr<const char>), long listeners);
+void logging_playlist(const char *mount : itype(_Nt_array_ptr<const char>), const char *metadata : itype(_Nt_array_ptr<const char>), long listeners);
 void restart_logging (ice_config_t *config : itype(_Ptr<ice_config_t>));
 void log_parse_failure (void *ctx, const char *fmt, ...);
 

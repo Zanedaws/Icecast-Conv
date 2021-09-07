@@ -36,7 +36,7 @@ typedef struct {
 
     unsigned build_metadata_len;
     unsigned build_metadata_offset;
-    char build_metadata[4081];
+    unsigned char build_metadata _Checked [4081];
 } mp3_state;
 
 int format_mp3_get_plugin(struct source_tag *src : itype(_Ptr<struct source_tag>));

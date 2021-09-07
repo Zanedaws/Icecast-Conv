@@ -49,7 +49,7 @@ typedef struct _format_plugin_tag
     int ((*write_buf_to_client)(client_t * client)) : itype(_Ptr<int (_Ptr<client_t> client)>);
     void ((*write_buf_to_file)(struct source_tag * source, refbuf_t * refbuf : itype(_Ptr<refbuf_t>))) : itype(_Ptr<void (_Ptr<struct source_tag> source, _Ptr<refbuf_t> refbuf)>);
     int ((*create_client_data)(struct source_tag * source, client_t * client)) : itype(_Ptr<int (_Ptr<struct source_tag> source, _Ptr<client_t> client)>);
-    void ((*set_tag)(struct _format_plugin_tag * plugin, const char * tag, const char * value, const char * charset)) : itype(_Ptr<void (_Ptr<struct _format_plugin_tag> plugin, _Nt_array_ptr<const char> tag, _Nt_array_ptr<const char> value, _Ptr<const char> charset)>);
+    void ((*set_tag)(struct _format_plugin_tag * plugin, const char * tag, const char * value, const char * charset)) : itype(_Ptr<void (_Ptr<struct _format_plugin_tag> plugin, _Nt_array_ptr<const char> tag, _Nt_array_ptr<const char> value, _Nt_array_ptr<const char> charset)>);
     void ((*free_plugin)(struct _format_plugin_tag * self)) : itype(_Ptr<void (_Ptr<struct _format_plugin_tag> self)>);
     void ((*apply_settings)(client_t * client, struct _format_plugin_tag * format, struct _mount_proxy * mount)) : itype(_Ptr<void (_Ptr<client_t> client, _Ptr<struct _format_plugin_tag> format, _Ptr<struct _mount_proxy> mount)>);
 
