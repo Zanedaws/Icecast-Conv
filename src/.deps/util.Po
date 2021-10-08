@@ -63,8 +63,8 @@ util.o: util.c ../config.h /usr/include/x86_64-linux-gnu/sys/types.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/__stddef_max_align_t.h \
   /usr/include/x86_64-linux-gnu/sys/time.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/sys/socket.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/socket.h \
   /usr/include/x86_64-linux-gnu/bits/socket_type.h \
@@ -81,8 +81,9 @@ util.o: util.c ../config.h /usr/include/x86_64-linux-gnu/sys/types.h \
   /usr/include/asm-generic/sockios.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /usr/include/unistd.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
-  /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
@@ -314,9 +315,9 @@ util.o: util.c ../config.h /usr/include/x86_64-linux-gnu/sys/types.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
-
 /usr/include/x86_64-linux-gnu/sys/socket.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
 
@@ -352,9 +353,9 @@ util.o: util.c ../config.h /usr/include/x86_64-linux-gnu/sys/types.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
-
 /usr/include/unistd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 

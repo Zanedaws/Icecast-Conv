@@ -1,8 +1,9 @@
 md5.o: md5.c ../config.h compat.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /usr/include/unistd.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
-  /usr/include/unistd.h /usr/include/features.h \
-  /usr/include/stdc-predef.h /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+  /usr/include/features.h /usr/include/stdc-predef.h \
+  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
   /usr/include/x86_64-linux-gnu/bits/wordsize.h \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
@@ -75,9 +76,9 @@ compat.h:
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
-
 /usr/include/unistd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/features.h:
 

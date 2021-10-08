@@ -69,11 +69,13 @@ connection.o: connection.c ../config.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h \
   /usr/include/x86_64-linux-gnu/sys/poll.h \
   /usr/include/x86_64-linux-gnu/bits/poll.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat_checked.h \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/sys/socket.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/socket.h \
   /usr/include/x86_64-linux-gnu/bits/socket_type.h \
@@ -93,8 +95,9 @@ connection.o: connection.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
   /usr/include/x86_64-linux-gnu/bits/in.h compat.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /usr/include/unistd.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
-  /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
@@ -343,15 +346,19 @@ connection.o: connection.c ../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/poll.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat_checked.h:
+
 /usr/include/x86_64-linux-gnu/sys/stat.h:
 
 /usr/include/x86_64-linux-gnu/bits/stat.h:
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
-
 /usr/include/x86_64-linux-gnu/sys/socket.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
 
@@ -395,9 +402,9 @@ compat.h:
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
-
 /usr/include/unistd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 

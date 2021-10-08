@@ -62,6 +62,8 @@ libicenet_la-sock.lo: sock.c ../../config.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/string_checked.h \
   /usr/include/string.h /usr/include/strings.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/fcntl.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/fcntl_checked.h \
   /usr/include/fcntl.h /usr/include/x86_64-linux-gnu/bits/fcntl.h \
   /usr/include/x86_64-linux-gnu/bits/fcntl-linux.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
@@ -70,19 +72,23 @@ libicenet_la-sock.lo: sock.c ../../config.h \
   /usr/include/errno.h /usr/include/x86_64-linux-gnu/bits/errno.h \
   /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
   /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
-  /usr/include/poll.h /usr/include/x86_64-linux-gnu/sys/poll.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/poll.h \
+  /usr/include/poll.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/poll_checked.h \
+  /usr/include/x86_64-linux-gnu/sys/poll.h \
   /usr/include/x86_64-linux-gnu/bits/poll.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /usr/include/unistd.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
-  /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
   /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/sys/socket.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/socket.h \
   /usr/include/x86_64-linux-gnu/bits/socket_type.h \
@@ -104,11 +110,14 @@ libicenet_la-sock.lo: sock.c ../../config.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/stdint.h \
   /usr/include/stdint.h /usr/include/x86_64-linux-gnu/bits/wchar.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet.h \
+  /usr/include/arpa/inet.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet_checked.h \
-  /usr/include/arpa/inet.h /usr/include/x86_64-linux-gnu/sys/time.h \
-  /usr/include/netdb.h /usr/include/rpc/netdb.h \
-  /usr/include/x86_64-linux-gnu/bits/netdb.h sock.h \
-  /usr/include/x86_64-linux-gnu/sys/uio.h \
+  /usr/include/x86_64-linux-gnu/sys/time.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/netdb.h \
+  /usr/include/netdb.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/netdb_checked.h \
+  /usr/include/rpc/netdb.h /usr/include/x86_64-linux-gnu/bits/netdb.h \
+  sock.h /usr/include/x86_64-linux-gnu/sys/uio.h \
   /usr/include/x86_64-linux-gnu/bits/uio_lim.h resolver.h
 
 ../../config.h:
@@ -247,6 +256,10 @@ libicenet_la-sock.lo: sock.c ../../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/fcntl.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/fcntl_checked.h:
+
 /usr/include/fcntl.h:
 
 /usr/include/x86_64-linux-gnu/bits/fcntl.h:
@@ -271,7 +284,11 @@ libicenet_la-sock.lo: sock.c ../../config.h \
 
 /usr/include/asm-generic/errno-base.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/poll.h:
+
 /usr/include/poll.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/poll_checked.h:
 
 /usr/include/x86_64-linux-gnu/sys/poll.h:
 
@@ -279,9 +296,9 @@ libicenet_la-sock.lo: sock.c ../../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
-
 /usr/include/unistd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
@@ -297,9 +314,9 @@ libicenet_la-sock.lo: sock.c ../../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
-
 /usr/include/x86_64-linux-gnu/sys/socket.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
 
@@ -349,13 +366,17 @@ libicenet_la-sock.lo: sock.c ../../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet_checked.h:
-
 /usr/include/arpa/inet.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet_checked.h:
 
 /usr/include/x86_64-linux-gnu/sys/time.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/netdb.h:
+
 /usr/include/netdb.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/netdb_checked.h:
 
 /usr/include/rpc/netdb.h:
 

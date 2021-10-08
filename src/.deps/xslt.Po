@@ -108,6 +108,8 @@ xslt.o: xslt.c ../config.h \
   /usr/include/libxslt/numbersInternals.h \
   /usr/include/libxslt/transform.h /usr/include/libxslt/xsltutils.h \
   /usr/include/x86_64-linux-gnu/libxslt/xsltconfig.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat_checked.h \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/errno.h \
@@ -127,8 +129,9 @@ xslt.o: xslt.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/setjmp.h avl/avl.h httpp/httpp.h \
   net/sock.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /usr/include/unistd.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
-  /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
@@ -429,6 +432,10 @@ xslt.o: xslt.c ../config.h \
 
 /usr/include/x86_64-linux-gnu/libxslt/xsltconfig.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat_checked.h:
+
 /usr/include/x86_64-linux-gnu/sys/stat.h:
 
 /usr/include/x86_64-linux-gnu/bits/stat.h:
@@ -483,9 +490,9 @@ net/sock.h:
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
-
 /usr/include/unistd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 

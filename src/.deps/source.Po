@@ -76,8 +76,9 @@ source.o: source.c ../config.h \
   /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
   /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /usr/include/unistd.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
-  /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
@@ -85,8 +86,8 @@ source.o: source.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
   /usr/include/x86_64-linux-gnu/sys/time.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/sys/socket.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/socket.h \
   /usr/include/x86_64-linux-gnu/bits/socket_type.h \
@@ -129,9 +130,13 @@ source.o: source.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/local_lim.h \
   /usr/include/linux/limits.h \
   /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat_checked.h \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
-  /usr/include/x86_64-linux-gnu/bits/stat.h /usr/include/fcntl.h \
-  /usr/include/x86_64-linux-gnu/bits/fcntl.h \
+  /usr/include/x86_64-linux-gnu/bits/stat.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/fcntl.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/fcntl_checked.h \
+  /usr/include/fcntl.h /usr/include/x86_64-linux-gnu/bits/fcntl.h \
   /usr/include/x86_64-linux-gnu/bits/fcntl-linux.h thread/thread.h \
   /usr/include/pthread.h /usr/include/sched.h \
   /usr/include/x86_64-linux-gnu/bits/sched.h \
@@ -374,9 +379,9 @@ source.o: source.c ../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
-
 /usr/include/unistd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
@@ -394,9 +399,9 @@ source.o: source.c ../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
-
 /usr/include/x86_64-linux-gnu/sys/socket.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
 
@@ -488,9 +493,17 @@ source.o: source.c ../config.h \
 
 /usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/stat_checked.h:
+
 /usr/include/x86_64-linux-gnu/sys/stat.h:
 
 /usr/include/x86_64-linux-gnu/bits/stat.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/fcntl.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/fcntl_checked.h:
 
 /usr/include/fcntl.h:
 

@@ -38,8 +38,9 @@ main.o: main.c ../config.h \
   /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
   /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /usr/include/unistd.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
-  /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
@@ -79,8 +80,14 @@ main.o: main.c ../config.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/uio_lim.h net/resolver.h \
-  httpp/httpp.h /usr/include/grp.h /usr/include/pwd.h cfgfile.h auth.h \
-  /usr/include/libxml2/libxml/xmlmemory.h \
+  httpp/httpp.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/grp.h \
+  /usr/include/grp.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/grp_checked.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/pwd.h \
+  /usr/include/pwd.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/pwd_checked.h \
+  cfgfile.h auth.h /usr/include/libxml2/libxml/xmlmemory.h \
   /usr/include/libxml2/libxml/xmlversion.h \
   /usr/include/libxml2/libxml/xmlexports.h \
   /usr/include/libxml2/libxml/threads.h \
@@ -255,9 +262,9 @@ main.o: main.c ../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
-
 /usr/include/unistd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
@@ -355,9 +362,17 @@ net/resolver.h:
 
 httpp/httpp.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/grp.h:
+
 /usr/include/grp.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/grp_checked.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/pwd.h:
+
 /usr/include/pwd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/pwd_checked.h:
 
 cfgfile.h:
 

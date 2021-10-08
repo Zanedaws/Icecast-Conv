@@ -62,11 +62,14 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h \
-  /usr/include/netdb.h /usr/include/netinet/in.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/netdb.h \
+  /usr/include/netdb.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/netdb_checked.h \
+  /usr/include/netinet/in.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h \
-  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/sys/socket.h \
+  /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/socket.h \
   /usr/include/x86_64-linux-gnu/bits/socket_type.h \
@@ -85,9 +88,10 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/in.h /usr/include/rpc/netdb.h \
   /usr/include/x86_64-linux-gnu/bits/netdb.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet.h \
+  /usr/include/arpa/inet.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet_checked.h \
-  /usr/include/arpa/inet.h ../thread/thread.h /usr/include/pthread.h \
-  /usr/include/sched.h /usr/include/x86_64-linux-gnu/bits/sched.h \
+  ../thread/thread.h /usr/include/pthread.h /usr/include/sched.h \
+  /usr/include/x86_64-linux-gnu/bits/sched.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
   /usr/include/x86_64-linux-gnu/bits/cpu-set.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/time.h \
@@ -97,8 +101,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
   /usr/include/x86_64-linux-gnu/bits/setjmp.h resolver.h sock.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h \
+  /usr/include/unistd.h \
   /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h \
-  /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
   /usr/include/x86_64-linux-gnu/bits/confname.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
@@ -241,7 +246,11 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/_builtin_string_checked.h:
 
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/netdb.h:
+
 /usr/include/netdb.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/netdb_checked.h:
 
 /usr/include/netinet/in.h:
 
@@ -249,9 +258,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
-
 /usr/include/x86_64-linux-gnu/sys/socket.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/sys/socket_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
 
@@ -293,9 +302,9 @@ libicenet_la-resolver.lo: resolver.c ../../config.h \
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet_checked.h:
-
 /usr/include/arpa/inet.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/arpa/inet_checked.h:
 
 ../thread/thread.h:
 
@@ -329,9 +338,9 @@ sock.h:
 
 /home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd.h:
 
-/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
-
 /usr/include/unistd.h:
+
+/home/zane/Code/research/checkedC/build/lib/clang/12.0.0/include/unistd_checked.h:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
