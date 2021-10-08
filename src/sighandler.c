@@ -30,6 +30,8 @@
 
 #define CATMODULE "sighandler"
 
+#pragma CHECKED_SCOPE on
+
 #ifndef _WIN32
 void _sig_hup(int signo);
 void _sig_die(int signo);
@@ -42,14 +44,14 @@ void sighandler_initialize(void)
     signal(SIGHUP, _sig_hup);
     signal(SIGINT, _sig_die);
     signal(SIGTERM, _sig_die);
-    signal(SIGPIPE, SIG_IGN);
+    _Unchecked {signal(SIGPIPE, SIG_IGN);}
     signal(SIGCHLD, _sig_ignore);
 #endif
 }
 
 #ifndef _WIN32
 void _sig_ignore(int signo)
-{
+_Checked {
     signal(signo, _sig_ignore);
 }
 

@@ -40,6 +40,8 @@
 
 #include "timing.h"
 
+#pragma CHECKED_SCOPE on
+
 /* see timing.h for an explanation of _mangle() */
 
 /* 
@@ -50,7 +52,7 @@ uint64_t timing_get_time(void)
 #ifdef HAVE_GETTIMEOFDAY
     struct timeval mtv;
 
-    gettimeofday(&mtv, NULL);
+    _Unchecked {gettimeofday(&mtv, NULL);}
 
     return (uint64_t)(mtv.tv_sec) * 1000 + (uint64_t)(mtv.tv_usec) / 1000;
 #elif HAVE_FTIME
@@ -79,6 +81,6 @@ void timing_sleep(uint64_t sleeptime)
 #ifdef WIN32
 	Sleep(sleeptime);
 #else
-    select(1, NULL, NULL, NULL, &sleeper);
+    _Unchecked{select(1, NULL, NULL, NULL, &sleeper);}
 #endif
 }
