@@ -43,14 +43,16 @@
 #define mutex_t pthread_mutex_t
 #endif
 
+#pragma CHECKED_SCOPE on
+
 static mutex_t _logger_mutex;
 static int _initialized = 0;
 
 typedef struct _log_entry_t
 {
-   char *line;
+   char *line : itype(_Nt_array_ptr<char>);
    unsigned int len;
-   struct _log_entry_t *next;
+   struct _log_entry_t *next : itype(_Ptr<struct _log_entry_t>);
 } log_entry_t;
 
 
@@ -60,8 +62,8 @@ typedef struct log_tag
 
     unsigned level;
 
-    char *filename;
-    FILE *logfile;
+    char *filename : itype(_Nt_array_ptr<char>);
+    FILE *logfile : itype(_Ptr<FILE>);
     off_t size;
     off_t trigger_level;
     int archive_timestamp;
@@ -69,13 +71,13 @@ typedef struct log_tag
     unsigned long total;
     unsigned int entries;
     unsigned int keep_entries;
-    log_entry_t *log_head;
-    log_entry_t **log_tail;
+    log_entry_t *log_head : itype(_Ptr<log_entry_t>);
+    log_entry_t **log_tail : itype(_Ptr<_Ptr<log_entry_t>>);
     
-    char *buffer;
+    char *buffer : itype(_Ptr<char>);
 } log_t;
 
-static log_t loglist[LOG_MAXLOGS];
+static log_t loglist _Checked[LOG_MAXLOGS];
 
 static int _get_log_id(void);
 static void _release_log_id(int log_id);
@@ -91,20 +93,20 @@ static int _log_open (int id)
     /* check for cases where an open of the logfile is wanted */
     if (loglist [id] . logfile == NULL || 
        (loglist [id] . trigger_level && loglist [id] . size > loglist [id] . trigger_level))
-    {
+    _Checked {
         if (loglist [id] . filename)  /* only re-open files where we have a name */
-        {
+        _Unchecked {
             struct stat st;
 
             if (loglist [id] . logfile)
             {
-                char new_name [4096];
+                char new_name _Nt_checked[4096];
                 fclose (loglist [id] . logfile);
                 loglist [id] . logfile = NULL;
                 /* simple rename, but could use time providing locking were used */
                 if (loglist[id].archive_timestamp)
                 {
-                    char timestamp [128];
+                    char timestamp _Nt_checked[128];
                     time_t now = time(NULL);
 
                     strftime (timestamp, sizeof (timestamp), "%Y%m%d_%H%M%S", localtime (&now));
@@ -159,7 +161,7 @@ void log_initialize(void)
 
     /* initialize mutexes */
 #ifndef _WIN32
-    pthread_mutex_init(&_logger_mutex, NULL);
+    _Unchecked {pthread_mutex_init(&_logger_mutex, NULL);}
 #else
     InitializeCriticalSection(&_logger_mutex);
 #endif
@@ -167,7 +169,7 @@ void log_initialize(void)
     _initialized = 1;
 }
 
-int log_open_file(FILE *file)
+int log_open_file(FILE *file : itype(_Ptr<FILE>))
 {
     int log_id;
 
@@ -184,10 +186,10 @@ int log_open_file(FILE *file)
 }
 
 
-int log_open(const char *filename)
+int log_open(const char *filename : itype(_Nt_array_ptr<const char>) count(4096))
 {
     int id;
-    FILE *file;
+    _Ptr<FILE> file = ((void *)0);
 
     if (filename == NULL) return LOG_EINSANE;
     if (strcmp(filename, "") == 0) return LOG_EINSANE;
@@ -201,7 +203,7 @@ int log_open(const char *filename)
         struct stat st;
 
         setvbuf (loglist [id] . logfile, NULL, IO_BUFFER_TYPE, 0);
-        loglist [id] . filename = strdup (filename);
+        loglist [id] . filename = ((_Nt_array_ptr<char> )strdup (filename));
         //if (stat (loglist [id] . filename, &st) == 0)
         if(1)
             loglist [id] . size = st.st_size;
@@ -216,7 +218,7 @@ int log_open(const char *filename)
 
 /* set the trigger level to trigger, represented in kilobytes */
 void log_set_trigger(int id, unsigned trigger)
-{
+_Checked {
     if (id >= 0 && id < LOG_MAXLOGS && loglist [id] . in_use)
     {
          loglist [id] . trigger_level = trigger*1024;
@@ -224,7 +226,7 @@ void log_set_trigger(int id, unsigned trigger)
 }
 
 
-int log_set_filename(int id, const char *filename)
+int log_set_filename(int id, const char *filename : itype(_Nt_array_ptr<const char>) count(4096))
 {
     if (id < 0 || id >= LOG_MAXLOGS)
         return LOG_EINSANE;
@@ -233,9 +235,9 @@ int log_set_filename(int id, const char *filename)
         return LOG_EINSANE;
      _lock_logger();
     if (loglist [id] . filename)
-        free (loglist [id] . filename);
+        free<char> (loglist [id] . filename);
     if (filename)
-        loglist [id] . filename = strdup (filename);
+        loglist [id] . filename = ((_Nt_array_ptr<char> )strdup (filename));
     else
         loglist [id] . filename = NULL;
      _unlock_logger();
@@ -243,7 +245,7 @@ int log_set_filename(int id, const char *filename)
 }
 
 int log_set_archive_timestamp(int id, int value)
-{
+_Checked {
     if (id < 0 || id >= LOG_MAXLOGS)
         return LOG_EINSANE;
      _lock_logger();
@@ -253,27 +255,27 @@ int log_set_archive_timestamp(int id, int value)
 }
 
 
-int log_open_with_buffer(const char *filename, int size)
-{
+int log_open_with_buffer(const char *filename : itype(_Ptr<const char>), int size)
+_Checked {
     /* not implemented */
     return LOG_ENOTIMPL;
 }
 
 
 void log_set_lines_kept (int log_id, unsigned int count)
-{
+_Checked {
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return;
     if (loglist[log_id].in_use == 0) return;
 
     _lock_logger ();
     loglist[log_id].keep_entries = count;
     while (loglist[log_id].entries > count)
-    {
-        log_entry_t *to_go = loglist [log_id].log_head;
+    _Unchecked {
+        _Ptr<log_entry_t> to_go = loglist [log_id].log_head;
         loglist [log_id].log_head = to_go->next;
         loglist [log_id].total -= to_go->len;
-        free (to_go->line);
-        free (to_go);
+        free<char> (to_go->line);
+        free<log_entry_t> (to_go);
         loglist [log_id].entries--;
     }
     _unlock_logger ();
@@ -281,7 +283,7 @@ void log_set_lines_kept (int log_id, unsigned int count)
 
 
 void log_set_level(int log_id, unsigned level)
-{
+_Checked {
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return;
     if (loglist[log_id].in_use == 0) return;
 
@@ -321,15 +323,15 @@ void log_close(int log_id)
     _lock_logger();
 
     if (loglist[log_id].in_use == 0)
-    {
+    _Checked {
         _unlock_logger();
         return;
     }
 
     loglist[log_id].in_use = 0;
     loglist[log_id].level = 2;
-    if (loglist[log_id].filename) free(loglist[log_id].filename);
-    if (loglist[log_id].buffer) free(loglist[log_id].buffer);
+    if (loglist[log_id].filename) free<char>(loglist[log_id].filename);
+    if (loglist[log_id].buffer) free<char>(loglist[log_id].buffer);
 
     if (loglist [log_id] . logfile)
     {
@@ -338,11 +340,11 @@ void log_close(int log_id)
     }
     while (loglist[log_id].entries)
     {
-        log_entry_t *to_go = loglist [log_id].log_head;
+        _Ptr<log_entry_t> to_go = loglist [log_id].log_head;
         loglist [log_id].log_head = to_go->next;
         loglist [log_id].total -= to_go->len;
-        free (to_go->line);
-        free (to_go);
+        free<char> (to_go->line);
+        free<log_entry_t> (to_go);
         loglist [log_id].entries--;
     }
     _unlock_logger();
@@ -352,7 +354,7 @@ void log_shutdown(void)
 {
     /* destroy mutexes */
 #ifndef _WIN32
-    pthread_mutex_destroy(&_logger_mutex);
+    _Unchecked {pthread_mutex_destroy(&_logger_mutex);}
 #else
     DeleteCriticalSection(&_logger_mutex);
 #endif 
@@ -361,20 +363,20 @@ void log_shutdown(void)
 }
 
 
-static int create_log_entry (int log_id, const char *pre, const char *line)
+static int create_log_entry (int log_id, _Nt_array_ptr<const char> pre, _Nt_array_ptr<const char> line : count(1024))
 {
-    log_entry_t *entry;
+    _Ptr<log_entry_t> entry = ((void *)0);
 
-    if (loglist[log_id].keep_entries == 0) {
+    if (loglist[log_id].keep_entries == 0) _Checked {
         int printed;
         _Unchecked {printed = fprintf (loglist[log_id].logfile, "%s%s\n", pre, line);} 
         return printed;
     }
     
-    entry = calloc (1, sizeof (log_entry_t));
+    entry = calloc<log_entry_t> (1, sizeof (log_entry_t));
     entry->len = strlen (pre) + strlen (line) + 2;
-    entry->line = malloc (entry->len);
-    snprintf (entry->line, entry->len, "%s%s\n", pre, line);
+    entry->line = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char> (entry->len), count(1024));
+    _Unchecked {snprintf (entry->line, entry->len, "%s%s\n", pre, line);}
     loglist [log_id].total += entry->len;
     _Unchecked {fprintf (loglist[log_id].logfile, "%s", entry->line);}
 
@@ -383,11 +385,11 @@ static int create_log_entry (int log_id, const char *pre, const char *line)
 
     if (loglist [log_id].entries >= loglist [log_id].keep_entries)
     {
-        log_entry_t *to_go = loglist [log_id].log_head;
+        _Ptr<log_entry_t> to_go = loglist [log_id].log_head;
         loglist [log_id].log_head = to_go->next;
         loglist [log_id].total -= to_go->len;
-        free (to_go->line);
-        free (to_go);
+        free<char> (to_go->line);
+        free<log_entry_t> (to_go);
     }
     else
         loglist [log_id].entries++;
@@ -395,18 +397,18 @@ static int create_log_entry (int log_id, const char *pre, const char *line)
 }
 
 
-void log_contents (int log_id, char **_contents, unsigned int *_len)
+void log_contents (int log_id, char **_contents : itype(_Ptr<_Nt_array_ptr<char>>), unsigned int *_len : itype(_Ptr<unsigned int>))
 {
     int remain;
-    log_entry_t *entry;
-    char *ptr;
+    _Ptr<log_entry_t> entry = ((void *)0);
+    _Nt_array_ptr<char> ptr = NULL;
 
     if (log_id < 0) return;
     if (log_id >= LOG_MAXLOGS) return; /* Bad log number */
 
     _lock_logger ();
     remain = loglist [log_id].total + 1;
-    *_contents = malloc (remain);
+    *_contents = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char> (remain), count(*_len));
     **_contents= '\0';
     *_len = loglist [log_id].total;
 
@@ -414,7 +416,8 @@ void log_contents (int log_id, char **_contents, unsigned int *_len)
     ptr = *_contents;
     while (entry)
     {
-        int len = snprintf (ptr, remain, "%s", entry->line);
+        int len = 0;
+        _Unchecked {len = snprintf((char*)ptr, remain, "%s", entry->line);}
         if (len > 0)
         {
             ptr += len;
@@ -425,7 +428,7 @@ void log_contents (int log_id, char **_contents, unsigned int *_len)
     _unlock_logger ();
 }
 
-static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) {
+_Unchecked static void __vsnprintf(char* str, size_t size, _Nt_array_ptr<const char> format, va_list ap) {
     int in_block = 0;
     int block_size = 0;
     int block_len;
@@ -450,7 +453,7 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
             }
         }
         else
-        {
+        _Unchecked {
             // TODO: %l*[sdupi] as well as %.4080s and "%.*s
             arg = NULL;
             switch (*format)
@@ -539,7 +542,7 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                     else
                     {
                         for (; *arg && block_len && size; arg++, size--, block_len--)
-                            *(str++) = *arg;
+                           *(str++) = *arg;
                     }
                     in_block = 0;
                     break;
@@ -553,14 +556,13 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
     *str = 0;
 }
 
-void log_write(int log_id, unsigned priority, const char *cat, const char *func, 
-        const char *fmt, ...)
+_Unchecked void log_write(int log_id, unsigned priority, const char *cat : itype(_Nt_array_ptr<const char>), const char *func : itype(_Nt_array_ptr<const char>) count(0), const char *fmt : itype(_Nt_array_ptr<const char>), ...)
 {
-    static const char *prior[] = { "EROR", "WARN", "INFO", "DBUG" };
+    static _Nt_array_ptr<const char> prior _Checked[] = { "EROR", "WARN", "INFO", "DBUG" };
     int datelen;
     time_t now;
-    char pre[256];
-    char line[LOG_MAXLINELEN];
+    char pre _Nt_checked[256];
+    char line _Nt_checked[LOG_MAXLINELEN];
     va_list ap;
 
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return; /* Bad log number */
@@ -569,28 +571,28 @@ void log_write(int log_id, unsigned priority, const char *cat, const char *func,
 
 
     va_start(ap, fmt);
-    __vsnprintf(line, sizeof(line), fmt, ap);
+    __vsnprintf((char*)line, sizeof(line), fmt, ap);
     va_end(ap);
 
     now = time(NULL);
     datelen = strftime (pre, sizeof (pre), "[%Y-%m-%d  %H:%M:%S]", localtime(&now)); 
-    snprintf (pre+datelen, sizeof (pre)-datelen, " %s %s%s ", prior [priority-1], cat, func);
+    snprintf ((char*)pre+datelen, sizeof (pre)-datelen, " %s %s%s ", prior [priority-1], cat, func);
 
     _lock_logger();
     if (_log_open (log_id))
     {
-        int len = create_log_entry (log_id, pre, line);
+        int len = create_log_entry (log_id, pre, _Assume_bounds_cast<_Nt_array_ptr<char>>(line, count(1024)));
         if (len > 0)
             loglist[log_id].size += len;
     }
     _unlock_logger();
 }
 
-void log_write_direct(int log_id, const char *fmt, ...)
+_Unchecked void log_write_direct(int log_id, const char *fmt : itype(_Nt_array_ptr<const char>), ...)
 {
     va_list ap;
     time_t now;
-    char line[LOG_MAXLINELEN];
+    char line _Nt_checked[LOG_MAXLINELEN];
 
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return;
     
@@ -599,10 +601,10 @@ void log_write_direct(int log_id, const char *fmt, ...)
     now = time(NULL);
 
     _lock_logger();
-    __vsnprintf(line, LOG_MAXLINELEN, fmt, ap);
+    _Unchecked {__vsnprintf((char*)line, LOG_MAXLINELEN, fmt, ap);}
     if (_log_open (log_id))
     {
-        int len = create_log_entry (log_id, "", line);
+        int len = create_log_entry (log_id, "", _Assume_bounds_cast<_Nt_array_ptr<char>>(line, count(1024)));
         if (len > 0)
             loglist[log_id].size += len;
     }
@@ -614,7 +616,7 @@ void log_write_direct(int log_id, const char *fmt, ...)
 }
 
 static int _get_log_id(void)
-{
+_Checked {
     int i;
     int id = -1;
 
@@ -635,7 +637,7 @@ static int _get_log_id(void)
 }
 
 static void _release_log_id(int log_id)
-{
+_Checked {
     /* lock mutex */
     _lock_logger();
 
@@ -648,7 +650,7 @@ static void _release_log_id(int log_id)
 static void _lock_logger(void)
 {
 #ifndef _WIN32
-    pthread_mutex_lock(&_logger_mutex);
+    _Unchecked {pthread_mutex_lock(&_logger_mutex);}
 #else
     EnterCriticalSection(&_logger_mutex);
 #endif
@@ -657,7 +659,7 @@ static void _lock_logger(void)
 static void _unlock_logger(void)
 {
 #ifndef _WIN32
-    pthread_mutex_unlock(&_logger_mutex);
+    _Unchecked {pthread_mutex_unlock(&_logger_mutex);}
 #else
     LeaveCriticalSection(&_logger_mutex);
 #endif    
