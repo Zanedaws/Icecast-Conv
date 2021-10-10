@@ -74,11 +74,13 @@
 #undef CATMODULE
 #define CATMODULE "main"
 
-static int background;
-static char *pidfile = NULL;
+#pragma CHECKED_SCOPE on
 
-static void _fatal_error(const char *perr)
-{
+static int background;
+static _Nt_array_ptr<char> pidfile = NULL;
+
+static void _fatal_error(_Nt_array_ptr<const char> perr)
+_Checked {
 #ifdef WIN32_SERVICE
     MessageBox(NULL, perr, "Error", MB_SERVICE_NOTIFICATION);
 #elif defined(WIN32)
@@ -89,26 +91,26 @@ static void _fatal_error(const char *perr)
 }
 
 static void _print_usage(void)
-{
-    printf("%s\n\n", ICECAST_VERSION_STRING);
-    printf("usage: icecast [-b] -c <file>\n");
-    printf("or   : icecast {-v|--version}\n");
-    printf("options:\n");
-    printf("\t-c <file>       Specify configuration file\n");
-    printf("\t-v or --version Display version info\n");
-    printf("\t-b              Run icecast in the background\n");
-    printf("\n");
+_Checked {
+    _Unchecked { printf("%s\n\n", ICECAST_VERSION_STRING); };
+    _Unchecked { printf("usage: icecast [-b] -c <file>\n"); };
+    _Unchecked { printf("or   : icecast {-v|--version}\n"); };
+    _Unchecked { printf("options:\n"); };
+    _Unchecked { printf("\t-c <file>       Specify configuration file\n"); };
+    _Unchecked { printf("\t-v or --version Display version info\n"); };
+    _Unchecked { printf("\t-b              Run icecast in the background\n"); };
+    _Unchecked { printf("\n"); };
 }
 
 static void _stop_logging(void)
-{
+_Checked {
     log_close(errorlog);
     log_close(accesslog);
     log_close(playlistlog);
 }
 
 void initialize_subsystems(void)
-{
+_Checked {
     log_initialize();
     thread_initialize();
     sock_initialize();
@@ -125,7 +127,7 @@ void initialize_subsystems(void)
 }
 
 void shutdown_subsystems(void)
-{
+_Checked {
     fserve_shutdown();
     refbuf_shutdown();
     slave_shutdown();
@@ -150,8 +152,8 @@ void shutdown_subsystems(void)
     xslt_shutdown();
 }
 
-static int _parse_config_opts(int argc, char **argv, char *filename, int size)
-{
+static int _parse_config_opts(int argc, _Array_ptr<_Nt_array_ptr<char>> argv : count(argc), _Array_ptr<char> filename : count(size), int size)
+_Checked {
     int i = 1;
     int config_ok = 0;
 
@@ -184,7 +186,7 @@ static int _parse_config_opts(int argc, char **argv, char *filename, int size)
 
         if (strcmp(argv[i], "-c") == 0) {
             if (i + 1 < argc) {
-                strncpy(filename, argv[i + 1], size-1);
+                _Unchecked {strncpy(filename, (char*)argv[i + 1], size-1);}
                 filename[size-1] = 0;
                 config_ok = 1;
             } else {
@@ -212,38 +214,38 @@ static int _start_logging_stdout(void) {
 
 static int _start_logging(void)
 {
-    char fn_error[FILENAME_MAX];
-    char fn_access[FILENAME_MAX];
-    char fn_playlist[FILENAME_MAX];
-    char buf[1024];
+    char fn_error _Nt_checked[FILENAME_MAX];
+    char fn_access _Nt_checked[FILENAME_MAX];
+    char fn_playlist _Nt_checked[FILENAME_MAX];
+    char buf _Nt_checked[1024];
     int log_to_stderr;
 
-    ice_config_t *config = config_get_config_unlocked();
+    _Ptr<ice_config_t> config = config_get_config_unlocked();
 
     if(strcmp(config->error_log, "-")) {
-        snprintf(fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->error_log);
-        errorlog = log_open(fn_error);
+        _Unchecked {snprintf(fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->error_log);}
+        errorlog = log_open(_Dynamic_bounds_cast<_Nt_array_ptr<char>>(fn_error, count(FILENAME_MAX)));
         log_to_stderr = 0;
         if (config->logsize)
             log_set_trigger (errorlog, config->logsize);
         log_set_archive_timestamp(errorlog, config->logarchive);
-    } else {
+    } else _Checked {
         /* this is already in place because of _start_logging_stdout() */
     }
 
-    if (errorlog < 0) {
+    if (errorlog < 0) _Checked {
         buf[sizeof(buf)-1] = 0;
-        snprintf(buf, sizeof(buf)-1, 
+        _Unchecked { snprintf(buf, sizeof(buf)-1, 
                 "FATAL: could not open error logging (%s): %s",
                 log_to_stderr?"standard error":fn_error,
-                strerror(errno));
+                ((_Nt_array_ptr<char> )strerror(errno))); };
         _fatal_error(buf);
     }
     log_set_level(errorlog, config->loglevel);
 
     if(strcmp(config->access_log, "-")) {
-        snprintf(fn_access, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->access_log);
-        accesslog = log_open(fn_access);
+        _Unchecked {snprintf(fn_access, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->access_log);}
+        accesslog = log_open(_Dynamic_bounds_cast<_Nt_array_ptr<char>>(fn_access, count(FILENAME_MAX)));
         log_to_stderr = 0;
         if (config->logsize)
             log_set_trigger (accesslog, config->logsize);
@@ -253,31 +255,31 @@ static int _start_logging(void)
         log_to_stderr = 1;
     }
 
-    if (accesslog < 0) {
+    if (accesslog < 0) _Checked {
         buf[sizeof(buf)-1] = 0;
-        snprintf(buf, sizeof(buf)-1, 
+        _Unchecked { snprintf(buf, sizeof(buf)-1, 
                 "FATAL: could not open access logging (%s): %s",
                 log_to_stderr?"standard error":fn_access,
-                strerror(errno));
+                ((_Nt_array_ptr<char> )strerror(errno))); };
         _fatal_error(buf);
     }
 
     if(config->playlist_log) {
-        snprintf(fn_playlist, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->playlist_log);
-        playlistlog = log_open(fn_playlist);
-        if (playlistlog < 0) {
+        _Unchecked {snprintf(fn_playlist, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->playlist_log);}
+        playlistlog = log_open(_Dynamic_bounds_cast<_Nt_array_ptr<char>>(fn_playlist, count(FILENAME_MAX)));
+        if (playlistlog < 0) _Checked {
             buf[sizeof(buf)-1] = 0;
-            snprintf(buf, sizeof(buf)-1, 
+            _Unchecked { snprintf(buf, sizeof(buf)-1, 
                 "FATAL: could not open playlist logging (%s): %s",
                 log_to_stderr?"standard error":fn_playlist,
-                strerror(errno));
+                ((_Nt_array_ptr<char> )strerror(errno))); };
             _fatal_error(buf);
         }
         log_to_stderr = 0;
         if (config->logsize)
             log_set_trigger (playlistlog, config->logsize);
         log_set_archive_timestamp(playlistlog, config->logarchive);
-    } else {
+    } else _Checked {
         playlistlog = -1;
     }
 
@@ -307,12 +309,12 @@ static int _start_listening(void)
 /* bind the socket and start listening */
 static int _server_proc_init(void)
 {
-    ice_config_t *config = config_get_config_unlocked();
+    _Ptr<ice_config_t> config = config_get_config_unlocked();
 
     if (connection_setup_sockets (config) < 1)
         return 0;
 
-    if (!_start_listening()) {
+    if (!_start_listening()) _Checked {
         _fatal_error("Failed trying to listen on server socket");
         return 0;
     }
@@ -320,8 +322,8 @@ static int _server_proc_init(void)
     /* recreate the pid file */
     if (config->pidfile)
     {
-        FILE *f;
-        pidfile = strdup (config->pidfile);
+        _Ptr<FILE> f = ((void *)0);
+        pidfile = ((_Nt_array_ptr<char> )strdup (config->pidfile));
         if (pidfile && (f = fopen (config->pidfile, "w")) != NULL)
         {
             _Unchecked {fprintf (f, "%d\n", (int)getpid());}
@@ -343,7 +345,7 @@ static void _server_proc(void)
     }
     connection_accept_loop();
 
-    ICECAST_LOG_INFO("Caught halt request, shutting down...");
+    _Unchecked {ICECAST_LOG_INFO("Caught halt request, shutting down...");}
 
     connection_setup_sockets (NULL);
 }
@@ -353,10 +355,10 @@ static void _server_proc(void)
 #if defined(HAVE_SETUID) || defined(HAVE_CHROOT) || defined(HAVE_SETUID)
 static void _ch_root_uid_setup(void)
 {
-   ice_config_t *conf = config_get_config_unlocked();
+   _Ptr<ice_config_t> conf = config_get_config_unlocked();
 #ifdef HAVE_SETUID
-   struct passwd *user;
-   struct group *group;
+   _Ptr<struct passwd> user = ((void *)0);
+   _Ptr<struct group> group = NULL;
    uid_t uid=-1;
    gid_t gid=-1;
 
@@ -370,7 +372,7 @@ static void _ch_root_uid_setup(void)
                _Unchecked {fprintf(stderr, "Couldn't find user \"%s\" in password file\n", conf->user);}
        }
        if(conf->group) {
-           group = getgrnam(conf->group);
+           _Unchecked {group = _Assume_bounds_cast<_Ptr<struct group>>(getgrnam(((const char *)conf->group)));}
 
            if(group)
                gid = group->gr_gid;
@@ -385,12 +387,12 @@ static void _ch_root_uid_setup(void)
    {
        if(getuid()) /* root check */
        {
-           _Unchecked {fprintf(stderr, "WARNING: Cannot change server root unless running as root.\n");}
+            _Unchecked {fprintf(stderr, "WARNING: Cannot change server root unless running as root.\n");}
            return;
        }
        if(chroot(conf->base_dir))
-       {
-           _Unchecked {fprintf(stderr,"WARNING: Couldn't change server root: %s\n", strerror(errno));}
+       _Checked {
+           _Unchecked {fprintf(stderr,"WARNING: Couldn't change server root: %s\n", ((_Nt_array_ptr<char> )strerror(errno)));}
            return;
        }
        else
@@ -412,15 +414,15 @@ static void _ch_root_uid_setup(void)
            if(!setgid(gid))
                _Unchecked {fprintf(stdout, "Changed groupid to %i.\n", (int)gid);}
            else
-               _Unchecked {fprintf(stdout, "Error changing groupid: %s.\n", strerror(errno));}
+               _Unchecked {fprintf(stdout, "Error changing groupid: %s.\n", ((_Nt_array_ptr<char> )strerror(errno)));}
            if(!initgroups(conf->user, gid))
                _Unchecked {fprintf(stdout, "Changed supplementary groups based on user: %s.\n", conf->user);}
 	   else
-               _Unchecked {fprintf(stdout, "Error changing supplementary groups: %s.\n", strerror(errno));}
+               _Unchecked {fprintf(stdout, "Error changing supplementary groups: %s.\n", ((_Nt_array_ptr<char> )strerror(errno)));}
            if(!setuid(uid))
                _Unchecked {fprintf(stdout, "Changed userid to %i.\n", (int)uid);}
            else
-               _Unchecked {fprintf(stdout, "Error changing userid: %s.\n", strerror(errno));}
+               _Unchecked {fprintf(stdout, "Error changing userid: %s.\n", ((_Nt_array_ptr<char> )strerror(errno)));}
        }
    }
 #endif
@@ -430,22 +432,22 @@ static void _ch_root_uid_setup(void)
 #ifdef WIN32_SERVICE
 int mainService(int argc, char **argv)
 #else
-int main(int argc, char **argv)
+int main(int argc, char **argv : itype(_Array_ptr<_Nt_array_ptr<char>>) count(argc))
 #endif
 {
     int res, ret;
-    char filename[512];
-    char pbuf[1024];
+    char filename _Nt_checked[512];
+    char pbuf _Nt_checked[1024];
 
     /* parse the '-c icecast.xml' option
     ** only, so that we can read a configfile
     */
-    res = _parse_config_opts(argc, argv, filename, 512);
+    res = _parse_config_opts(argc, argv, _Dynamic_bounds_cast<_Nt_array_ptr<char>>(filename, count(512)), 512);
     if (res == 1) {
 #if !defined(_WIN32) || defined(_CONSOLE) || defined(__MINGW32__) || defined(__MINGW64__)
         /* startup all the modules */
         initialize_subsystems();
-        if (!_start_logging_stdout()) {
+        if (!_start_logging_stdout()) _Checked {
             _fatal_error("FATAL: Could not start logging on stderr.");
             shutdown_subsystems();
             return 1;
@@ -453,14 +455,14 @@ int main(int argc, char **argv)
 #endif
         /* parse the config file */
         config_get_config();
-        ret = config_initial_parse_file(filename);
+        ret = config_initial_parse_file(_Dynamic_bounds_cast<_Nt_array_ptr<char>>(filename, count(512)));
         config_release_config();
         if (ret < 0) {
-            memset(pbuf, '\000', sizeof(pbuf));
-            snprintf(pbuf, sizeof(pbuf)-1, 
-                "FATAL: error parsing config file (%s)", filename);
+            memset(_Dynamic_bounds_cast<_Array_ptr<char>>(pbuf, count(1024)), '\000', sizeof(pbuf));
+            _Unchecked {snprintf(pbuf, sizeof(pbuf)-1, 
+                "FATAL: error parsing config file (%s)", filename);}
             _fatal_error(pbuf);
-            switch (ret) {
+            switch (ret) _Checked {
             case CONFIG_EINSANE:
                 _fatal_error("filename was null or blank");
                 break;
@@ -479,7 +481,7 @@ int main(int argc, char **argv)
 #endif
             return 1;
         }
-    } else if (res == -1) {
+    } else if (res == -1) _Checked {
         _print_usage();
         return 1;
     }
@@ -488,7 +490,7 @@ int main(int argc, char **argv)
     config_parse_cmdline(argc, argv);
 
     /* Bind socket, before we change userid */
-    if(!_server_proc_init()) {
+    if(!_server_proc_init()) _Checked {
         _fatal_error("Server startup failed. Exiting");
         shutdown_subsystems();
         return 1;
@@ -505,7 +507,7 @@ int main(int argc, char **argv)
     /* We'll only have getuid() if we also have setuid(), it's reasonable to
      * assume */
     if(!getuid()) /* Running as root! Don't allow this */
-    {
+    _Checked {
         _Unchecked {fprintf(stderr, "ERROR: You should not run icecast2 as root\n");}
         _Unchecked {fprintf(stderr, "Use the changeowner directive in the config file\n");}
         shutdown_subsystems();
@@ -516,13 +518,13 @@ int main(int argc, char **argv)
     /* setup default signal handlers */
     sighandler_initialize();
 
-    if (!_start_logging()) {
+    if (!_start_logging()) _Checked {
         _fatal_error("FATAL: Could not start logging");
         shutdown_subsystems();
         return 1;
     }
 
-    ICECAST_LOG_INFO("%s server started", ICECAST_VERSION_STRING);
+    _Unchecked {ICECAST_LOG_INFO("%s server started", ICECAST_VERSION_STRING);}
 
     /* REM 3D Graphics */
 
@@ -530,7 +532,7 @@ int main(int argc, char **argv)
     global.running = ICECAST_RUNNING;
 
     /* Startup yp thread */
-    yp_initialize();
+    _Unchecked {yp_initialize();}
 
     /* Do this after logging init */
     slave_initialize();
@@ -538,14 +540,14 @@ int main(int argc, char **argv)
 
     _server_proc();
 
-    ICECAST_LOG_INFO("Shutting down");
+    _Unchecked {ICECAST_LOG_INFO("Shutting down");}
 #if !defined(_WIN32) || defined(_CONSOLE) || defined(__MINGW32__) || defined(__MINGW64__)
     shutdown_subsystems();
 #endif
     if (pidfile)
-    {
+    _Checked {
         remove (pidfile);
-        free (pidfile);
+        free<char> (pidfile);
     }
 
     return 0;
