@@ -36,6 +36,8 @@
 #define vsnprintf _vsnprintf
 #endif
 
+#pragma CHECKED_SCOPE on
+
 /* the global log descriptors */
 int errorlog = 0;
 int accesslog = 0;
@@ -117,17 +119,20 @@ int get_clf_time (char *buffer, unsigned len, struct tm *t)
 ** AGENT = get from client->parser
 ** TIME = timing_get_time() - client->con->con_time
 */
-void logging_access(client_t *client)
+void logging_access(client_t *client : itype(_Ptr<client_t>))
 {
-    char datebuf[128];
+    char datebuf _Nt_checked[128];
     struct tm thetime;
     time_t now;
     time_t stayed;
-    const char *referrer, *user_agent, *username;
+    _Nt_array_ptr<const char> referrer = ((void *)0);
+_Nt_array_ptr<const char> user_agent = ((void *)0);
+_Nt_array_ptr<const char> username = ((void *)0);
+
 
     now = time(NULL);
 
-    localtime_r (&now, &thetime);
+    _Unchecked {localtime_r (&now, &thetime);}
     /* build the data */
 #ifdef _WIN32
     memset(datebuf, '\000', sizeof(datebuf));
@@ -151,7 +156,7 @@ void logging_access(client_t *client)
     if (user_agent == NULL)
         user_agent = "-";
 
-    log_write_direct (accesslog,
+    _Unchecked {log_write_direct (accesslog,
             "%s - %H [%s] \"%H %H %H/%H\" %d %llu \"% H\" \"% H\" %llu",
             client->con->ip,
             username,
@@ -164,24 +169,24 @@ void logging_access(client_t *client)
             (long long unsigned int)client->con->sent_bytes,
             referrer,
             user_agent,
-            (long long unsigned int)stayed);
+            (long long unsigned int)stayed);}
 }
 /* This function will provide a log of metadata for each
    mountpoint.  The metadata *must* be in UTF-8, and thus
    you can assume that the log itself is UTF-8 encoded */
 void logging_playlist(const char *mount, const char *metadata, long listeners)
 {
-    char datebuf[128];
+    char datebuf _Nt_checked[128];
     struct tm thetime;
     time_t now;
 
-    if (playlistlog == -1) {
+    if (playlistlog == -1) _Checked {
         return;
     }
 
     now = time(NULL);
 
-    localtime_r (&now, &thetime);
+    _Unchecked {localtime_r (&now, &thetime);}
     /* build the data */
 #ifdef _WIN32
     memset(datebuf, '\000', sizeof(datebuf));
@@ -191,36 +196,36 @@ void logging_playlist(const char *mount, const char *metadata, long listeners)
 #endif
     /* This format MAY CHANGE OVER TIME.  We are looking into finding a good
        standard format for this, if you have any ideas, please let us know */
-    log_write_direct (playlistlog, "%s|%s|%ld|%s",
+    _Unchecked {log_write_direct (playlistlog, "%s|%s|%ld|%s",
              datebuf,
              mount,
              listeners,
-             metadata);
+             metadata);}
 }
 
 
-void log_parse_failure (void *ctx, const char *fmt, ...)
+_Unchecked void log_parse_failure (void *ctx, const char *fmt, ...)
 {
-    char line [200];
+    char line _Nt_checked[200];
     va_list ap;
-    char *eol;
+    _Nt_array_ptr<char> eol = ((void *)0);
 
     va_start (ap, fmt);
     vsnprintf (line, sizeof (line), fmt, ap);
-    eol = strrchr (line, '\n');
+    eol = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strrchr (line, '\n'), count(200));
     if (eol) *eol='\0';
     va_end (ap);
-    log_write (errorlog, 2, (char*)ctx, "", "%s", line);
+    log_write (errorlog, 2, _Assume_bounds_cast<_Nt_array_ptr<const char>>((char*)ctx, byte_count(0)), "", "%s", line);
 }
 
 
-void restart_logging (ice_config_t *config)
+void restart_logging (ice_config_t *config : itype(_Ptr<ice_config_t>))
 {
     if (strcmp (config->error_log, "-"))
     {
-        char fn_error[FILENAME_MAX];
-        snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->error_log);
-        log_set_filename (errorlog, fn_error);
+        char fn_error _Nt_checked[FILENAME_MAX];
+        _Unchecked {snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->error_log);}
+        log_set_filename (errorlog, _Dynamic_bounds_cast<_Nt_array_ptr<char>>(fn_error, count(FILENAME_MAX)));
         log_set_level (errorlog, config->loglevel);
         log_set_trigger (errorlog, config->logsize);
         log_set_archive_timestamp(errorlog, config->logarchive);
@@ -229,9 +234,9 @@ void restart_logging (ice_config_t *config)
 
     if (strcmp (config->access_log, "-"))
     {
-        char fn_error[FILENAME_MAX];
-        snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->access_log);
-        log_set_filename (accesslog, fn_error);
+        char fn_error _Nt_checked[FILENAME_MAX];
+        _Unchecked {snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->access_log);}
+        log_set_filename (accesslog, _Dynamic_bounds_cast<_Nt_array_ptr<char>>(fn_error, count(FILENAME_MAX)));
         log_set_trigger (accesslog, config->logsize);
         log_set_archive_timestamp (accesslog, config->logarchive);
         log_reopen (accesslog);
@@ -239,9 +244,9 @@ void restart_logging (ice_config_t *config)
 
     if (config->playlist_log)
     {
-        char fn_error[FILENAME_MAX];
-        snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->playlist_log);
-        log_set_filename (playlistlog, fn_error);
+        char fn_error _Nt_checked[FILENAME_MAX];
+        _Unchecked {snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->playlist_log);}
+        log_set_filename (playlistlog, _Dynamic_bounds_cast<_Nt_array_ptr<char>>(fn_error, count(FILENAME_MAX)));
         log_set_trigger (playlistlog, config->logsize);
         log_set_archive_timestamp (playlistlog, config->logarchive);
         log_reopen (playlistlog);
