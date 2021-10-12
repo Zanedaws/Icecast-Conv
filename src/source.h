@@ -32,7 +32,7 @@ typedef struct source_tag
     char *mount : itype(_Nt_array_ptr<char>);
 
     /* If this source drops, try to move all clients to this fallback */
-    char *fallback_mount;
+    char *fallback_mount : itype(_Nt_array_ptr<char>);
 
     /* set to zero to request the source to shutdown without causing a global
      * shutdown */

@@ -75,7 +75,7 @@ typedef struct auth_tag
     int refcount;
     int allow_duplicate_users;
 
-    thread_type *thread;
+    thread_type *thread : itype(_Ptr<thread_type>);
 
     /* per-auth queue for clients */
     auth_client *head : itype(_Ptr<auth_client>);
@@ -84,7 +84,7 @@ auth_client **tailp : itype(_Ptr<_Ptr<auth_client>>);
     int pending_count;
 
     void *state : itype(_Ptr<void>);
-    char *type;
+    char *type : itype(_Nt_array_ptr<char>);
 } auth_t;
 
 void auth_add_listener (const char *mount : itype(_Nt_array_ptr<const char>), client_t *client : itype(_Ptr<client_t>));

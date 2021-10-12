@@ -196,6 +196,6 @@ thread_type *thread_self(void);
 void thread_rename(const char *name : itype(_Nt_array_ptr<const char>));
 
 /* waits until thread_exit is called for another thread */
-void thread_join(thread_type *thread);
+void thread_join(thread_type *thread : itype(_Ptr<thread_type>));
 
 #endif  /* __THREAD_H__ */

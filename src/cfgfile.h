@@ -59,8 +59,8 @@ typedef struct ice_config_dir_tag {
 } ice_config_dir_t;
 
 typedef struct _config_options {
-    char *name;
-    char *value;
+    char *name : itype(_Nt_array_ptr<char>);
+    char *value : itype(_Nt_array_ptr<char>);
     struct _config_options *next : itype(_Ptr<struct _config_options>);
 } config_options_t;
 
