@@ -39,47 +39,52 @@
 #define snprintf _snprintf
 #endif
 
-static auth_result htpasswd_adduser (auth_t *auth, const char *username, const char *password);
-static auth_result htpasswd_deleteuser(auth_t *auth, const char *username);
-static auth_result htpasswd_userlist(auth_t *auth, xmlNodePtr srcnode);
-static int _free_user (void *key);
+#pragma CHECKED_SCOPE on
+
+static auth_result htpasswd_adduser (_Ptr<auth_t> auth, const char *username : itype(_Nt_array_ptr<const char>), _Nt_array_ptr<const char> password);
+static auth_result htpasswd_deleteuser(_Ptr<auth_t> auth, _Nt_array_ptr<const char> username);
+static auth_result htpasswd_userlist(_Ptr<auth_t> auth, xmlNodePtr srcnode : itype(_Ptr<struct _xmlNode>));
+static int _free_user (void *key : itype(_Ptr<void>));
+
 
 typedef struct
 {
-    char *name;
-    char *pass;
+    char *name : itype(_Nt_array_ptr<char>);
+    char *pass : itype(_Nt_array_ptr<char>);
 } htpasswd_user;
 
 typedef struct {
-    char *filename;
+    char *filename : itype(_Nt_array_ptr<char>);
     rwlock_t file_rwlock;
-    avl_tree *users;
+    avl_tree *users : itype(_Ptr<avl_tree>);
     time_t mtime;
 } htpasswd_auth_state;
 
-static void htpasswd_clear(auth_t *self) {
-    htpasswd_auth_state *state = self->state;
-    free(state->filename);
+static void htpasswd_clear(_Ptr<auth_t> self) {
+    _Ptr<htpasswd_auth_state> state = _Dynamic_bounds_cast<_Ptr<htpasswd_auth_state>>(self->state);
+    free<char>(state->filename);
     if (state->users)
-        avl_tree_free (state->users, _free_user);
+        _Unchecked {avl_tree_free(state->users, _free_user);}
     thread_rwlock_destroy(&state->file_rwlock);
-    free(state);
+    free<htpasswd_auth_state>(state);
 }
 
 
 /* md5 hash */
-static char *get_hash(const char *data, int len)
+static _Nt_array_ptr<char> get_hash(const char *data : itype(_Nt_array_ptr<const char>), int len)
 {
-    struct MD5Context context;
-    unsigned char digest[16];
+    struct MD5Context context = {};
+    unsigned char digest _Checked[16];
 
     MD5Init(&context);
 
-    MD5Update(&context, (const unsigned char *)data, len);
+    MD5Update(&context, _Dynamic_bounds_cast<_Nt_array_ptr<const unsigned char>>(data, count(len)), len);
 
-    MD5Final(digest, &context);
+    MD5Final(digest, _Dynamic_bounds_cast<_Array_ptr<struct MD5Context>>(&context,  count(16)));
 
-    return util_bin_to_hex(digest, 16);
+    _Nt_array_ptr<char> tmp = util_bin_to_hex(digest, 16);
+
+    return tmp;
 }
 
 
@@ -94,137 +99,136 @@ static int compare_users (void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<vo
 
 static int _free_user (void *key)
 {
-    htpasswd_user *user = (htpasswd_user *)key;
+    _Ptr<htpasswd_user> user = _Dynamic_bounds_cast<_Ptr<htpasswd_user>>(key);
 
-    free (user->name); /* ->pass is part of same buffer */
-    free (user);
+    free<char> (user->name); /* ->pass is part of same buffer */
+    free<htpasswd_user> (user);
     return 1;
 }
 
 
-static void htpasswd_recheckfile (htpasswd_auth_state *htpasswd : itype(_Ptr<htpasswd_auth_state>))
+static void htpasswd_recheckfile (_Ptr<htpasswd_auth_state> htpasswd)
 {
-    FILE *passwdfile;
-    avl_tree *new_users;
+    _Ptr<FILE> passwdfile = ((void *)0);
+    _Ptr<avl_tree> new_users = ((void *)0);
     int num = 0;
     struct stat file_stat;
-    char *sep;
-    char line [MAX_LINE_LEN];
+    _Ptr<char> sep = ((void *)0);
+    char line _Nt_checked[MAX_LINE_LEN];
 
     if (htpasswd->filename == NULL)
         return;
-    //if (stat (htpasswd->filename, &file_stat) < 0)
-    if(1)
+    if (stat (htpasswd->filename, &file_stat) < 0)
     {
-        ICECAST_LOG_WARN("failed to check status of %s", htpasswd->filename);
+        _Unchecked {ICECAST_LOG_WARN("failed to check status of %s", htpasswd->filename);}
 
         /* Create a dummy users tree for things to use later */
         thread_rwlock_wlock (&htpasswd->file_rwlock);
         if(!htpasswd->users)
-            htpasswd->users = avl_tree_new(compare_users, NULL);
+            _Unchecked {htpasswd->users = avl_tree_new(compare_users, NULL);}
         thread_rwlock_unlock (&htpasswd->file_rwlock);
 
         return;
     }
 
     if (file_stat.st_mtime == htpasswd->mtime)
-    {
+    _Checked {
         /* common case, no update to file */
         return;
     }
-    ICECAST_LOG_INFO("re-reading htpasswd file \"%s\"", htpasswd->filename);
+    _Unchecked {ICECAST_LOG_INFO("re-reading htpasswd file \"%s\"", htpasswd->filename);}
     passwdfile = fopen (htpasswd->filename, "rb");
     if (passwdfile == NULL)
     {
-        ICECAST_LOG_WARN("Failed to open authentication database \"%s\": %s", 
-                htpasswd->filename, strerror(errno));
+        _Unchecked {ICECAST_LOG_WARN("Failed to open authentication database \"%s\": %s", 
+                htpasswd->filename, strerror(errno));}
         return;
     }
     htpasswd->mtime = file_stat.st_mtime;
 
-    new_users = avl_tree_new (compare_users, NULL);
+    _Unchecked {new_users = avl_tree_new (compare_users, NULL);}
 
-    while (get_line(passwdfile, line, MAX_LINE_LEN))
+    while (get_line(passwdfile, _Dynamic_bounds_cast<_Nt_array_ptr<char>>(line, count(MAX_LINE_LEN)), MAX_LINE_LEN))
     {
         int len;
-        htpasswd_user *entry;
+        _Ptr<htpasswd_user> entry = NULL;
 
         num++;
         if(!line[0] || line[0] == '#')
             continue;
 
-        sep = strrchr (line, ':');
+        sep = _Dynamic_bounds_cast<_Ptr<char>>(strrchr (line, ':'));
         if (sep == NULL)
         {
-            ICECAST_LOG_WARN("No separator on line %d (%s)", num, htpasswd->filename);
+            _Unchecked {ICECAST_LOG_WARN("No separator on line %d (%s)", num, htpasswd->filename);}
             continue;
         }
-        entry = calloc (1, sizeof (htpasswd_user));
+        entry = calloc<htpasswd_user> (1, sizeof (htpasswd_user));
         len = strlen (line) + 1;
-        entry->name = malloc (len);
+        entry->name = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char> (len), count(MAX_LINE_LEN + 1));
         *sep = 0;
-        memcpy (entry->name, line, len);
+        memcpy<char> (_Dynamic_bounds_cast<_Array_ptr<char>>(entry->name, count(MAX_LINE_LEN + 1)), _Dynamic_bounds_cast<_Nt_array_ptr<char>>(line, count(MAX_LINE_LEN)), len);
         entry->pass = entry->name + (sep-line) + 1;
-        avl_insert (new_users, entry);
+        avl_insert (new_users, _Dynamic_bounds_cast<_Ptr<void>>(entry));
     }
     fclose (passwdfile);
 
     thread_rwlock_wlock (&htpasswd->file_rwlock);
     if (htpasswd->users)
-        avl_tree_free (htpasswd->users, _free_user);
+        _Unchecked {avl_tree_free (htpasswd->users, _free_user);}
     htpasswd->users = new_users;
     thread_rwlock_unlock (&htpasswd->file_rwlock);
 }
 
 
-static auth_result htpasswd_auth (auth_client *auth_user)
+static auth_result htpasswd_auth (_Ptr<auth_client> auth_user)
 {
-    auth_t *auth = auth_user->client->auth;
-    htpasswd_auth_state *htpasswd = auth->state;
-    client_t *client = auth_user->client;
-    htpasswd_user entry;
+    _Ptr<auth_t> auth = auth_user->client->auth;
+    _Ptr<htpasswd_auth_state> htpasswd = _Dynamic_bounds_cast<_Ptr<htpasswd_auth_state>>(auth->state);
+    _Ptr<client_t> client = auth_user->client;
+    htpasswd_user entry = {.name = NULL, .pass = NULL};
     _Ptr<void> result = NULL;
 
     if (client->username == NULL || client->password == NULL)
         return AUTH_FAILED;
 
     if (htpasswd->filename == NULL)
-    {
-        ICECAST_LOG_ERROR("No filename given in options for authenticator.");
+    _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("No filename given in options for authenticator.");}
         return AUTH_FAILED;
     }
     htpasswd_recheckfile (htpasswd);
 
-    if (htpasswd->users == NULL) {
-        ICECAST_LOG_ERROR("No user list.");
+    if (htpasswd->users == NULL) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("No user list.");}
         return AUTH_FAILED;
     }
 
     thread_rwlock_rlock (&htpasswd->file_rwlock);
     entry.name = client->username;
-    if (avl_get_by_key (htpasswd->users, &entry, &result) == 0)
+    if (avl_get_by_key (htpasswd->users, _Dynamic_bounds_cast<_Ptr<void>>(&entry), &result) == 0)
     {
         _Ptr<htpasswd_user> found = _Dynamic_bounds_cast<_Ptr<htpasswd_user>>(result);
-        char *hashed_pw;
+        _Nt_array_ptr<char> hashed_pw = ((void *)0);
 
         thread_rwlock_unlock (&htpasswd->file_rwlock);
         hashed_pw = get_hash (client->password, strlen (client->password));
         if (strcmp (found->pass, hashed_pw) == 0)
-        {
-            free (hashed_pw);
+        _Checked {
+            free<char> (hashed_pw);
             return AUTH_OK;
         }
-        free (hashed_pw);
-        ICECAST_LOG_DEBUG("incorrect password for client");
+        free<char> (hashed_pw);
+        _Unchecked {ICECAST_LOG_DEBUG("incorrect password for client");}
         return AUTH_FAILED;
     }
-    ICECAST_LOG_DEBUG("no such username: %s", client->username);
+    _Unchecked {ICECAST_LOG_DEBUG("no such username: %s", client->username);}
     thread_rwlock_unlock (&htpasswd->file_rwlock);
     return AUTH_FAILED;
 }
 
 
-int  auth_get_htpasswd_auth (auth_t *authenticator, config_options_t *options)
+int  auth_get_htpasswd_auth (auth_t *authenticator : itype(_Ptr<auth_t>), config_options_t *options : itype(_Ptr<config_options_t>))
 {
     _Ptr<htpasswd_auth_state>state = NULL;
 
@@ -232,24 +236,24 @@ int  auth_get_htpasswd_auth (auth_t *authenticator, config_options_t *options)
     authenticator->free = htpasswd_clear;
     authenticator->adduser = htpasswd_adduser;
     authenticator->deleteuser = htpasswd_deleteuser;
-    authenticator->listuser = htpasswd_userlist;
+    _Unchecked {authenticator->listuser = htpasswd_userlist;}
 
-    state = _Dynamic_bounds_cast<_Ptr<htpasswd_auth_state>>(calloc(1, sizeof(htpasswd_auth_state)));
+    state = _Dynamic_bounds_cast<_Ptr<htpasswd_auth_state>>(calloc<htpasswd_auth_state>(1, sizeof(htpasswd_auth_state)));
 
-    while(options) {
+    while(options) _Checked {
         if(!strcmp(options->name, "filename"))
-        {
-            free (state->filename);
-            state->filename = strdup(options->value);
+        _Unchecked {
+            free<char> (state->filename);
+            state->filename = ((_Nt_array_ptr<char> )strdup(options->value));
         }
         options = options->next;
     }
 
     if (state->filename)
-        ICECAST_LOG_INFO("Configured htpasswd authentication using password file \"%s\"", 
-                state->filename);
+        _Unchecked {ICECAST_LOG_INFO("Configured htpasswd authentication using password file \"%s\"", 
+                state->filename);}
     else
-        ICECAST_LOG_ERROR("No filename given in options for authenticator.");
+        _Unchecked {ICECAST_LOG_ERROR("No filename given in options for authenticator.");}
 
     authenticator->state = _Dynamic_bounds_cast<_Ptr<void>>(state);
 
@@ -260,30 +264,30 @@ int  auth_get_htpasswd_auth (auth_t *authenticator, config_options_t *options)
 }
 
 
-static auth_result htpasswd_adduser (auth_t *auth, const char *username, const char *password)
+static auth_result htpasswd_adduser (_Ptr<auth_t> auth, const char *username : itype(_Nt_array_ptr<const char>), _Nt_array_ptr<const char> password)
 {
-    FILE *passwdfile;
-    char *hashed_password = NULL;
-    htpasswd_auth_state *state = auth->state;
-    htpasswd_user entry;
+    _Ptr<FILE> passwdfile = ((void *)0);
+    _Nt_array_ptr<char> hashed_password = NULL;
+    _Ptr<htpasswd_auth_state> state = _Dynamic_bounds_cast<_Ptr<htpasswd_auth_state>>(auth->state);
+    htpasswd_user entry = {.name = NULL, .pass = NULL};
     _Ptr<void> result = NULL;
 
-    if (state->filename == NULL) {
-        ICECAST_LOG_ERROR("No filename given in options for authenticator.");
+    if (state->filename == NULL) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("No filename given in options for authenticator.");}
         return AUTH_FAILED;
     }
 
     htpasswd_recheckfile (state);
 
-    if (state->filename == NULL) {
-        ICECAST_LOG_ERROR("No user list.");
+    if (state->filename == NULL) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("No user list.");}
         return AUTH_FAILED;
     }
 
     thread_rwlock_wlock (&state->file_rwlock);
 
-    entry.name = (char*)username;
-    if (avl_get_by_key (state->users, &entry, &result) == 0)
+    entry.name = username;
+    if (avl_get_by_key (state->users, _Dynamic_bounds_cast<_Ptr<void>>(&entry), &result) == 0)
     {
         thread_rwlock_unlock (&state->file_rwlock);
         return AUTH_USEREXISTS;
@@ -294,15 +298,15 @@ static auth_result htpasswd_adduser (auth_t *auth, const char *username, const c
     if (passwdfile == NULL)
     {
         thread_rwlock_unlock (&state->file_rwlock);
-        ICECAST_LOG_WARN("Failed to open authentication database \"%s\": %s", 
-                state->filename, strerror(errno));
+        _Unchecked {ICECAST_LOG_WARN("Failed to open authentication database \"%s\": %s", 
+                state->filename, strerror(errno));}
         return AUTH_FAILED;
     }
 
     hashed_password = get_hash(password, strlen(password));
-    if (hashed_password) {
+    if (hashed_password) _Checked {
         _Unchecked {fprintf(passwdfile, "%s:%s\n", username, hashed_password);}
-        free(hashed_password);
+        free<char>(hashed_password);
     }
 
     fclose(passwdfile);
@@ -312,26 +316,26 @@ static auth_result htpasswd_adduser (auth_t *auth, const char *username, const c
 }
 
 
-static auth_result htpasswd_deleteuser(auth_t *auth, const char *username)
+static auth_result htpasswd_deleteuser(_Ptr<auth_t> auth, _Nt_array_ptr<const char> username)
 {
-    FILE *passwdfile;
-    FILE *tmp_passwdfile;
-    htpasswd_auth_state *state;
-    char line[MAX_LINE_LEN];
-    char *sep;
-    char *tmpfile = NULL;
+    _Ptr<FILE> passwdfile = ((void *)0);
+    _Ptr<FILE> tmp_passwdfile = ((void *)0);
+    _Ptr<htpasswd_auth_state> state = ((void *)0);
+    char line _Nt_checked[MAX_LINE_LEN];
+    _Ptr<char> sep = ((void *)0);
+    _Nt_array_ptr<char> tmpfile = NULL;
     int tmpfile_len = 0;
     struct stat file_info;
 
-    state = auth->state;
+    state = _Dynamic_bounds_cast<_Ptr<htpasswd_auth_state>>(auth->state);
 
-    if (state->filename == NULL) {
-        ICECAST_LOG_ERROR("No filename given in options for authenticator.");
+    if (state->filename == NULL) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("No filename given in options for authenticator.");}
         return AUTH_FAILED;
     }
 
-    if (state->users == NULL) {
-        ICECAST_LOG_ERROR("No user list.");
+    if (state->users == NULL) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("No user list.");}
         return AUTH_FAILED;
     }
 
@@ -339,19 +343,18 @@ static auth_result htpasswd_deleteuser(auth_t *auth, const char *username)
     passwdfile = fopen(state->filename, "rb");
 
     if(passwdfile == NULL) {
-        ICECAST_LOG_WARN("Failed to open authentication database \"%s\": %s", 
-                state->filename, strerror(errno));
+        _Unchecked {ICECAST_LOG_WARN("Failed to open authentication database \"%s\": %s", 
+                state->filename, strerror(errno));}
         thread_rwlock_unlock (&state->file_rwlock);
         return AUTH_FAILED;
     }
     tmpfile_len = strlen(state->filename) + 6;
-    tmpfile = calloc(1, tmpfile_len);
-    snprintf (tmpfile, tmpfile_len, "%s.tmp", state->filename);
-    //if (stat (tmpfile, &file_info) == 0)
-    if(1)
+    tmpfile = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char>(1, tmpfile_len), count(6));
+    _Unchecked {snprintf ((char*)tmpfile, tmpfile_len, "%s.tmp", state->filename);}
+    if (stat (tmpfile, &file_info) == 0)
     {
-        ICECAST_LOG_WARN("temp file \"%s\" exists, rejecting operation", tmpfile);
-        free (tmpfile);
+        _Unchecked {ICECAST_LOG_WARN("temp file \"%s\" exists, rejecting operation", tmpfile);}
+        free<char> (tmpfile);
         fclose (passwdfile);
         thread_rwlock_unlock (&state->file_rwlock);
         return AUTH_FAILED;
@@ -360,27 +363,27 @@ static auth_result htpasswd_deleteuser(auth_t *auth, const char *username)
     tmp_passwdfile = fopen(tmpfile, "wb");
 
     if(tmp_passwdfile == NULL) {
-        ICECAST_LOG_WARN("Failed to open temporary authentication database \"%s\": %s", 
-                tmpfile, strerror(errno));
+        _Unchecked {ICECAST_LOG_WARN("Failed to open temporary authentication database \"%s\": %s", 
+                tmpfile, strerror(errno));}
         fclose(passwdfile);
-        free(tmpfile);
+        free<char>(tmpfile);
         thread_rwlock_unlock (&state->file_rwlock);
         return AUTH_FAILED;
     }
 
 
-    while(get_line(passwdfile, line, MAX_LINE_LEN)) {
+    while(get_line(passwdfile, _Dynamic_bounds_cast<_Nt_array_ptr<char>>(line, count(MAX_LINE_LEN)), MAX_LINE_LEN)) {
         if(!line[0] || line[0] == '#')
             continue;
 
-        sep = strchr(line, ':');
-        if(sep == NULL) {
-            ICECAST_LOG_DEBUG("No separator in line");
+        sep = _Dynamic_bounds_cast<_Ptr<char>>(strchr(line, ':'));
+        if(sep == NULL) _Checked {
+            _Unchecked {ICECAST_LOG_DEBUG("No separator in line");}
             continue;
         }
 
         *sep = 0;
-        if (strcmp(username, line)) {
+        if (strcmp(username, line)) _Checked {
             /* We did not match on the user, so copy it to the temp file */
             /* and put the : back in */
             *sep = ':';
@@ -395,16 +398,16 @@ static auth_result htpasswd_deleteuser(auth_t *auth, const char *username)
     /* Windows won't let us rename a file if the destination file
        exists...so, lets remove the original first */
     if (remove(state->filename) != 0) {
-        ICECAST_LOG_ERROR("Problem moving temp authentication file to original \"%s\" - \"%s\": %s", 
-                tmpfile, state->filename, strerror(errno));
+        _Unchecked {ICECAST_LOG_ERROR("Problem moving temp authentication file to original \"%s\" - \"%s\": %s", 
+                tmpfile, state->filename, strerror(errno));}
     }
     else {
         if (rename(tmpfile, state->filename) != 0) {
-            ICECAST_LOG_ERROR("Problem moving temp authentication file to original \"%s\" - \"%s\": %s", 
-                    tmpfile, state->filename, strerror(errno));
+            _Unchecked {ICECAST_LOG_ERROR("Problem moving temp authentication file to original \"%s\" - \"%s\": %s", 
+                    tmpfile, state->filename, strerror(errno));}
         }
     }
-    free(tmpfile);
+    free<char>(tmpfile);
     thread_rwlock_unlock (&state->file_rwlock);
     htpasswd_recheckfile (state);
 
@@ -412,23 +415,23 @@ static auth_result htpasswd_deleteuser(auth_t *auth, const char *username)
 }
 
 
-static auth_result htpasswd_userlist(auth_t *auth, xmlNodePtr srcnode)
+static auth_result htpasswd_userlist(_Ptr<auth_t> auth, xmlNodePtr srcnode)
 {
-    htpasswd_auth_state *state;
-    xmlNodePtr newnode;
-    avl_node *node;
+    _Ptr<htpasswd_auth_state> state = ((void *)0);
+    _Ptr<struct _xmlNode> newnode = NULL;
+    _Ptr<avl_node> node = ((void *)0);
 
-    state = auth->state;
+    state = _Dynamic_bounds_cast<_Ptr<htpasswd_auth_state>>(auth->state);
 
-    if (state->filename == NULL) {
-        ICECAST_LOG_ERROR("No filename given in options for authenticator.");
+    if (state->filename == NULL) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("No filename given in options for authenticator.");}
         return AUTH_FAILED;
     }
 
     htpasswd_recheckfile (state);
 
-    if (state->users == NULL) {
-        ICECAST_LOG_ERROR("No user list.");
+    if (state->users == NULL) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("No user list.");}
         return AUTH_FAILED;
     }
 
@@ -436,9 +439,9 @@ static auth_result htpasswd_userlist(auth_t *auth, xmlNodePtr srcnode)
     node = avl_get_first (state->users);
     while (node)
     {
-        htpasswd_user *user = (htpasswd_user *)node->key;
-        newnode = xmlNewChild (srcnode, NULL, XMLSTR("User"), NULL);
-        xmlNewTextChild(newnode, NULL, XMLSTR("username"), XMLSTR(user->name));
+        _Ptr<htpasswd_user> user = _Dynamic_bounds_cast<_Ptr<htpasswd_user>>(node->key);
+        _Unchecked {newnode = _Assume_bounds_cast<_Ptr<struct _xmlNode>>(xmlNewChild (srcnode, NULL, XMLSTR("User"), NULL));}
+        _Unchecked {xmlNewTextChild((xmlNodePtr)newnode, NULL, XMLSTR("username"), XMLSTR(user->name));}
         node = avl_get_next (node);
     }
     thread_rwlock_unlock (&state->file_rwlock);

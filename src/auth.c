@@ -150,7 +150,7 @@ void auth_release (auth_t *authenticator : itype(_Ptr<auth_t>))
 
     if (authenticator->free)
         authenticator->free (authenticator);
- //   xmlFree (authenticator->type);
+    _Unchecked {xmlFree (authenticator->type);}
     thread_mutex_unlock (&authenticator->lock);
     thread_mutex_destroy (&authenticator->lock);
     if (authenticator->mount)
@@ -699,8 +699,8 @@ _Ptr<_Ptr<config_options_t>> next_option = &options;
     {
         _Ptr<config_options_t> opt = options;
         options = opt->next;
-        //xmlFree (opt->name);
-        //xmlFree (opt->value);
+        _Unchecked {xmlFree (opt->name);}
+        _Unchecked {xmlFree (opt->value);}
         free<config_options_t> (opt);
     }
     return auth;
