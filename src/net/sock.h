@@ -123,7 +123,7 @@ sock_t sock_connect_non_blocking(const char *host : itype(_Ptr<const char>), uns
 int sock_connected(sock_t sock, int timeout);
 
 /* Socket write functions */
-int sock_write_bytes(sock_t sock, const void *buff, size_t len);
+_Itype_for_any(T) int sock_write_bytes(sock_t sock, const void *buff : itype(_Array_ptr<const T>), size_t len);
 int sock_write(sock_t sock, const char *fmt : itype(_Ptr<const char>), ...);
 int sock_write_fmt(sock_t sock, const char *fmt : itype(_Ptr<const char>), va_list ap);
 int sock_write_string(sock_t sock, const char *buff : itype(_Nt_array_ptr<const char>));
@@ -131,11 +131,11 @@ ssize_t sock_writev (sock_t sock, const struct iovec *iov : itype(_Ptr<const str
 
 
 /* Socket read functions */
-int sock_read_bytes(sock_t sock, char *buff, size_t len);
+int sock_read_bytes(sock_t sock, char *buff : itype(_Nt_array_ptr<char>), size_t len);
 int sock_read_line(sock_t sock, char *string : itype(_Array_ptr<char>) count(len), const int len);
 
 /* server socket functions */
-sock_t sock_get_server_socket(int port, const char *sinterface : itype(_Ptr<const char>));
+sock_t sock_get_server_socket(int port, const char *sinterface : itype(_Nt_array_ptr<const char>));
 int sock_listen(sock_t serversock, int backlog);
 sock_t sock_accept(sock_t serversock, char *ip : itype(_Nt_array_ptr<char>), size_t len);
 

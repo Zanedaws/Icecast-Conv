@@ -42,12 +42,12 @@ typedef struct connection_tag
     int error;
 
 #ifdef HAVE_OPENSSL
-    SSL *ssl;   /* SSL handler */
+    SSL *ssl : itype(_Ptr<SSL>);   /* SSL handler */
 #endif
-    int ((*send)(struct connection_tag * handle, const void * buf, size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, const void *buf, size_t len)>);
-    int ((*read)(struct connection_tag * handle, void * buf, size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, void *buf, size_t len)>);
+    int ((*send)(struct connection_tag * handle, const void * buf, size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, _Array_ptr<const void> buf, size_t len)>);
+    int ((*read)(struct connection_tag * handle, void * buf, size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, _Array_ptr<void> buf, size_t len)>);
 
-    char *ip;
+    char *ip : itype(_Nt_array_ptr<char>);
     char *host : itype(_Ptr<char>);
 
 } connection_t;

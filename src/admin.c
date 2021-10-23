@@ -290,12 +290,12 @@ void admin_send_response (xmlDocPtr doc, client_t *client,
             //xmlFree(buff);
             return;
         } else if (buf_len < (len + ret + 64)) {
-            void *new_data;
+            _Array_ptr<char> new_data : count(PER_CLIENT_REFBUF_SIZE) = NULL;
             buf_len = ret + len + 64;
-            new_data = realloc(client->refbuf->data, buf_len);
+            _Unchecked {new_data = _Assume_bounds_cast<_Array_ptr<char>>(realloc(client->refbuf->data, buf_len), count(PER_CLIENT_REFBUF_SIZE));}
             if (new_data) {
                 ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
-                client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(new_data, byte_count(64));
+                client->refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(new_data, byte_count(PER_CLIENT_REFBUF_SIZE));
                 client->refbuf->len = buf_len;
                 ret = util_http_build_header(client->refbuf->data, buf_len, 0,
                                              0, 200, NULL,

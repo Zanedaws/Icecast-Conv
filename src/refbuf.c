@@ -49,7 +49,7 @@ refbuf_t *refbuf_new(unsigned int size) : itype(_Ptr<refbuf_t>)
     refbuf->data = NULL;
     if (size)
     {
-        refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char> (size), count(size));
+        refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char> (size), count(PER_CLIENT_REFBUF_SIZE));
         if (refbuf->data == NULL)
             abort();
     }

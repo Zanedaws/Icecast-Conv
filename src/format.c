@@ -309,7 +309,7 @@ static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
         _Array_ptr<void> new_ptr : byte_count(1024)= realloc<char>(_Dynamic_bounds_cast<_Array_ptr<char>>(ptr, byte_count(1)), 1024);
         if (new_ptr) {
             _Unchecked {ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");}
-            client->refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(new_ptr, byte_count(1024));
+            client->refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(new_ptr, byte_count(PER_CLIENT_REFBUF_SIZE));
             ptr = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(new_ptr, byte_count(1024));
             client->refbuf->len = remaining = bytes + 1024;
             bytes = util_http_build_header(ptr, remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
