@@ -19,14 +19,14 @@
 
 struct MD5Context
 {       
-    uint32_t     buf[4];
+    uint32_t  buf[4] : itype(uint32_t _Checked[4]);
     uint32_t  bits[2] : itype(uint32_t _Checked[2]);
-    unsigned char in[64];
+    unsigned char in[64] : itype(unsigned char _Checked[64]);
 };
 
 void MD5Init(struct MD5Context *context : itype(_Ptr<struct MD5Context>));
 void MD5Update(struct MD5Context *context : itype(_Ptr<struct MD5Context>), const unsigned char *buf : itype(_Array_ptr<const unsigned char>), unsigned len);
-void MD5Final(unsigned char *digest : itype(unsigned char _Checked[HASH_LEN]), struct MD5Context *context : itype(_Array_ptr<struct MD5Context>));
+void MD5Final(unsigned char *digest : itype(unsigned char _Checked[HASH_LEN]), struct MD5Context *context : itype(_Ptr<struct MD5Context>));
 
 
 #endif

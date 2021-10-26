@@ -53,32 +53,34 @@
 #define CATMODULE "format-ogg"
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
+
 struct _ogg_state_tag;
 
-static void format_ogg_free_plugin (format_plugin_t *plugin);
-static int  create_ogg_client_data(source_t *source, client_t *client);
-static void free_ogg_client_data (client_t *client);
+static void format_ogg_free_plugin (_Ptr<format_plugin_t> plugin);
+static int  create_ogg_client_data(_Ptr<source_t> source, _Ptr<client_t> client);
+static void free_ogg_client_data (_Ptr<client_t> client);
 
-static void write_ogg_to_file (struct source_tag *source, refbuf_t *refbuf);
-static refbuf_t *ogg_get_buffer (source_t *source);
-static int write_buf_to_client (client_t *client);
+static void write_ogg_to_file (_Ptr<struct source_tag> source, _Ptr<refbuf_t> refbuf);
+static _Ptr<refbuf_t> ogg_get_buffer(_Ptr<source_t> source);
+static int write_buf_to_client (_Ptr<client_t> client);
 
 
 struct ogg_client
 {
-    refbuf_t *headers;
-    refbuf_t *header_page;
+    refbuf_t *headers : itype(_Ptr<refbuf_t>);
+    refbuf_t *header_page : itype(_Ptr<refbuf_t>);
     unsigned pos;
     int headers_sent;
 };
 
 
-refbuf_t *make_refbuf_with_page (ogg_page *page)
+refbuf_t *make_refbuf_with_page(ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<refbuf_t>)
 {
-    refbuf_t *refbuf = refbuf_new (page->header_len + page->body_len);
+    _Ptr<refbuf_t> refbuf = refbuf_new (page->header_len + page->body_len);
 
-    memcpy (refbuf->data, page->header, page->header_len);
-    memcpy (refbuf->data+page->header_len, page->body, page->body_len);
+    _Unchecked {memcpy (refbuf->data, page->header, page->header_len);}
+    _Unchecked {memcpy (refbuf->data+page->header_len, page->body, page->body_len);}
     return refbuf;
 }
 
@@ -86,41 +88,45 @@ refbuf_t *make_refbuf_with_page (ogg_page *page)
 /* routine for taking the provided page (should be a header page) and
  * placing it on the collection of header pages
  */
-void format_ogg_attach_header (ogg_state_t *ogg_info, ogg_page *page)
+void format_ogg_attach_header (ogg_state_t *ogg_info : itype(_Ptr<ogg_state_t>), ogg_page *page : itype(_Ptr<ogg_page>))
 {
-    //_Ptr<refbuf_t> refbuf = make_refbuf_with_page (page);
-    refbuf_t * a = NULL;
+    _Ptr<refbuf_t> refbuf = make_refbuf_with_page (page);
+    _Ptr<refbuf_t> a = NULL;
+    
+    int tmpRet;
 
-    if (ogg_page_bos (page))
+    _Unchecked {tmpRet = ogg_page_bos (page);}
+
+    if (tmpRet)
     {
-        ICECAST_LOG_DEBUG("attaching BOS page");
+        _Unchecked {ICECAST_LOG_DEBUG("attaching BOS page");}
         if (*ogg_info->bos_end == NULL)
-            //ogg_info->header_pages_tail = refbuf;
-        //refbuf->next = *ogg_info->bos_end;
-        //*ogg_info->bos_end = refbuf;
-        //ogg_info->bos_end = &refbuf->next;
+            ogg_info->header_pages_tail = refbuf;
+        refbuf->next = *ogg_info->bos_end;
+        *ogg_info->bos_end = refbuf;
+        ogg_info->bos_end = &refbuf->next;
         return;
     }
-    ICECAST_LOG_DEBUG("attaching header page");
-    //if (ogg_info->header_pages_tail)
-        //ogg_info->header_pages_tail->next = refbuf;
-    //ogg_info->header_pages_tail = refbuf;
+    _Unchecked {ICECAST_LOG_DEBUG("attaching header page");}
+    if (ogg_info->header_pages_tail)
+        ogg_info->header_pages_tail->next = refbuf;
+    ogg_info->header_pages_tail = refbuf;
 
-    //if (ogg_info->header_pages == NULL)
-        //ogg_info->header_pages = refbuf;
+    if (ogg_info->header_pages == NULL)
+        ogg_info->header_pages = refbuf;
 }
 
 
-void format_ogg_free_headers (ogg_state_t *ogg_info)
+void format_ogg_free_headers (ogg_state_t *ogg_info : itype(_Ptr<ogg_state_t>))
 {
-    refbuf_t *header;
+    _Ptr<refbuf_t> header = ((void *)0);
 
     /* release the header pages first */
-    ICECAST_LOG_DEBUG("releasing header pages");
+    _Unchecked {ICECAST_LOG_DEBUG("releasing header pages");}
     header = ogg_info->header_pages;
     while (header)
-    {
-        refbuf_t *to_release = header;
+    _Checked {
+        _Ptr<refbuf_t> to_release = header;
         header = header->next;
         refbuf_release (to_release);
     }
@@ -131,9 +137,9 @@ void format_ogg_free_headers (ogg_state_t *ogg_info)
 
 
 /* release the memory used for the codec and header pages from the module */
-static void free_ogg_codecs (ogg_state_t *ogg_info)
+static void free_ogg_codecs (_Ptr<ogg_state_t> ogg_info)
 {
-    ogg_codec_t *codec;
+    _Ptr<ogg_codec_t> codec = ((void *)0);
 
     if (ogg_info == NULL)
         return;
@@ -142,10 +148,10 @@ static void free_ogg_codecs (ogg_state_t *ogg_info)
 
     /* now free the codecs */
     codec = ogg_info->codecs;
-    ICECAST_LOG_DEBUG("freeing codecs");
+    _Unchecked {ICECAST_LOG_DEBUG("freeing codecs");}
     while (codec)
     {
-        ogg_codec_t *next = codec->next;
+        _Ptr<ogg_codec_t> next = codec->next;
         if (codec->possible_start)
             refbuf_release (codec->possible_start);
         codec->codec_free (ogg_info, codec);
@@ -158,12 +164,12 @@ static void free_ogg_codecs (ogg_state_t *ogg_info)
 }
 
 
-int format_ogg_get_plugin (source_t *source)
+int format_ogg_get_plugin (source_t *source : itype(_Ptr<source_t>))
 {
     _Ptr<format_plugin_t> plugin = NULL;
-    _Ptr<ogg_state_t> state = calloc (1, sizeof (ogg_state_t));
+    _Ptr<ogg_state_t> state = calloc<ogg_state_t> (1, sizeof (ogg_state_t));
 
-    plugin = (format_plugin_t *)calloc(1, sizeof(format_plugin_t));
+    plugin = (_Ptr<format_plugin_t>)calloc<format_plugin_t>(1, sizeof(format_plugin_t));
 
     plugin->type = FORMAT_TYPE_OGG;
     plugin->get_buffer = ogg_get_buffer;
@@ -176,9 +182,9 @@ int format_ogg_get_plugin (source_t *source)
         httpp_setvar (source->parser, "content-type", "application/ogg");
     plugin->contenttype = httpp_getvar (source->parser, "content-type");
 
-    ogg_sync_init (&state->oy);
+    _Unchecked {ogg_sync_init (&state->oy);}
 
-    plugin->_state = state;
+    plugin->_state = _Dynamic_bounds_cast<_Ptr<void>>(state);
     source->format = plugin;
     state->mount = source->mount;
     state->bos_end = &state->header_pages;
@@ -187,26 +193,26 @@ int format_ogg_get_plugin (source_t *source)
 }
 
 
-static void format_ogg_free_plugin (format_plugin_t *plugin)
+static void format_ogg_free_plugin (_Ptr<format_plugin_t> plugin)
 {
-    ogg_state_t *state = plugin->_state;
+    _Ptr<ogg_state_t> state = _Dynamic_bounds_cast<_Ptr<ogg_state_t>>(plugin->_state);
 
     /* free memory associated with this plugin instance */
     free_ogg_codecs (state);
-    free (state->artist);
-    free (state->title);
+    free<char> (state->artist);
+    free<char> (state->title);
 
-    ogg_sync_clear (&state->oy);
-    free (state);
+    _Unchecked {ogg_sync_clear (&state->oy);}
+    free<ogg_state_t> (state);
 
-    free (plugin);
+    free<format_plugin_t> (plugin);
 }
 
 
 /* a new BOS page has been seen so check which codec it is */
-static int process_initial_page (format_plugin_t *plugin, ogg_page *page)
+static int process_initial_page (_Ptr<format_plugin_t> plugin, _Ptr<ogg_page> page)
 {
-    ogg_state_t *ogg_info = plugin->_state;
+    _Ptr<ogg_state_t> ogg_info = _Dynamic_bounds_cast<_Ptr<ogg_state_t>>(plugin->_state);
     _Ptr<ogg_codec_t> codec = NULL;
 
     if (ogg_info->bos_completed)
@@ -220,7 +226,7 @@ static int process_initial_page (format_plugin_t *plugin, ogg_page *page)
     {
         if (ogg_info->codec_count > 10)
         {
-            ICECAST_LOG_ERROR("many codecs in stream, playing safe, dropping source");
+            _Unchecked {ICECAST_LOG_ERROR("many codecs in stream, playing safe, dropping source");}
             ogg_info->error = 1;
             return -1;
         }
@@ -254,7 +260,7 @@ static int process_initial_page (format_plugin_t *plugin, ogg_page *page)
             break;
 
         /* any others */
-        ICECAST_LOG_ERROR("Seen BOS page with unknown type");
+        _Unchecked {ICECAST_LOG_ERROR("Seen BOS page with unknown type");}
         ogg_info->error = 1;
         return -1;
     } while (0);
@@ -275,44 +281,44 @@ static int process_initial_page (format_plugin_t *plugin, ogg_page *page)
  * artist and title are provided separately so here we update the stats
  * and write log entry if required.
  */
-static void update_comments (source_t *source)
+static void update_comments (_Ptr<source_t> source)
 {
-    ogg_state_t *ogg_info = source->format->_state;
-    char *title = ogg_info->title;
-    char *artist = ogg_info->artist;
-    char *metadata = NULL;
+    _Ptr<ogg_state_t> ogg_info = _Dynamic_bounds_cast<_Ptr<ogg_state_t>>(source->format->_state);
+    _Nt_array_ptr<char> title = ogg_info->title;
+    _Nt_array_ptr<char> artist = ogg_info->artist;
+    _Nt_array_ptr<char> metadata = NULL;
     unsigned int len = 1; /* space for the nul byte at least */
-    ogg_codec_t *codec;
-    char codec_names [100] = "";
+    _Ptr<ogg_codec_t> codec = ((void *)0);
+    char codec_names _Nt_checked[100] = "";
 
     if (ogg_info->artist)
-    {
+    _Checked {
         if (title)
-        {
+        _Unchecked {
             len += strlen(artist) + strlen(title) + 3;
-            metadata = calloc (1, len);
-            snprintf (metadata, len, "%s - %s", artist, title);
+            metadata = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char> (1, len), count(len));
+            snprintf ((char*)metadata, len, "%s - %s", artist, title);
         }
         else
-        {
+        _Unchecked {
             len += strlen(artist);
-            metadata = calloc (1, len);
-            snprintf (metadata, len, "%s", artist);
+            metadata = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char> (1, len), count(len));
+            snprintf ((char*)metadata, len, "%s", artist);
         }
     }
     else
-    {
+    _Checked {
         if (title)
-        {
+        _Unchecked {
             len += strlen (title);
-            metadata = calloc (1, len);
-            snprintf (metadata, len, "%s", title);
+            metadata = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char> (1, len), count(len));
+            snprintf ((char*)metadata, len, "%s", title);
         }
     }
     if (metadata)
     {
         logging_playlist (source->mount, metadata, source->listeners);
-        free (metadata);
+        free<char> (metadata);
     }
     stats_event (source->mount, "artist", artist);
     stats_event (source->mount, "title", title);
@@ -321,14 +327,14 @@ static void update_comments (source_t *source)
     while (codec)
     {
         if (codec->name)
-        {
+        _Checked {
             int len = strlen (codec_names);
             int remaining = sizeof (codec_names) - len;
-            char *where = codec_names + len;
-            char *separator = "/";
+            _Nt_array_ptr<char> where : count(99) = codec_names + len;
+            _Nt_array_ptr<char> separator = "/";
             if (len == 0)
                 separator = "";
-            snprintf (where, remaining, "%s%s", separator, codec->name);
+            _Unchecked { snprintf ((char*)where, remaining, "%s%s", separator, codec->name); };
         }
         codec = codec->next;
     }
@@ -340,13 +346,13 @@ static void update_comments (source_t *source)
 /* called when preparing a refbuf with audio data to be passed
  * back for queueing
  */
-static refbuf_t *complete_buffer (source_t *source, refbuf_t *refbuf)
+static _Ptr<refbuf_t> complete_buffer(_Ptr<source_t> source, _Ptr<refbuf_t> refbuf)
 {
-    ogg_state_t *ogg_info = source->format->_state;
-    refbuf_t *header = ogg_info->header_pages;
+    _Ptr<ogg_state_t> ogg_info = _Dynamic_bounds_cast<_Ptr<ogg_state_t>>(source->format->_state);
+    _Ptr<refbuf_t> header = ogg_info->header_pages;
 
     while (header)
-    {
+    _Checked {
         refbuf_addref (header);
         header = header->next;
     }
@@ -368,10 +374,10 @@ static refbuf_t *complete_buffer (source_t *source, refbuf_t *refbuf)
 /* process the incoming page. this requires searching through the
  * currently known codecs that have been seen in the stream
  */
-static refbuf_t *process_ogg_page (ogg_state_t *ogg_info, ogg_page *page)
+static _Ptr<refbuf_t> process_ogg_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_page> page)
 {
     _Ptr<ogg_codec_t> codec = ogg_info->codecs;
-    refbuf_t *refbuf = NULL;
+    _Ptr<refbuf_t> refbuf = NULL;
 
     while (codec)
     {
@@ -394,20 +400,21 @@ static refbuf_t *process_ogg_page (ogg_state_t *ogg_info, ogg_page *page)
  * just add an incoming page to the codecs and process it until either
  * more data is needed or we prodice a buffer for the queue.
  */
-static refbuf_t *ogg_get_buffer (source_t *source)
+static _Ptr<refbuf_t> ogg_get_buffer(_Ptr<source_t> source)
 {
-    ogg_state_t *ogg_info = source->format->_state;
-    format_plugin_t *format = source->format;
-    char *data = NULL;
+    _Ptr<ogg_state_t> ogg_info = _Dynamic_bounds_cast<_Ptr<ogg_state_t>>(source->format->_state);
+    _Ptr<format_plugin_t> format = source->format;
+    _Nt_array_ptr<char> data = NULL;
     int bytes = 0;
+    int tmpRet;
 
     while (1)
     {
         while (1)
         {
             ogg_page page;
-            refbuf_t *refbuf = NULL;
-            ogg_codec_t *codec = ogg_info->current;
+            _Ptr<refbuf_t> refbuf = NULL;
+            _Ptr<ogg_codec_t> codec = ogg_info->current;
 
             /* if a codec has just been given a page then process it */
             if (codec && codec->process)
@@ -419,9 +426,12 @@ static refbuf_t *ogg_get_buffer (source_t *source)
                 ogg_info->current = NULL;
             }
 
-            if (ogg_sync_pageout (&ogg_info->oy, &page) > 0)
+            _Unchecked {tmpRet = ogg_sync_pageout (&ogg_info->oy, &page);}
+
+            if (tmpRet > 0)
             {
-                if (ogg_page_bos (&page))
+                _Unchecked {tmpRet = ogg_page_bos(&page);}
+                if (tmpRet)
                 {
                     process_initial_page (source->format, &page);
                 }
@@ -432,7 +442,7 @@ static refbuf_t *ogg_get_buffer (source_t *source)
                 }
                 if (ogg_info->error)
                 {
-                    ICECAST_LOG_ERROR("Problem processing stream");
+                    _Unchecked {ICECAST_LOG_ERROR("Problem processing stream");}
                     source->running = 0;
                     return NULL;
                 }
@@ -444,23 +454,23 @@ static refbuf_t *ogg_get_buffer (source_t *source)
             break;
         }
         /* we need more data to continue getting pages */
-        data = ogg_sync_buffer (&ogg_info->oy, 4096);
+        _Unchecked {data = _Assume_bounds_cast<_Nt_array_ptr<char>>(ogg_sync_buffer (&ogg_info->oy, 4096), count(4096));}
 
         bytes = client_read_bytes (source->client, data, 4096);
         if (bytes <= 0)
         {
-            ogg_sync_wrote (&ogg_info->oy, 0);
+            _Unchecked {ogg_sync_wrote (&ogg_info->oy, 0);}
             return NULL;
         }
         format->read_bytes += bytes;
-        ogg_sync_wrote (&ogg_info->oy, bytes);
+        _Unchecked {ogg_sync_wrote (&ogg_info->oy, bytes);}
     }
 }
 
 
-static int create_ogg_client_data (source_t *source, client_t *client) 
+static int create_ogg_client_data (_Ptr<source_t> source, _Ptr<client_t> client) 
 {
-    _Ptr<struct ogg_client> client_data = calloc (1, sizeof (struct ogg_client));
+    _Ptr<struct ogg_client> client_data = calloc<struct ogg_client> (1, sizeof (struct ogg_client));
     int ret = -1;
 
     if (client_data)
@@ -474,9 +484,9 @@ static int create_ogg_client_data (source_t *source, client_t *client)
 }
 
 
-static void free_ogg_client_data (client_t *client)
+static void free_ogg_client_data (_Ptr<client_t> client)
 {
-    free (client->format_data);
+    free<void> (client->format_data);
     client->format_data = NULL;
 }
 
@@ -484,14 +494,14 @@ static void free_ogg_client_data (client_t *client)
 /* send out the header pages. These are for all codecs but are
  * in the order for the stream, ie BOS pages first
  */
-static int send_ogg_headers (client_t *client, refbuf_t *headers)
+static int send_ogg_headers (_Ptr<client_t> client, _Ptr<refbuf_t> headers)
 {
-    struct ogg_client *client_data = client->format_data;
-    refbuf_t *refbuf;
+    _Ptr<struct ogg_client> client_data = _Dynamic_bounds_cast<_Ptr<struct ogg_client>>(client->format_data);
+    _Ptr<refbuf_t> refbuf = ((void *)0);
     int written = 0;
 
     if (client_data->headers_sent)
-    {
+    _Checked {
         client_data->header_page = headers;
         client_data->pos = 0;
         client_data->headers_sent = 0;
@@ -499,18 +509,18 @@ static int send_ogg_headers (client_t *client, refbuf_t *headers)
     refbuf = client_data->header_page;
     while (refbuf)
     {
-        char *data = refbuf->data + client_data->pos;
+        _Array_ptr<char> data : count(20) = refbuf->data + client_data->pos;
         unsigned len = refbuf->len - client_data->pos;
         int ret;
 
-        ret = client_send_bytes (client, data, len);
+        ret = client_send_bytes<char> (client, data, len);
         if (ret > 0)
            written += ret;
         if (ret < (int)len)
             return written ? written : -1;
         client_data->pos += ret;
         if (client_data->pos == refbuf->len)
-        {
+        _Checked {
             refbuf = refbuf->next;
             client_data->header_page = refbuf;
             client_data->pos = 0;
@@ -525,12 +535,12 @@ static int send_ogg_headers (client_t *client, refbuf_t *headers)
 /* main client write routine for sending ogg data. Each refbuf has a
  * single page so we only need to determine if there are new headers
  */
-static int write_buf_to_client (client_t *client)
+static int write_buf_to_client (_Ptr<client_t> client)
 {
-    refbuf_t *refbuf = client->refbuf;
-    char *buf = refbuf->data + client->pos;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
+    _Array_ptr<char> buf : count(20) = refbuf->data + client->pos;
     unsigned len = refbuf->len - client->pos;
-    struct ogg_client *client_data = client->format_data;
+    _Ptr<struct ogg_client> client_data = _Dynamic_bounds_cast<_Ptr<struct ogg_client>>(client->format_data);
     int ret, written = 0;
 
     do
@@ -542,7 +552,7 @@ static int write_buf_to_client (client_t *client)
                 break;
             written += ret;
         }
-        ret = client_send_bytes (client, buf, len);
+        ret = client_send_bytes<char> (client, buf, len);
 
         if (ret > 0)
             client->pos += ret;
@@ -560,13 +570,13 @@ static int write_buf_to_client (client_t *client)
 }
 
 
-static int write_ogg_data (struct source_tag *source, refbuf_t *refbuf)
+static int write_ogg_data (_Ptr<struct source_tag> source, _Ptr<refbuf_t> refbuf)
 {
     int ret = 1;
 
     if (fwrite (refbuf->data, 1, refbuf->len, source->dumpfile) != refbuf->len)
     {
-        ICECAST_LOG_WARN("Write to dump file failed, disabling");
+        _Unchecked {ICECAST_LOG_WARN("Write to dump file failed, disabling");}
         fclose (source->dumpfile);
         source->dumpfile = NULL;
         ret = 0;
@@ -575,13 +585,13 @@ static int write_ogg_data (struct source_tag *source, refbuf_t *refbuf)
 }
 
 
-static void write_ogg_to_file (struct source_tag *source, refbuf_t *refbuf)
+static void write_ogg_to_file (_Ptr<struct source_tag> source, _Ptr<refbuf_t> refbuf)
 {
-    ogg_state_t *ogg_info = source->format->_state;
+    _Ptr<ogg_state_t> ogg_info = _Dynamic_bounds_cast<_Ptr<ogg_state_t>>(source->format->_state);
 
     if (ogg_info->file_headers != refbuf->associated)
     {
-        refbuf_t *header = refbuf->associated;
+        _Ptr<refbuf_t> header = refbuf->associated;
         while (header)
         {
             if (write_ogg_data (source, header) == 0)

@@ -47,9 +47,11 @@
 #include "resolver.h"
 #include "sock.h"
 
+#pragma CHECKED_SCOPE on
+
 /* internal function */
 
-static int _isip(const char *what);
+static int _isip(_Nt_array_ptr<const char> what : count(len), int len);
 
 /* internal data */
 
@@ -59,21 +61,25 @@ static mutex_t _resolver_mutex;
 static int _initialized = 0;
 
 #ifdef HAVE_INET_PTON
-static int _isip(const char *what)
+static int _isip(_Nt_array_ptr<const char> what : count(len), int len)
 {
     union {
         struct in_addr v4addr;
         struct in6_addr v6addr;
     } addr_u;
 
-    if (inet_pton(AF_INET, what, &addr_u.v4addr) <= 0)
-        return inet_pton(AF_INET6, what, &addr_u.v6addr) > 0 ? 1 : 0;
+    int tmpRet;
+    _Unchecked {tmpRet = inet_pton(AF_INET, (const char*)what, &addr_u.v4addr);}
+    if (tmpRet <= 0){
+        _Unchecked {tmpRet = inet_pton(AF_INET6, (const char*)what, &addr_u.v6addr);}
+        return tmpRet > 0 ? 1 : 0;
+    }
 
     return 1;
 }
 
 #else
-static int _isip(const char *what)
+static int _isip(const char *what : count(len), int len)
 {
     struct in_addr inp;
 
@@ -83,12 +89,14 @@ static int _isip(const char *what)
 
 
 #if defined (HAVE_GETNAMEINFO) && defined (HAVE_GETADDRINFO)
-char *resolver_getname(const char *ip, char *buff, int len)
+char *resolver_getname(const char *ip : itype(_Nt_array_ptr<const char>) count(len), char *buff : itype(_Array_ptr<char>) count(len), int len) : itype(_Ptr<char>)
 {
-    struct addrinfo *head = NULL, hints;
-    char *ret = NULL;
+    _Ptr<struct addrinfo> head = NULL;
+struct addrinfo hints;
 
-    if (!_isip(ip)) {
+    _Ptr<char> ret = NULL;
+
+    if (!_isip(ip, len)) {
         strncpy(buff, ip, len);
         buff [len-1] = '\0';
         return buff;
@@ -98,31 +106,32 @@ char *resolver_getname(const char *ip, char *buff, int len)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_CANONNAME;
-//   if (getaddrinfo (ip, NULL, &hints, &head))
-    if(1)
+    if (getaddrinfo (_Dynamic_bounds_cast<_Nt_array_ptr<char>>(ip, count(MAX_ADDR_LEN)), NULL, &hints, &head))
         return NULL;
 
-    if (head)
-    {
-//       if (getnameinfo(head->ai_addr, head->ai_addrlen, buff, len, NULL, 
-//                    0, NI_NAMEREQD) == 0)
-        if(1)
+    int tmpRet;
+    if (head) {
+       _Unchecked {tmpRet = getnameinfo(head->ai_addr, head->ai_addrlen, buff, len, NULL,  
+                    0, NI_NAMEREQD);}
+       if (tmpRet == 0)
             ret = buff;
 
-//       freeaddrinfo (head);
+       freeaddrinfo (head);
     }
 
     return ret;
 }
 
 
-char *resolver_getip(const char *name, char *buff, int len)
+char *resolver_getip(const char *name : itype(_Nt_array_ptr<const char>) count(MAX_ADDR_LEN), char *buff : itype(_Array_ptr<char>) count(len), int len) : itype(_Ptr<char>)
 {
-    struct addrinfo *head, hints;
-    char *ret = NULL;
+    _Ptr<struct addrinfo> head = ((void *)0);
+struct addrinfo hints;
 
-    if (_isip(name)) {
-        strncpy(buff, name, len);
+    _Ptr<char> ret = NULL;
+
+    if (_isip(name, MAX_ADDR_LEN)) _Checked {
+        _Unchecked {strncpy(buff, name, len);}
         buff [len-1] = '\0';
         return buff;
     }
@@ -130,17 +139,17 @@ char *resolver_getip(const char *name, char *buff, int len)
     memset (&hints, 0, sizeof (hints));
     hints . ai_family = AF_UNSPEC;
     hints . ai_socktype = SOCK_STREAM;
-//   if (getaddrinfo (name, NULL, &hints, &head))
-    if(1)
+    if (getaddrinfo (name, NULL, &hints, &head))
         return NULL;
 
-    if (head)
-    {
-//       if (getnameinfo(head->ai_addr, head->ai_addrlen, buff, len, NULL, 
-//                    0, NI_NUMERICHOST) == 0)
-        if(1)
+    int tmpRet;
+
+    if (head) {
+       _Unchecked {tmpRet = getnameinfo(head->ai_addr, head->ai_addrlen, buff, len, NULL,
+                    0, NI_NUMERICHOST);}
+       if (tmpRet == 0)
             ret = buff;
-//       freeaddrinfo (head);
+       freeaddrinfo (head);
     }
 
     return ret;
@@ -202,11 +211,11 @@ char *resolver_getip(const char *name, char *buff, int len)
 
 
 void resolver_initialize()
-{
+_Checked {
     /* initialize the lib if we havne't done so already */
 
     if (!_initialized)
-    {
+    _Unchecked {
         _initialized = 1;
         thread_mutex_create (&_resolver_mutex);
 
@@ -218,9 +227,9 @@ void resolver_initialize()
 }
 
 void resolver_shutdown(void)
-{
+_Checked {
     if (_initialized)
-    {
+    _Unchecked {
         thread_mutex_destroy(&_resolver_mutex);
         _initialized = 0;
 #ifdef HAVE_ENDHOSTENT
