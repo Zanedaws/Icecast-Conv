@@ -56,11 +56,13 @@
 
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
+
 typedef struct {
-    char              *filename;
+    char *filename : itype(_Nt_array_ptr<char>);
     time_t             last_modified;
     time_t             cache_age;
-    xsltStylesheetPtr  stylesheet;
+    xsltStylesheetPtr  stylesheet : itype(_Ptr<struct _xsltStylesheet>);
 } stylesheet_cache_t;
 
 #ifndef HAVE_XSLTSAVERESULTTOSTRING
@@ -92,17 +94,17 @@ int xsltSaveResultToString(xmlChar **doc_txt_ptr, int * doc_txt_len, xmlDocPtr r
 /* Keep it small... */
 #define CACHESIZE 3
 
-static stylesheet_cache_t cache[CACHESIZE];
+static stylesheet_cache_t cache _Checked[CACHESIZE];
 static mutex_t xsltlock;
 
 void xslt_initialize(void)
 {
-    memset(cache, 0, sizeof(stylesheet_cache_t)*CACHESIZE);
+    memset(_Dynamic_bounds_cast<_Array_ptr<void>>(cache, byte_count(sizeof(stylesheet_cache_t)*CACHESIZE)), 0, sizeof(stylesheet_cache_t)*CACHESIZE);
     thread_mutex_create(&xsltlock);
     xmlInitParser();
     LIBXML_TEST_VERSION
     xmlSubstituteEntitiesDefault(1);
-    xmlLoadExtDtdDefaultValue = 1;
+    _Unchecked {xmlLoadExtDtdDefaultValue = 1;}
 }
 
 void xslt_shutdown(void) {
@@ -110,9 +112,9 @@ void xslt_shutdown(void) {
 
     for(i=0; i < CACHESIZE; i++) {
         if(cache[i].filename)
-            free(cache[i].filename);
+            free<char>(cache[i].filename);
         if(cache[i].stylesheet)
-            xsltFreeStylesheet(cache[i].stylesheet);
+            _Unchecked {xsltFreeStylesheet((xsltStylesheetPtr)cache[i].stylesheet);}
     }
 
     thread_mutex_destroy (&xsltlock);
@@ -123,50 +125,49 @@ void xslt_shutdown(void) {
 static int evict_cache_entry(void) {
     int i, age=0, oldest=0;
 
-    for(i=0; i < CACHESIZE; i++) {
+    for(i=0; i < CACHESIZE; i++) _Checked {
         if(cache[i].cache_age > age) {
             age = cache[i].cache_age;
             oldest = i;
         }
     }
 
-    xsltFreeStylesheet(cache[oldest].stylesheet);
-    free(cache[oldest].filename);
+    _Unchecked {xsltFreeStylesheet((xsltStylesheetPtr)cache[oldest].stylesheet);}
+    free<char>(cache[oldest].filename);
 
     return oldest;
 }
 
-static xsltStylesheetPtr xslt_get_stylesheet(const char *fn) {
+static xsltStylesheetPtr xslt_get_stylesheet(_Nt_array_ptr<const char> fn) : itype(_Ptr<struct _xsltStylesheet>) {
     int i;
     int empty = -1;
     struct stat file;
 
-    //if(stat(fn, &file)) {
-    if (1) {
-        ICECAST_LOG_WARN("Error checking for stylesheet file \"%s\": %s", fn, 
-                strerror(errno));
+    if(stat(fn, &file)) {
+        _Unchecked {ICECAST_LOG_WARN("Error checking for stylesheet file \"%s\": %s", fn, 
+                strerror(errno));}
         return NULL;
     }
 
-    for(i=0; i < CACHESIZE; i++) {
+    for(i=0; i < CACHESIZE; i++) _Checked {
         if(cache[i].filename)
         {
 #ifdef _WIN32
-//           if(!stricmp(fn, cache[i].filename))
+            if(!stricmp(fn, cache[i].filename))
 #else
             if(!strcmp(fn, cache[i].filename))
 #endif
-            {
+            _Unchecked {
                 if(file.st_mtime > cache[i].last_modified)
-                {
-//                    xsltFreeStylesheet(cache[i].stylesheet);
+                _Checked {
+                    _Unchecked {xsltFreeStylesheet((xsltStylesheetPtr)cache[i].stylesheet);}
 
-//                    cache[i].last_modified = file.st_mtime;
-//                    cache[i].stylesheet = xsltParseStylesheetFile (XMLSTR(fn));
-//                    cache[i].cache_age = time(NULL);
+                    cache[i].last_modified = file.st_mtime;
+                    _Unchecked {cache[i].stylesheet = _Assume_bounds_cast<_Ptr<struct _xsltStylesheet>>(xsltParseStylesheetFile (XMLSTR(fn)));}
+                    cache[i].cache_age = time(NULL);
                 }
                 ICECAST_LOG_DEBUG("Using cached sheet %i", i);
-//                return cache[i].stylesheet;
+                return cache[i].stylesheet;
                 return NULL;
             }
         }
@@ -179,25 +180,26 @@ static xsltStylesheetPtr xslt_get_stylesheet(const char *fn) {
     else
         i = evict_cache_entry();
 
-//    cache[i].last_modified = file.st_mtime;
-//    cache[i].filename = strdup(fn);
-//    cache[i].stylesheet = xsltParseStylesheetFile (XMLSTR(fn));
-//    cache[i].cache_age = time(NULL);
-//    return cache[i].stylesheet;
+    cache[i].last_modified = file.st_mtime;
+    cache[i].filename = strdup(fn);
+    _Unchecked {cache[i].stylesheet = _Assume_bounds_cast<_Ptr<struct _xsltStylesheet>>(xsltParseStylesheetFile (XMLSTR(fn)));}
+    cache[i].cache_age = time(NULL);
+    return cache[i].stylesheet;
     return NULL;
 }
 
-void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
+void xslt_transform(xmlDocPtr doc : itype(_Ptr<struct _xmlDoc>), const char *xslfilename : itype(_Nt_array_ptr<const char>), client_t *client : itype(_Ptr<client_t>))
 {
-    xmlDocPtr    res;
-    xsltStylesheetPtr cur;
-    xmlChar *string;
+    _Ptr<struct _xmlDoc>    res = NULL;
+    _Ptr<struct _xsltStylesheet> cur = NULL;
+    _Nt_array_ptr<xmlChar> string = NULL;
     int len, problem = 0;
-    const char *mediatype = NULL;
-    const char *charset = NULL;
+    _Nt_array_ptr<const char> mediatype = NULL;
+    _Nt_array_ptr<const char> charset : count(5) = NULL;
+    int tmpRet;
 
-    xmlSetGenericErrorFunc ("", log_parse_failure);
-    xsltSetGenericErrorFunc ("", log_parse_failure);
+    _Unchecked {xmlSetGenericErrorFunc ("", log_parse_failure);}
+    _Unchecked {xsltSetGenericErrorFunc ("", log_parse_failure);}
 
     thread_mutex_lock(&xsltlock);
     cur = xslt_get_stylesheet(xslfilename);
@@ -205,25 +207,28 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
     if (cur == NULL)
     {
         thread_mutex_unlock(&xsltlock);
-        ICECAST_LOG_ERROR("problem reading stylesheet \"%s\"", xslfilename);
+        _Unchecked {ICECAST_LOG_ERROR("problem reading stylesheet \"%s\"", xslfilename);}
         client_send_404 (client, "Could not parse XSLT file");
         return;
     }
 
-    res = xsltApplyStylesheet(cur, doc, NULL);
+    _Unchecked {res = _Assume_bounds_cast<_Ptr<struct _xmlDoc>>(xsltApplyStylesheet((xsltStylesheetPtr)cur, doc, NULL));}
     if (res != NULL) {
-        if (xsltSaveResultToString(&string, &len, res, cur) < 0)
+        _Unchecked {
+        xmlChar* tmpStr = (xmlChar*)string;
+        tmpRet = xsltSaveResultToString((xmlChar**)&tmpStr, &len, (xmlDocPtr)res, (xsltStylesheetPtr)cur);}
+        if (tmpRet < 0)
             problem = 1;
-    } else {
+    } else _Checked {
         problem = 1;
     }
 
     /* lets find out the content type and character encoding to use */
-    if (cur->encoding)
-       charset = (char *)cur->encoding;
+    _Unchecked {if (cur->encoding)
+       charset = _Assume_bounds_cast<_Nt_array_ptr<const char>>(cur->encoding, byte_count(5));}
 
-    if (cur->mediaType)
-        mediatype = (char *)cur->mediaType;
+    _Unchecked { if (cur->mediaType)
+        mediatype = _Assume_bounds_cast<_Nt_array_ptr<const char>>(cur->mediaType, byte_count(9999));
     else
     {
         /* check method for the default, a missing method assumes xml */
@@ -235,6 +240,7 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
             else
                 mediatype = "text/xml";
     }
+    }
     if (problem == 0)
     {
         ssize_t ret;
@@ -245,22 +251,22 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
             full_len = 4096;
         refbuf = refbuf_new (full_len);
 
-        //if (string == NULL)
-        //    string = xmlCharStrdup ("");
+        if (string == NULL)
+            _Unchecked {string = _Assume_bounds_cast<_Nt_array_ptr<xmlChar>>(xmlCharStrdup (""), byte_count(4096));}
         ret = util_http_build_header(refbuf->data, full_len, 0, 0, 200, NULL, mediatype, charset, NULL, NULL);
         if (ret == -1) {
-            ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
+            _Unchecked {ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");}
             client_send_500(client, "Header generation failed.");
-        } else {
-            if ( full_len < (ret + len + 64) ) {
+        } else _Checked {
+            if ( full_len < (ret + len + 64) ) _Unchecked {
                 _Nt_array_ptr<char> new_data : byte_count(PER_CLIENT_REFBUF_SIZE)= NULL;
                 full_len = ret + len + 64;
-                new_data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(realloc(refbuf->data, full_len), byte_count(PER_CLIENT_REFBUF_SIZE));
+                new_data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(realloc<char>(refbuf->data, full_len), byte_count(PER_CLIENT_REFBUF_SIZE));
                 if (new_data) {
                     ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
                     refbuf->data = new_data;
                     refbuf->len = full_len;
-                    ret = util_http_build_header(refbuf->data, full_len, 0, 0, 200, NULL, mediatype, charset, NULL, NULL);
+                    ret = util_http_build_header(refbuf->data, full_len, 0, 0, 200, NULL, _Assume_bounds_cast<_Nt_array_ptr<const char>>(mediatype, byte_count(0)), _Assume_bounds_cast<_Nt_array_ptr<const char>>(charset, count(5)), NULL, NULL);
                     if (ret == -1) {
                         ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
                         client_send_500(client, "Header generation failed.");
@@ -273,7 +279,7 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
                 }
             }
 
-            if (!failed) {
+            if (!failed) _Unchecked {
                   snprintf(refbuf->data + ret, full_len - ret, "Content-Length: %d\r\n\r\n%s", len, string);
 
                 client->respcode = 200;
@@ -287,7 +293,7 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
     }
     else
     {
-        ICECAST_LOG_WARN("problem applying stylesheet \"%s\"", xslfilename);
+        _Unchecked {ICECAST_LOG_WARN("problem applying stylesheet \"%s\"", xslfilename);}
         client_send_404 (client, "XSLT problem");
     }
     thread_mutex_unlock (&xsltlock);
