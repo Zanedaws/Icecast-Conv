@@ -32,8 +32,8 @@
 #include <windows.h>
 #include <stdio.h>
 #define snprintf _snprintf
-//define strcasecmp stricmp
-//#define strncasecmp strnicmp
+#define strcasecmp stricmp
+#define strncasecmp strnicmp
 #endif
 
 #include "net/sock.h"
@@ -53,6 +53,8 @@
 
 #define util_malloc(t, sz) (malloc<t>(sz))
 
+#pragma CHECKED_SCOPE on
+
 /* Abstract out an interface to use either poll or select depending on which
  * is available (poll is preferred) to watch a single fd.
  *
@@ -63,7 +65,7 @@
  *         < 0 for error.
  */
 int util_timed_wait_for_fd(sock_t fd, int timeout)
-{
+_Checked {
 #ifdef HAVE_POLL
     struct pollfd ufds;
 
@@ -89,12 +91,12 @@ int util_timed_wait_for_fd(sock_t fd, int timeout)
 #endif
 }
 
-int util_read_header(sock_t sock, char *buff, unsigned long len, int entire)
+int util_read_header(sock_t sock, char *buff : itype(_Array_ptr<char>) count(len), unsigned long len, int entire)
 {
     int read_bytes, ret;
     unsigned long pos;
     char c;
-    ice_config_t *config;
+    _Ptr<ice_config_t> config = ((void *)0);
     int header_timeout;
 
     config = config_get_config();
@@ -105,7 +107,7 @@ int util_read_header(sock_t sock, char *buff, unsigned long len, int entire)
     pos = 0;
     ret = 0;
 
-    while ((read_bytes == 1) && (pos < (len - 1))) {
+    while ((read_bytes == 1) && (pos < (len - 1))) _Checked {
         read_bytes = 0;
 
         if (util_timed_wait_for_fd(sock, header_timeout*1000) > 0) {
@@ -136,8 +138,8 @@ int util_read_header(sock_t sock, char *buff, unsigned long len, int entire)
     return ret;
 }
 
-char *util_get_extension(const char *path) {
-    char *ext = strrchr(path, '.');
+char *util_get_extension(const char *path : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>) {
+    _Nt_array_ptr<char> ext = ((_Nt_array_ptr<char> )strrchr(path, '.'));
 
     if(ext == NULL)
         return "";
@@ -145,12 +147,12 @@ char *util_get_extension(const char *path) {
         return ext+1;
 }
 
-int util_check_valid_extension(const char *uri) {
+int util_check_valid_extension(const char *uri : itype(_Nt_array_ptr<const char>)) _Checked {
     int    ret = 0;
-    char    *p2;
+    _Nt_array_ptr<char> p2 = ((void *)0);
 
     if (uri) {
-        p2 = strrchr(uri, '.');
+        p2 = ((_Nt_array_ptr<char> )strrchr(uri, '.'));
         if (p2) {
             p2++;
             if (strncmp(p2, "xsl", strlen("xsl")) == 0) {
@@ -178,7 +180,7 @@ int util_check_valid_extension(const char *uri) {
 }
 
 static int hex(char c)
-{
+_Checked {
     if(c >= '0' && c <= '9')
         return c - '0';
     else if(c >= 'A' && c <= 'F')
@@ -189,7 +191,7 @@ static int hex(char c)
         return -1;
 }
 
-static int verify_path(char *path) {
+static int verify_path(_Array_ptr<char> path : byte_count(3)) _Checked {
     int dir = 0, indotseq = 0;
 
     while(*path) {
@@ -217,30 +219,30 @@ static int verify_path(char *path) {
     return 1;
 }
 
-char *util_get_path_from_uri(char *uri) {
-    char *path = util_normalise_uri(uri);
-    char *fullpath;
+char *util_get_path_from_uri(char *uri : itype(_Nt_array_ptr<char>)) : itype(_Ptr<char>) {
+    _Nt_array_ptr<char> path = util_normalise_uri(uri);
+    _Array_ptr<char> fullpath = ((void *)0);
 
     if(!path)
         return NULL;
-    else {
+    else _Checked {
         fullpath = util_get_path_from_normalised_uri(path);
-        free(path);
+        free<char>(path);
         return fullpath;
     }
 }
 
-char *util_get_path_from_normalised_uri(const char *uri) : itype(_Nt_array_ptr<char>) {
+char *util_get_path_from_normalised_uri(const char *uri : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>) {
     _Nt_array_ptr<char> fullpath = NULL;
-    char *webroot;
-    ice_config_t *config = config_get_config();
+    _Nt_array_ptr<char> webroot = ((void *)0);
+    _Ptr<ice_config_t> config = config_get_config();
 
     webroot = config->webroot_dir;
 
     size_t uriLen = strlen(uri);
     size_t webrootLen = strlen(webroot);
 
-    fullpath = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc(uriLen + webrootLen + 1), byte_count(uriLen + webrootLen + 1));
+    fullpath = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char>(uriLen + webrootLen + 1), byte_count(uriLen + webrootLen + 1));
     if (fullpath)
         //_Unchecked {sprintf (fullpath, "%s%s", webroot, uri);}
     config_release_config();
@@ -248,11 +250,11 @@ char *util_get_path_from_normalised_uri(const char *uri) : itype(_Nt_array_ptr<c
     return fullpath;
 }
 
-static char hexchars[16] = {
+static char hexchars _Checked[16] = {
     '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'
 };
 
-static char safechars[256] = {
+static char safechars _Checked[256] = {
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -271,7 +273,7 @@ static char safechars[256] = {
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 };
 
-char *util_url_escape (const char *src : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
+char *util_url_escape(const char *src : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
     if (!src)
         return NULL;
@@ -284,7 +286,7 @@ char *util_url_escape (const char *src : itype(_Nt_array_ptr<const char>)) : ity
     /* Efficiency not a big concern here, keep the code simple/conservative */
     dst = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char>(1, len*3 + 1), byte_count(len * 3 + 1));
 
-    for(i = 0, j = 0; i < len; i++) {
+    for(i = 0, j = 0; i < len; i++) _Checked {
         if(safechars[source[i]]) {
             dst[j++] = source[i];
         } else {
@@ -298,7 +300,7 @@ char *util_url_escape (const char *src : itype(_Nt_array_ptr<const char>)) : ity
     return dst;
 }
 
-char *util_url_unescape (const char *src : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
+char *util_url_unescape(const char *src : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
     int len = strlen(src);
     _Nt_array_ptr<char> decoded : byte_count(len + 1)= _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char>(1, len+1), byte_count(len+1));
@@ -311,8 +313,8 @@ char *util_url_unescape (const char *src : itype(_Nt_array_ptr<const char>)) : i
 
     dst = _Dynamic_bounds_cast<_Array_ptr<char>>(decoded, byte_count(len + 1));
 
-    for(i=0; i < len; i++) {
-        switch(src[i]) {
+    for(i=0; i < len; i++) _Checked {
+        switch(src[i]) _Unchecked {
             case '%':
                 if(i+2 >= len) {
                     free<char>(_Dynamic_bounds_cast<_Array_ptr<char>>(decoded, byte_count(0)));
@@ -342,7 +344,7 @@ char *util_url_unescape (const char *src : itype(_Nt_array_ptr<const char>)) : i
         if(done)
             break;
     }
-    dstTmp = _Assume_bounds_cast<_Ptr<char>>(dst);
+    _Unchecked {dstTmp = _Assume_bounds_cast<_Ptr<char>>(dst);}
     *dstTmp = 0; /* null terminator */
 
     return decoded;
@@ -353,8 +355,8 @@ char *util_url_unescape (const char *src : itype(_Nt_array_ptr<const char>)) : i
  * escape from the webroot) or if it cannot be URI-decoded.
  * Caller should free the path.
  */
-char *util_normalise_uri(const char *uri) {
-    char *path;
+char *util_normalise_uri(const char *uri : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>) {
+    _Nt_array_ptr<char> path = ((void *)0);
 #ifdef _WIN32
     size_t len;
 #endif
@@ -365,7 +367,7 @@ char *util_normalise_uri(const char *uri) {
     path = util_url_unescape(uri);
 
     if(path == NULL) {
-        ICECAST_LOG_WARN("Error decoding URI: %s\n", uri);
+        _Unchecked {ICECAST_LOG_WARN("Error decoding URI: %s\n", uri);}
         return NULL;
     }
 
@@ -376,23 +378,23 @@ char *util_normalise_uri(const char *uri) {
 #endif
 
     /* We now have a full URI-decoded path. Check it for allowability */
-    if(verify_path(path))
+    if(verify_path(_Dynamic_bounds_cast<_Nt_array_ptr<char>>(path, byte_count(3))))
         return path;
     else {
-        ICECAST_LOG_WARN("Rejecting invalid path \"%s\"", path);
-        free(path);
+        _Unchecked {ICECAST_LOG_WARN("Rejecting invalid path \"%s\"", path);}
+        free<char>(path);
         return NULL;
     }
 }
 
-static char base64table[64] = {
+static char base64table _Checked[64] = {
     'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
     'Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f',
     'g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v',
     'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
 };
 
-static signed char base64decode[256] = {
+static signed char base64decode _Checked[256] = {
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 62, -2, -2, -2, 63,
@@ -411,12 +413,12 @@ static signed char base64decode[256] = {
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2
 };
 
-char *util_bin_to_hex(unsigned char *data, int len) : itype(_Nt_array_ptr<char>)
+char *util_bin_to_hex(unsigned char *data : itype(_Array_ptr<unsigned char>) count(len), int len) : itype(_Nt_array_ptr<char>)
 {
     _Nt_array_ptr<char> hex : byte_count(len * 2 + 1) = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char>(len*2 + 1), byte_count(len * 2 + 1));
     int i;
 
-    for(i = 0; i < len; i++) {
+    for(i = 0; i < len; i++) _Checked {
         hex[i*2] = hexchars[(data[i]&0xf0) >> 4];
         hex[i*2+1] = hexchars[data[i]&0x0f];
     }
@@ -431,21 +433,21 @@ char *util_base64_encode(const char *data : itype(_Nt_array_ptr<const char>)) : 
 {
     int len = strlen(data);
     int tmp = strlen(data);
-    _Nt_array_ptr<char> out : byte_count(tmp * 4/3 + 4)= _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc(tmp*4/3 + 4), byte_count(tmp*4/3 + 4));
+    _Nt_array_ptr<char> out : byte_count(tmp * 4/3 + 4)= _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char>(tmp*4/3 + 4), byte_count(tmp*4/3 + 4));
     _Nt_array_ptr<char> result : byte_count(tmp * 4/3 + 4)= out;
     int chunk;
 
-    while(len > 0) {
+    while(len > 0) _Checked {
         chunk = (len >3)?3:len;
         *out++ = base64table[(*data & 0xFC)>>2];
-        *out++ = base64table[((*data & 0x03)<<4) | ((*(data+1) & 0xF0) >> 4)];
+        _Unchecked {*out++ = base64table[((*data & 0x03)<<4) | ((*(data+1) & 0xF0) >> 4)];}
         switch(chunk) {
             case 3:
-                *out++ = base64table[((*(data+1) & 0x0F)<<2) | ((*(data+2) & 0xC0)>>6)];
-                *out++ = base64table[(*(data+2)) & 0x3F];
+                _Unchecked {*out++ = base64table[((*(data+1) & 0x0F)<<2) | ((*(data+2) & 0xC0)>>6)];}
+                _Unchecked {*out++ = base64table[(*(data+2)) & 0x3F];}
                 break;
             case 2:
-                *out++ = base64table[((*(data+1) & 0x0F)<<2)];
+                _Unchecked {*out++ = base64table[((*(data+1) & 0x0F)<<2)];}
                 *out++ = '=';
                 break;
             case 1:
@@ -466,14 +468,14 @@ char *util_base64_decode(const char *data : itype(_Nt_array_ptr<const char>)) : 
     _Nt_array_ptr<const unsigned char> input = _Dynamic_bounds_cast<_Nt_array_ptr<const unsigned char>>(data, byte_count(1));
     int len = strlen (data);
     int tmp = strlen (data);
-    _Nt_array_ptr<char> out : byte_count(tmp * 3/4 + 5) = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc(tmp*3/4 + 5), byte_count(tmp*3/4 + 5));
+    _Nt_array_ptr<char> out : byte_count(tmp * 3/4 + 5) = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char>(tmp*3/4 + 5), byte_count(tmp*3/4 + 5));
     _Nt_array_ptr<char> result : byte_count(tmp * 3/4 + 5)= out;
-    signed char vals[4];
+    signed char vals _Checked[4];
 
-    while(len > 0) {
+    while(len > 0) _Checked {
         if(len < 4)
-        {
-            free(_Dynamic_bounds_cast<_Array_ptr<void>>(result, byte_count(0)));
+        _Unchecked {
+            free<void>(_Dynamic_bounds_cast<_Array_ptr<void>>(result, byte_count(0)));
             return NULL; /* Invalid Base64 data */
         }
 
@@ -510,11 +512,11 @@ char *util_base64_decode(const char *data : itype(_Nt_array_ptr<const char>)) : 
 }
 
 /* TODO, FIXME: handle memory allocation errors better. */
-static inline void   _build_headers_loop(char **ret : itype(_Ptr<_Ptr<char>>), size_t *len : itype(_Ptr<size_t>), ice_config_http_header_t *header : itype(_Ptr<ice_config_http_header_t>), int status) {
+static inline void   _build_headers_loop(char **ret : itype(_Ptr<_Nt_array_ptr<char>>), _Ptr<size_t> len, _Ptr<ice_config_http_header_t> header, int status) {
     size_t headerlen;
-    const char *name;
-    const char *value;
-    char * r = *ret;
+    _Nt_array_ptr<const char> name = ((void *)0);
+    _Nt_array_ptr<const char> value = ((void *)0);
+    _Nt_array_ptr<char> r = *ret;
 
     if (!header)
         return;
@@ -528,7 +530,7 @@ static inline void   _build_headers_loop(char **ret : itype(_Ptr<_Ptr<char>>), s
 
         /* handle type of the header */
         value = NULL;
-        switch (header->type) {
+        switch (header->type) _Checked {
             case HTTP_HEADER_TYPE_STATIC:
                 value = header->value;
                 break;
@@ -541,48 +543,50 @@ static inline void   _build_headers_loop(char **ret : itype(_Ptr<_Ptr<char>>), s
         /* append the header to the buffer */
         headerlen = strlen(name) + strlen(value) + 4;
         *len += headerlen;
-        r = realloc(r, *len);
-        strcat(r, name);
-        strcat(r, ": ");
-        strcat(r, value);
-        strcat(r, "\r\n");
+        r = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(realloc<char>(r, *len), byte_count(*len));
+        _Unchecked {strcat((char*)r, name);}
+        _Unchecked {strcat((char*)r, ": ");}
+        _Unchecked {strcat((char*)r, value);}
+        _Unchecked {strcat((char*)r, "\r\n");}
     } while ((header = header->next));
     *ret = r;
 }
-static inline char * _build_headers(int status, ice_config_t *config : itype(_Ptr<ice_config_t>), source_t *source) : itype(_Ptr<char>){
-    mount_proxy *mountproxy = NULL;
-    _Ptr<char> ret = NULL;
+static char *_build_headers(int status, _Ptr<ice_config_t> config, _Ptr<source_t> source) : itype(_Nt_array_ptr<char>){
+    _Ptr<mount_proxy> mountproxy = NULL;
+    _Nt_array_ptr<char> ret = NULL;
     size_t len = 1;
 
     if (source)
         mountproxy = config_find_mount(config, source->mount, MOUNT_TYPE_NORMAL);
 
-    ret = _Dynamic_bounds_cast<_Ptr<char>>(calloc(1, 1));
+    ret = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(calloc<char>(1, 1), byte_count(1));
     *ret = 0;
 
-    _build_headers_loop(&ret, &len, config->http_headers, status);
+    
+    _Unchecked {
+      char* tmpRetPtr = (char*)ret;
+      _build_headers_loop(&tmpRetPtr, &len, config->http_headers, status);
+    }
     if (mountproxy && mountproxy->http_headers)
-        _build_headers_loop(&ret, &len, mountproxy->http_headers, status);
+        _Unchecked {
+          char* tmpRetPtr = (char*)ret;
+          _build_headers_loop(&tmpRetPtr, &len, mountproxy->http_headers, status);
+        }
 
     return ret;
 }
 
-ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
-        int cache,
-        int status, const char * statusmsg,
-        const char * contenttype, const char * charset,
-        const char * datablock,
-        struct source_tag * source) {
-    const char * http_version = "1.0";
-    ice_config_t *config;
+ssize_t util_http_build_header(char *out : itype(_Nt_array_ptr<char>), size_t len, ssize_t offset, int cache, int status, const char *statusmsg : itype(_Nt_array_ptr<const char>), const char *contenttype : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Nt_array_ptr<const char>) count(5), const char *datablock : itype(_Nt_array_ptr<const char>), struct source_tag *source : itype(_Ptr<struct source_tag>)) {
+    _Nt_array_ptr<const char> http_version : byte_count(3) = "1.0";
+    _Ptr<ice_config_t> config = ((void *)0);
     time_t now;
     struct tm result;
-    struct tm *gmtime_result;
-    char currenttime_buffer[80];
-    char status_buffer[80];
-    char contenttype_buffer[80];
+    _Ptr<struct tm> gmtime_result = NULL;
+    char currenttime_buffer _Nt_checked[80];
+    char status_buffer _Nt_checked[80];
+    char contenttype_buffer _Nt_checked[80];
     ssize_t ret;
-    char * extra_headers;
+    _Nt_array_ptr<char> extra_headers = ((void *)0);
 
     if (!out)
         return -1;
@@ -594,11 +598,11 @@ ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
     len -= offset;
 
     if (status == -1)
-    {
+    _Checked {
         status_buffer[0] = '\0';
     }
     else
-    {
+    _Checked {
         if (!statusmsg)
 	{
 	    switch (status)
@@ -613,26 +617,26 @@ ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
 		default:  statusmsg = "(unknown status code)"; break;
 	    }
 	}
-	snprintf (status_buffer, sizeof (status_buffer), "HTTP/%s %d %s\r\n", http_version, status, statusmsg);
+	_Unchecked { snprintf (status_buffer, sizeof (status_buffer), "HTTP/%s %d %s\r\n", http_version, status, statusmsg); };
     }
 
     if (contenttype)
     {
     	if (charset)
-            snprintf (contenttype_buffer, sizeof (contenttype_buffer), "Content-Type: %s; charset=%s\r\n",
-	                                                               contenttype, charset);
+            _Unchecked {snprintf (contenttype_buffer, sizeof (contenttype_buffer), "Content-Type: %s; charset=%s\r\n",
+	                                                               contenttype, charset);}
 	else
-            snprintf (contenttype_buffer, sizeof (contenttype_buffer), "Content-Type: %s\r\n",
-                                                                       contenttype);
+            _Unchecked {snprintf (contenttype_buffer, sizeof (contenttype_buffer), "Content-Type: %s\r\n",
+                                                                       contenttype);}
     }
     else
-    {
+    _Checked {
         contenttype_buffer[0] = '\0';
     }
 
-    time(&now);
+    _Unchecked {time(&now);}
 #ifndef _WIN32
-    gmtime_result = gmtime_r(&now, &result);
+    _Unchecked {gmtime_result = _Assume_bounds_cast<_Ptr<struct tm>>(gmtime_r(&now, &result));}
 #else
     /* gmtime() on W32 breaks POSIX and IS thread-safe (uses TLS) */
     gmtime_result = gmtime (&now);
@@ -646,8 +650,8 @@ ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
         currenttime_buffer[0] = '\0';
 
     config = config_get_config();
-    extra_headers = _build_headers(status, config, source);
-    ret = snprintf (out, len, "%sServer: %s\r\nConnection: Close\r\n%s%s%s%s%s%s%s",
+    extra_headers = ((_Nt_array_ptr<char> )_build_headers(status, config, source));
+    _Unchecked {ret = snprintf (out, len, "%sServer: %s\r\nConnection: Close\r\n%s%s%s%s%s%s%s",
                               status_buffer,
 			      config->server_id,
 			      currenttime_buffer,
@@ -658,39 +662,39 @@ ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
                                                 "Pragma: no-cache\r\n"),
                               extra_headers,
                               (datablock ? "\r\n" : ""),
-                              (datablock ? datablock : ""));
-    free(extra_headers);
+                              (datablock ? datablock : ""));}
+    free<char>(extra_headers);
     config_release_config();
 
     return ret;
 }
 
 
-util_dict *util_dict_new(void)
+util_dict *util_dict_new(void) : itype(_Ptr<util_dict>)
 {
-    return (util_dict *)calloc(1, sizeof(util_dict));
+    return (_Ptr<util_dict>)calloc<util_dict>(1, sizeof(util_dict));
 }
 
-void util_dict_free(util_dict *dict)
-{
-    util_dict *next;
+void util_dict_free(util_dict *dict : itype(_Ptr<util_dict>))
+_Checked {
+    _Ptr<util_dict> next = ((void *)0);
 
     while (dict) {
         next = dict->next;
 
         if (dict->key)
-            free (dict->key);
+            free<char> (dict->key);
         if (dict->val)
-            free (dict->val);
-        free (dict);
+            free<char> (dict->val);
+        free<util_dict> (dict);
 
         dict = next;
     }
 }
 
-const char *util_dict_get(util_dict *dict, const char *key)
+const char *util_dict_get(util_dict *dict : itype(_Ptr<util_dict>), const char *key : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<const char>)
 {
-    while (dict) {
+    while (dict) _Checked {
         if (!strcmp(key, dict->key))
             return dict->val;
         dict = dict->next;
@@ -698,27 +702,27 @@ const char *util_dict_get(util_dict *dict, const char *key)
     return NULL;
 }
 
-int util_dict_set(util_dict *dict, const char *key, const char *val)
+int util_dict_set(util_dict *dict : itype(_Ptr<util_dict>), const char *key : itype(_Nt_array_ptr<const char>) count(100), const char *val : itype(_Nt_array_ptr<const char>))
 {
-    util_dict *prev;
+    _Ptr<util_dict> prev = ((void *)0);
 
-    if (!dict || !key) {
-        ICECAST_LOG_ERROR("NULL values passed to util_dict_set()");
+    if (!dict || !key) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("NULL values passed to util_dict_set()");}
         return 0;
     }
 
     prev = NULL;
-    while (dict) {
+    while (dict) _Checked {
         if (!dict->key || !strcmp(dict->key, key))
             break;
         prev = dict;
         dict = dict->next;
     }
 
-    if (!dict) {
+    if (!dict) _Checked {
         dict = util_dict_new();
         if (!dict) {
-            ICECAST_LOG_ERROR("unable to allocate new dictionary");
+            _Unchecked {ICECAST_LOG_ERROR("unable to allocate new dictionary");}
             return 0;
         }
         if (prev)
@@ -726,19 +730,19 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
     }
 
     if (dict->key)
-        free (dict->val);
-    else if (!(dict->key = strdup(key))) {
+        free<char> (dict->val);
+    else if (!(dict->key = ((_Nt_array_ptr<char> )strdup(key)))) {
         if (prev)
             prev->next = NULL;
         util_dict_free (dict);
 
-        ICECAST_LOG_ERROR("unable to allocate new dictionary key");
+        _Unchecked {ICECAST_LOG_ERROR("unable to allocate new dictionary key");}
         return 0;
     }
 
-    dict->val = strdup(val);
-    if (!dict->val) {
-        ICECAST_LOG_ERROR("unable to allocate new dictionary value");
+    dict->val = ((_Nt_array_ptr<char> )strdup(val));
+    if (!dict->val) _Checked {
+        _Unchecked {ICECAST_LOG_ERROR("unable to allocate new dictionary value");}
         return 0;
     }
 
@@ -753,7 +757,7 @@ char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) 
 {
     _Nt_array_ptr<char> res = NULL;
     _Nt_array_ptr<char> tmp = NULL;
-    char *enc;
+    _Nt_array_ptr<char> enc = ((void *)0);
     int start = 1;
 
     for (res = NULL; dict; dict = dict->next) {
@@ -777,10 +781,10 @@ char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) 
             size_t resLen = strlen(res);
             _Nt_array_ptr<char> tmp_with_len : byte_count(resLen + keyLen + 2) = NULL;
             _Unchecked {
-              tmp_with_len = _Assume_bounds_cast<_Nt_array_ptr<char>>(realloc(_Assume_bounds_cast<_Array_ptr<char>>(res, count(1)), resLen + keyLen + 2), byte_count(resLen + keyLen + 2));
+              tmp_with_len = _Assume_bounds_cast<_Nt_array_ptr<char>>(realloc<char>(_Assume_bounds_cast<_Array_ptr<char>>(res, count(1)), resLen + keyLen + 2), byte_count(resLen + keyLen + 2));
             }
             if (!(tmp_with_len)) {
-                free(res);
+                free<char>(res);
                 return NULL;
             } else
                 res = tmp_with_len;
@@ -791,24 +795,24 @@ char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) 
         if (!dict->val)
             continue;
         if (!(enc = util_url_escape(dict->val))) {
-            free(res);
+            free<char>(res);
             return NULL;
         }
         size_t resLen2 = strlen(res);
         size_t encLen = strlen(enc);
         _Nt_array_ptr<char> tmp_with_len2 : byte_count(resLen2 + encLen + 2) = NULL;
         _Unchecked {
-          tmp_with_len2 = _Assume_bounds_cast<_Nt_array_ptr<char>>(realloc(_Assume_bounds_cast<_Array_ptr<char>>(res, count(1)), resLen2 + encLen + 2), byte_count(resLen2 + encLen + 2));
+          tmp_with_len2 = _Assume_bounds_cast<_Nt_array_ptr<char>>(realloc<char>(_Assume_bounds_cast<_Array_ptr<char>>(res, count(1)), resLen2 + encLen + 2), byte_count(resLen2 + encLen + 2));
         }
         tmp = tmp_with_len2;
         if (!(tmp)) {
-            free(enc);
-            free(res);
+            free<char>(enc);
+            free<char>(res);
             return NULL;
         } else
             res = tmp;
         //_Unchecked {sprintf(res + strlen(res), "=%s", enc);}
-        free(enc);
+        free<char>(enc);
     }
 
     return res;
@@ -838,45 +842,52 @@ struct tm *localtime_r (const time_t *timep, struct tm *result)
 /* helper function for converting a passed string in one character set to another
  * we use libxml2 for this
  */
-char *util_conv_string (const char *string, const char *in_charset, const char *out_charset) : itype(_Nt_array_ptr<char>)
+char *util_conv_string(const char *string : itype(_Nt_array_ptr<const char>), const char *in_charset : itype(_Nt_array_ptr<const char>), const char *out_charset : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
-    xmlCharEncodingHandlerPtr in, out;
-    char *ret = NULL;
+    _Ptr<struct _xmlCharEncodingHandler> in = NULL;
+    _Ptr<struct _xmlCharEncodingHandler> out = NULL;
+    _Nt_array_ptr<char> ret = NULL;
 
     if (string == NULL || in_charset == NULL || out_charset == NULL)
         return NULL;
 
-//   in  = xmlFindCharEncodingHandler (in_charset);
-//   out = xmlFindCharEncodingHandler (out_charset);
+    _Unchecked {in  = _Assume_bounds_cast<_Ptr<struct _xmlCharEncodingHandler>>(xmlFindCharEncodingHandler (in_charset));}
+    _Unchecked {out = _Assume_bounds_cast<_Ptr<struct _xmlCharEncodingHandler>>(xmlFindCharEncodingHandler (out_charset));}
 
     if (in && out)
     {
-        xmlBufferPtr orig = xmlBufferCreate ();
-        xmlBufferPtr utf8 = xmlBufferCreate ();
-        xmlBufferPtr conv = xmlBufferCreate ();
+        _Ptr<struct xmlBuffer> orig = NULL;
+        _Unchecked {orig = _Assume_bounds_cast<_Ptr<struct xmlBuffer>>(xmlBufferCreate ());}
+        _Ptr<struct xmlBuffer> utf8 = NULL;
+        _Unchecked {utf8 = _Assume_bounds_cast<_Ptr<struct xmlBuffer>>(xmlBufferCreate ());}
+        _Ptr<struct xmlBuffer> conv = NULL;
+        _Unchecked {conv = _Assume_bounds_cast<_Ptr<struct xmlBuffer>>(xmlBufferCreate ());}
 
-        ICECAST_LOG_INFO("converting metadata from %s to %s", in_charset, out_charset);
-        xmlBufferCCat (orig, string);
-        if (xmlCharEncInFunc (in, utf8, orig) > 0)
+        _Unchecked {ICECAST_LOG_INFO("converting metadata from %s to %s", in_charset, out_charset);}
+        _Unchecked {xmlBufferCCat ((xmlBufferPtr)orig, string);}
+        int tmpRet;
+        _Unchecked {tmpRet = xmlCharEncInFunc((xmlCharEncodingHandler*)in, (xmlBufferPtr)utf8, (xmlBufferPtr)orig);}
+        if (tmpRet > 0)
         {
-            xmlCharEncOutFunc (out, conv, NULL);
-            if (xmlCharEncOutFunc (out, conv, utf8) >= 0)
-                ret = strdup ((const char *)xmlBufferContent (conv));
+            _Unchecked {xmlCharEncOutFunc ((xmlCharEncodingHandler*)out, (xmlBufferPtr)conv, NULL);}
+            _Unchecked {tmpRet = xmlCharEncOutFunc ((xmlCharEncodingHandler*)out, (xmlBufferPtr)conv, (xmlBufferPtr)utf8);}
+            if (tmpRet >= 0)
+                _Unchecked {ret = _Assume_bounds_cast<_Nt_array_ptr<char>>(strdup(xmlBufferContent ((const xmlBuffer*)conv)), byte_count(4096));}
         }
-        xmlBufferFree (orig);
-        xmlBufferFree (utf8);
-        xmlBufferFree (conv);
+        _Unchecked {xmlBufferFree ((xmlBufferPtr)orig);}
+        _Unchecked {xmlBufferFree ((xmlBufferPtr)utf8);}
+        _Unchecked {xmlBufferFree ((xmlBufferPtr)conv);}
     }
-    xmlCharEncCloseFunc (in);
-    xmlCharEncCloseFunc (out);
+    _Unchecked {xmlCharEncCloseFunc ((xmlCharEncodingHandler*)in);}
+    _Unchecked {xmlCharEncCloseFunc ((xmlCharEncodingHandler*)out);}
 
     return ret;
 }
 
 
-int get_line(FILE *file, char *buf, size_t siz)
+int get_line(FILE *file : itype(_Ptr<FILE>), char *buf : itype(_Nt_array_ptr<char>) count(siz), size_t siz)
 {
-    if(fgets(buf, (int)siz, file)) {
+    if(fgets(buf, (int)siz, file)) _Checked {
         size_t len = strlen(buf);
         if(len > 0 && buf[len-1] == '\n') {
             buf[--len] = 0;
