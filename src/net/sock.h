@@ -117,21 +117,21 @@ void sock_set_error(int val);
 int sock_close(sock_t  sock);
 
 /* Connection related socket functions */
-sock_t sock_connect_wto(const char *hostname : itype(_Ptr<const char>), int port, int timeout);
-sock_t sock_connect_wto_bind(const char *hostname : itype(_Ptr<const char>), int port, const char *bnd : itype(_Ptr<const char>), int timeout);
-sock_t sock_connect_non_blocking(const char *host : itype(_Ptr<const char>), unsigned port);
+sock_t sock_connect_wto(const char *hostname : itype(_Nt_array_ptr<const char>), int port, int timeout);
+sock_t sock_connect_wto_bind(const char *hostname : itype(_Nt_array_ptr<const char>), int port, const char *bnd : itype(_Nt_array_ptr<const char>), int timeout);
+sock_t sock_connect_non_blocking(const char *host : itype(_Nt_array_ptr<const char>), unsigned port);
 int sock_connected(sock_t sock, int timeout);
 
 /* Socket write functions */
-_Itype_for_any(T) int sock_write_bytes(sock_t sock, const void *buff : itype(_Array_ptr<const T>), size_t len);
-int sock_write(sock_t sock, const char *fmt : itype(_Ptr<const char>), ...);
-int sock_write_fmt(sock_t sock, const char *fmt : itype(_Ptr<const char>), va_list ap);
+_Itype_for_any(T) int sock_write_bytes(sock_t sock, const void *buff : itype(_Array_ptr<const T>) byte_count(len), size_t len);
+int sock_write(sock_t sock, const char *fmt : itype(_Nt_array_ptr<const char>), ...);
+int sock_write_fmt(sock_t sock, const char *fmt : itype(_Nt_array_ptr<const char>), va_list ap);
 int sock_write_string(sock_t sock, const char *buff : itype(_Nt_array_ptr<const char>));
 ssize_t sock_writev (sock_t sock, const struct iovec *iov : itype(_Ptr<const struct iovec>), size_t count);
 
 
 /* Socket read functions */
-int sock_read_bytes(sock_t sock, char *buff : itype(_Nt_array_ptr<char>), size_t len);
+int sock_read_bytes(sock_t sock, char *buff : itype(_Nt_array_ptr<char>) count(len), size_t len);
 int sock_read_line(sock_t sock, char *string : itype(_Array_ptr<char>) count(len), const int len);
 
 /* server socket functions */

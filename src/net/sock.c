@@ -61,6 +61,8 @@
 #include "sock.h"
 #include "resolver.h"
 
+#pragma CHECKED_SCOPE on
+
 /* for older C libraries */
 #ifndef AI_NUMERICSERV
 # define AI_NUMERICSERV 0
@@ -75,7 +77,7 @@
 ** before using the library!
 */
 void sock_initialize(void)
-{
+_Checked {
 #ifdef _WIN32
     WSADATA wsad;
     WSAStartup(0x0101, &wsad);
@@ -90,7 +92,7 @@ void sock_initialize(void)
 ** through using the lib
 */
 void sock_shutdown(void)
-{
+_Checked {
 #ifdef _WIN32
     WSACleanup();
 #endif
@@ -105,11 +107,11 @@ void sock_shutdown(void)
 ** in any case, it's as close as we can hope to get
 ** unless someone has better ideas on how to do this
 */
-char *sock_get_localip(char *buff, int len)
+char *sock_get_localip(char *buff : itype(_Array_ptr<char>) count(len), int len) : itype(_Ptr<char>)
 {
-    char temp[1024];
+    char temp _Nt_checked[1024 + 1];
 
-    if (gethostname(temp, sizeof(temp)) != 0)
+    if (gethostname(temp, 1024) != 0)
         return NULL;
 
     if (resolver_getip(temp, buff, len))
@@ -123,7 +125,7 @@ char *sock_get_localip(char *buff, int len)
 ** returns the last socket error
 */
 int sock_error(void)
-{
+_Checked {
 #ifdef _WIN32
     return WSAGetLastError();
 #else
@@ -132,7 +134,7 @@ int sock_error(void)
 }
 
 void sock_set_error(int val)
-{
+_Checked {
 #ifdef _WIN32
      WSASetLastError (val);
 #else
@@ -146,7 +148,7 @@ void sock_set_error(int val)
 ** in terms of non blocking sockets
 */
 int sock_recoverable(int error)
-{
+_Checked {
     switch (error)
     {
     case 0:
@@ -166,7 +168,7 @@ int sock_recoverable(int error)
 }
 
 int sock_stalled (int error)
-{
+_Checked {
     switch (error)
     {
     case EAGAIN:
@@ -186,7 +188,7 @@ int sock_stalled (int error)
 
 
 static int sock_connect_pending (int error)
-{
+_Checked {
     return error == EINPROGRESS || error == EALREADY;
 }
 
@@ -202,7 +204,7 @@ int sock_valid_socket(sock_t sock)
 
     optlen = sizeof(int);
     /* apparently on windows getsockopt.optval is a char * */
-    ret = getsockopt(sock, SOL_SOCKET, SO_TYPE, (void*) &optval, &optlen);
+    _Unchecked {ret = getsockopt(sock, SOL_SOCKET, SO_TYPE, (void*) &optval, &optlen);}
 
     return (ret == 0);
 }
@@ -259,35 +261,42 @@ int sock_set_blocking(sock_t sock, int block)
 
     if ((!sock_valid_socket(sock)) || (block < 0) || (block > 1))
         return SOCK_ERROR;
+    int tmpRet;
 
 #ifdef _WIN32
     if (block) varblock = 0;
     return ioctlsocket(sock, FIONBIO, &varblock);
 #else
-    return fcntl(sock, F_SETFL, (block) ? 0 : O_NONBLOCK);
+    _Unchecked {tmpRet = fcntl(sock, F_SETFL, (block) ? : O_NONBLOCK);}
+    return tmpRet;
 #endif
 }
 
 int sock_set_nolinger(sock_t sock)
 {
     struct linger lin = { 0, 0 };
-    return setsockopt(sock, SOL_SOCKET, SO_LINGER, (void *)&lin, 
-            sizeof(struct linger));
+    int tmpRet;
+    _Unchecked {tmpRet = setsockopt(sock, SOL_SOCKET, SO_LINGER, (void *)&lin, 
+            sizeof(struct linger));}
+    return tmpRet;
 }
 
 int sock_set_nodelay(sock_t sock)
 {
     int nodelay = 1;
-
-    return setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void *)&nodelay,
-            sizeof(int));
+    int tmpRet;
+    _Unchecked {setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void *)&nodelay,
+            sizeof(int));}
+    return tmpRet;
 }
 
 int sock_set_keepalive(sock_t sock)
 {
     int keepalive = 1;
-    return setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepalive, 
-            sizeof(int));
+    int tmpRet;
+    _Unchecked {tmpRet = setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepalive, 
+            sizeof(int));}
+    return tmpRet;
 }
 
 /* sock_close
@@ -295,7 +304,7 @@ int sock_set_keepalive(sock_t sock)
 ** close the socket
 */
 int sock_close(sock_t sock)
-{
+_Checked {
 #ifdef _WIN32
     return closesocket(sock);
 #else
@@ -311,7 +320,9 @@ int sock_close(sock_t sock)
 
 ssize_t sock_writev (sock_t sock, const struct iovec *iov, size_t count)
 {
-    return writev (sock, iov, count);
+    ssize_t tmpRet;
+    _Unchecked {tmpRet = writev (sock, iov, count);}
+    return tmpRet;
 }
 
 #else
@@ -347,16 +358,16 @@ ssize_t sock_writev (sock_t sock, const struct iovec *iov, size_t count)
 ** write bytes to the socket
 ** this function will _NOT_ block
 */
-_Itype_for_any(T) int sock_write_bytes(sock_t sock, const void *buff : itype(_Array_ptr<const T>), size_t len)
+_Itype_for_any(T) int sock_write_bytes(sock_t sock, const void *buff : itype(_Array_ptr<const T>) byte_count(len), size_t len)
 {
     /* sanity check */
     if (!buff) {
         return SOCK_ERROR;
     } else if (len <= 0) {
         return SOCK_ERROR;
-    } /*else if (!sock_valid_socket(sock)) {
+    } else if (!sock_valid_socket(sock)) {
         return SOCK_ERROR;
-    } */
+    }
 
     return send(sock, buff, len, 0);
 }
@@ -366,9 +377,11 @@ _Itype_for_any(T) int sock_write_bytes(sock_t sock, const void *buff : itype(_Ar
 ** writes a string to a socket
 ** This function must only be called with a blocking socket.
 */
-int sock_write_string(sock_t sock, const char *buff)
-{
-    return (sock_write_bytes(sock, buff, strlen(buff)) > 0);
+int sock_write_string(sock_t sock, const char *buff : itype(_Nt_array_ptr<const char>)){
+    
+    int tmpRet;
+    _Unchecked {tmpRet = sock_write_bytes<const char>(sock, buff, strlen(buff));}
+    return (tmpRet > 0);
 }
 
 /* sock_write
@@ -377,7 +390,7 @@ int sock_write_string(sock_t sock, const char *buff)
 ** this function must only be called with a blocking socket.
 ** will truncate the string if it's greater than 1024 chars.
 */
-int sock_write(sock_t sock, const char *fmt, ...)
+_Unchecked  int sock_write(sock_t sock, const char *fmt : itype(_Nt_array_ptr<const char>), ...)
 {
     int rc;
     va_list ap;
@@ -418,7 +431,7 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
     return ret;
 }
 #else
-int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
+_Unchecked int sock_write_fmt(sock_t sock, const char *fmt : itype(_Nt_array_ptr<const char>), va_list ap)
 {
     char buffer [1024], *buff = buffer;
     int len;
@@ -432,17 +445,17 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
     if (len > 0)
     {
         if ((size_t)len < sizeof (buffer))   /* common case */
-            rc = sock_write_bytes(sock, buff, (size_t)len);
+            rc = sock_write_bytes<char>(sock, buff, (size_t)len);
         else
         {
             /* truncated */
-            buff = malloc (++len);
+            buff = malloc<char> (++len);
             if (buff)
             {
                 len = vsnprintf (buff, len, fmt, ap_retry);
                 if (len > 0)
-                    rc = sock_write_bytes (sock, buff, len);
-                free (buff);
+                    rc = sock_write_bytes<char> (sock, buff, len);
+                free<char> (buff);
             }
         }
     }
@@ -453,8 +466,8 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
 #endif
 
 
-int sock_read_bytes(sock_t sock, char *buff, size_t len)
-{
+int sock_read_bytes(sock_t sock, char *buff : itype(_Nt_array_ptr<char>) count(len), size_t len)
+_Checked {
 
     /*if (!sock_valid_socket(sock)) return 0; */
     if (!buff) return 0;
@@ -471,8 +484,8 @@ int sock_read_bytes(sock_t sock, char *buff, size_t len)
 **
 ** this function will probably not work on sockets in nonblocking mode
 */
-int sock_read_line(sock_t sock, char *buff, const int len)
-{
+int sock_read_line(sock_t sock, char *buff : itype(_Array_ptr<char>) count(len), const int len)
+_Checked {
     char c = '\0';
     int read_bytes, pos;
   
@@ -518,17 +531,18 @@ int sock_connected (sock_t sock, int timeout)
     struct pollfd check;
     int val = SOCK_ERROR;
     socklen_t size = sizeof val;
+    int tmpRet;
 
     check.fd = sock;
     check.events = POLLOUT;
-    //switch (poll (&check, 1, timeout*1000))
-    switch(0)
+    switch (poll (&check, 1, timeout*1000))
     {
         case 0: return SOCK_TIMEOUT;
         default:
             /* on windows getsockopt.val is defined as char* */
-            if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*) &val, &size) == 0)
-            {
+            _Unchecked {tmpRet = getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*) &val, &size);}
+            if (tmpRet == 0)
+            _Checked {
                 if (val == 0)
                     return 1;
                 sock_set_error (val);
@@ -582,26 +596,29 @@ int sock_connected (sock_t sock, int timeout)
 }
 #endif
 
-sock_t sock_connect_wto (const char *hostname, int port, int timeout)
+sock_t sock_connect_wto (const char *hostname : itype(_Nt_array_ptr<const char>), int port, int timeout)
 {
     return sock_connect_wto_bind(hostname, port, NULL, timeout);
 }
 
 #ifdef HAVE_GETADDRINFO
 
-sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
+sock_t sock_connect_non_blocking (const char *hostname : itype(_Nt_array_ptr<const char>), unsigned port)
 {
     int sock = SOCK_ERROR;
-    struct addrinfo *ai, *head, hints;
-    char service[8];
+    _Ptr<struct addrinfo> ai = ((void *)0);
+_Ptr<struct addrinfo> head = ((void *)0);
+struct addrinfo hints;
+
+    char service _Nt_checked[8];
 
     memset (&hints, 0, sizeof (hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    snprintf (service, sizeof (service), "%u", port);
+    _Unchecked {snprintf (service, sizeof (service), "%u", port);}
 
-//   if (getaddrinfo (hostname, service, &hints, &head))
+    if (getaddrinfo (hostname, service, &hints, &head))
         return SOCK_ERROR;
 
     ai = head;
@@ -611,7 +628,9 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
                 > -1)
         {
             sock_set_blocking (sock, 0);
-            if (connect(sock, ai->ai_addr, ai->ai_addrlen) < 0 && 
+            int tmpRet;
+            _Unchecked {tmpRet = connect(sock, ai->ai_addr, ai->ai_addrlen);}
+            if (tmpRet < 0 && 
                     !sock_connect_pending(sock_error()))
             {
                 sock_close (sock);
@@ -620,9 +639,9 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
             else
                 break;
         }
-        //ai = ai->ai_next;
+        _Unchecked {ai = _Assume_bounds_cast<_Ptr<struct addrinfo>>(ai->ai_next);}
     }
-//   if (head) freeaddrinfo (head);
+    if (head) freeaddrinfo (head);
     
     return sock;
 }
@@ -631,18 +650,22 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
  * timeout is 0 or less then we will wait until the OS gives up on the connect
  * The socket is returned
  */
-sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
+sock_t sock_connect_wto_bind (const char *hostname : itype(_Nt_array_ptr<const char>), int port, const char *bnd : itype(_Nt_array_ptr<const char>), int timeout)
 {
     sock_t sock = SOCK_ERROR;
-    struct addrinfo *ai, *head, *b_head=NULL, hints;
-    char service[8];
+    _Ptr<struct addrinfo> ai = ((void *)0);
+_Ptr<struct addrinfo> head = ((void *)0);
+_Ptr<struct addrinfo> b_head =NULL;
+struct addrinfo hints;
+
+    char service _Nt_checked[8];
 
     memset (&hints, 0, sizeof (hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    snprintf (service, sizeof (service), "%u", port);
+    _Unchecked {snprintf (service, sizeof (service), "%u", port);}
 
-//   if (getaddrinfo (hostname, service, &hints, &head))
+    if (getaddrinfo (hostname, service, &hints, &head))
         return SOCK_ERROR;
 
     ai = head;
@@ -660,24 +683,23 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
                 b_hints.ai_family = ai->ai_family;
                 b_hints.ai_socktype = ai->ai_socktype;
                 b_hints.ai_protocol = ai->ai_protocol;
-//               if (getaddrinfo (bnd, NULL, &b_hints, &b_head) ||
-//                        bind (sock, b_head->ai_addr, b_head->ai_addrlen) < 0)
-                if(1)
+                _Unchecked{ if (getaddrinfo (bnd, NULL, &b_hints, &b_head) ||
+                         bind (sock, b_head->ai_addr, b_head->ai_addrlen) < 0)
                 {
                     sock_close (sock);
                     sock = SOCK_ERROR;
                     break;
-                }
+                }}
             }
 
-            if (connect (sock, ai->ai_addr, ai->ai_addrlen) == 0)
-                break;
+            _Unchecked {if (connect (sock, ai->ai_addr, ai->ai_addrlen) == 0)
+                break;}
 
             /* loop as the connect maybe async */
             while (sock != SOCK_ERROR)
             {
                 if (sock_recoverable (sock_error()))
-                {
+                _Checked {
                     int connected = sock_connected (sock, timeout);
                     if (connected == 0)  /* try again, interrupted */
                         continue;
@@ -694,21 +716,24 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
             if (sock != SOCK_ERROR)
                 break;
         }
-        //ai = ai->ai_next;
+        _Unchecked{ai = _Assume_bounds_cast<_Ptr<struct addrinfo>>(ai->ai_next);}
     }
     if (b_head)
-//       freeaddrinfo (b_head);
-//   freeaddrinfo (head);
+        freeaddrinfo (b_head);
+    freeaddrinfo (head);
 
     return sock;
 }
 
 
-sock_t sock_get_server_socket (int port, const char *sinterface)
+sock_t sock_get_server_socket (int port, const char *sinterface : itype(_Nt_array_ptr<const char>))
 {
     struct sockaddr_storage sa;
-    struct addrinfo hints, *res, *ai;
-    char service [10];
+    struct addrinfo hints;
+_Ptr<struct addrinfo> res = ((void *)0);
+_Ptr<struct addrinfo> ai = ((void *)0);
+
+    char service _Nt_checked[10];
     int sock;
 
     if (port < 0)
@@ -720,10 +745,9 @@ sock_t sock_get_server_socket (int port, const char *sinterface)
     hints.ai_family = AF_UNSPEC;
     hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG | AI_NUMERICSERV | AI_NUMERICHOST;
     hints.ai_socktype = SOCK_STREAM;
-    snprintf (service, sizeof (service), "%d", port);
+    _Unchecked {snprintf (service, sizeof (service), "%d", port);}
 
-//   if (getaddrinfo (sinterface, service, &hints, &res))
-    if(1)
+    if (getaddrinfo (sinterface, service, &hints, &res))
         return SOCK_ERROR;
     ai = res;
     do
@@ -733,14 +757,15 @@ sock_t sock_get_server_socket (int port, const char *sinterface)
         if (sock < 0)
             continue;
 
-        setsockopt (sock, SOL_SOCKET, SO_REUSEADDR, (const void *)&on, sizeof(on));
+        setsockopt (sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
         on = 0;
 #ifdef IPV6_V6ONLY
         setsockopt (sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof on);
 #endif
-
-        if (bind (sock, ai->ai_addr, ai->ai_addrlen) < 0)
-        {
+        int tmpRet;
+        _Unchecked {tmpRet = bind(sock, ai->ai_addr, ai->ai_addrlen);}
+        if (tmpRet < 0)
+        _Checked {
             sock_close (sock);
             continue;
         }
@@ -908,11 +933,11 @@ sock_t sock_get_server_socket(int port, const char *sinterface)
 
 void sock_set_send_buffer (sock_t sock, int win_size)
 {
-    setsockopt (sock, SOL_SOCKET, SO_SNDBUF, (char *) &win_size, sizeof(win_size));
+    setsockopt (sock, SOL_SOCKET, SO_SNDBUF, &win_size, sizeof(win_size));
 }
 
 int sock_listen(sock_t serversock, int backlog)
-{
+_Checked {
     if (!sock_valid_socket(serversock))
         return 0;
 
@@ -922,7 +947,7 @@ int sock_listen(sock_t serversock, int backlog)
     return (listen(serversock, backlog) == 0);
 }
 
-sock_t sock_accept(sock_t serversock, char *ip, size_t len)
+sock_t sock_accept(sock_t serversock, char *ip : itype(_Nt_array_ptr<char>), size_t len)
 {
 #ifdef HAVE_GETNAMEINFO
     struct sockaddr_storage sa;
@@ -936,14 +961,13 @@ sock_t sock_accept(sock_t serversock, char *ip, size_t len)
         return SOCK_ERROR;
 
     slen = sizeof(sa);
-    ret = accept(serversock, (struct sockaddr *)&sa, &slen);
+    ret = accept(serversock, _Dynamic_bounds_cast<_Ptr<struct sockaddr>>(&sa), &slen);
 
     if (ret != SOCK_ERROR)
     {
 #ifdef HAVE_GETNAMEINFO
-//       if (getnameinfo ((struct sockaddr *)&sa, slen, ip, len, NULL, 0, NI_NUMERICHOST))
-        if(1)
-            snprintf (ip, len, "unknown");
+       _Unchecked {if (getnameinfo ((struct sockaddr*)&sa, slen, ip, len, NULL, 0, NI_NUMERICHOST))
+            snprintf (ip, len, "unknown");}
 #else
         /* inet_ntoa is not reentrant, we should protect this */
         strncpy(ip, inet_ntoa(sa.sin_addr), len);

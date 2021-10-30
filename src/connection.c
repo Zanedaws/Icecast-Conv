@@ -330,7 +330,8 @@ static int connection_read (_Ptr<connection_t> con, void *buf : itype(_Array_ptr
 
 static int connection_send (_Ptr<connection_t> con, const void *buf : itype(_Array_ptr<const void>), size_t len)
 {
-    int bytes = sock_write_bytes<const void> (con->sock, buf, len);
+    int bytes;
+    _Unchecked {bytes = sock_write_bytes<const void> (con->sock, _Assume_bounds_cast<_Array_ptr<const void>>(buf, byte_count(4096)), len);}
     if (bytes < 0)
     {
         if (!sock_recoverable (sock_error()))
