@@ -95,7 +95,7 @@ _Itype_for_any(T) void stats_callback (client_t *client : itype(_Ptr<client_t>),
 
 void stats_transform_xslt(client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>));
 void stats_sendxml(client_t *client);
-xmlDocPtr stats_get_xml(int show_hidden, const char *show_mount : itype(_Nt_array_ptr<const char>));
+xmlDocPtr stats_get_xml(int show_hidden, const char *show_mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<struct _xmlDoc>);
 char *stats_get_value(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<char>);
 
 #endif  /* __STATS_H__ */

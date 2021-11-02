@@ -69,37 +69,39 @@
 
 #define BUFSIZE 4096
 
+#pragma CHECKED_SCOPE on
+
 static volatile int __inited = 0;
 
 static _Ptr<fserve_t> active_list = NULL;
 static _Ptr<fserve_t> pending_list = NULL;
 
 static spin_t pending_lock;
-static avl_tree *mimetypes = NULL;
+static _Ptr<avl_tree> mimetypes = NULL;
 
 static volatile int run_fserv = 0;
 static unsigned int fserve_clients;
 static int client_tree_changed=0;
 
 #ifdef HAVE_POLL
-static struct pollfd *ufds = NULL;
+static _Array_ptr<struct pollfd> ufds : count(fserve_clients) = NULL;
 #else
 static fd_set fds;
 static sock_t fd_max = SOCK_ERROR;
 #endif
 
 typedef struct {
-    char *ext;
-    char *type;
+    char *ext : itype(_Nt_array_ptr<char>);
+    char *type : itype(_Nt_array_ptr<char>);
 } mime_type;
 
-static void fserve_client_destroy(fserve_t *fclient : itype(_Ptr<fserve_t>));
-static int _delete_mapping(void *mapping);
-static void *fserv_thread_function(void *arg);
+static void fserve_client_destroy(_Ptr<fserve_t> fclient);
+static int _delete_mapping(void *mapping : itype(_Ptr<void>));
+static void *fserv_thread_function(void *arg : itype(_Ptr<void>)) : itype(_Ptr<void>);
 
 void fserve_initialize(void)
 {
-    ice_config_t *config = config_get_config();
+    _Ptr<ice_config_t> config = config_get_config();
 
     mimetypes = NULL;
     active_list = NULL;
@@ -112,7 +114,7 @@ void fserve_initialize(void)
     __inited = 1;
 
     stats_event (NULL, "file_connections", "0");
-    ICECAST_LOG_INFO("file serving started");
+    _Unchecked {ICECAST_LOG_INFO("file serving started");}
 }
 
 void fserve_shutdown(void)
@@ -124,7 +126,7 @@ void fserve_shutdown(void)
     run_fserv = 0;
     while (pending_list)
     {
-        fserve_t *to_go = (fserve_t *)pending_list;
+        _Ptr<fserve_t> to_go = (_Ptr<fserve_t>)pending_list;
         pending_list = to_go->next;
 
         fserve_client_destroy (to_go);
@@ -137,11 +139,11 @@ void fserve_shutdown(void)
     }
 
     if (mimetypes)
-        avl_tree_free (mimetypes, _delete_mapping);
+        _Unchecked {avl_tree_free<avl_tree>(mimetypes, _delete_mapping);}
 
     thread_spin_unlock (&pending_lock);
     thread_spin_destroy (&pending_lock);
-    ICECAST_LOG_INFO("file serving stopped");
+    _Unchecked {ICECAST_LOG_INFO("file serving stopped");}
 }
 
 #ifdef HAVE_POLL
@@ -154,7 +156,7 @@ int fserve_client_waiting (void)
     if (client_tree_changed)
     {
         client_tree_changed = 0;
-        ufds = realloc(ufds, fserve_clients * sizeof(struct pollfd));
+        ufds = realloc<struct pollfd>(ufds, fserve_clients * sizeof(struct pollfd));
         fclient = active_list;
         while (fclient)
         {
@@ -165,17 +167,18 @@ int fserve_client_waiting (void)
             i++;
         }
     }
-    if (!ufds)
-    {
+    int tmpRet;
+    _Unchecked {if (!ufds)
+    _Checked {
         thread_spin_lock (&pending_lock);
         run_fserv = 0;
         thread_spin_unlock (&pending_lock);
         return -1;
     }
-    //else if (poll(ufds, fserve_clients, 200) > 0)
-    else if (1)
+    else if (poll((struct pollfd*)ufds, fserve_clients, 200) > 0)
     {
         /* mark any clients that are ready */
+        _Checked {
         fclient = active_list;
         for (i=0; i<fserve_clients; i++)
         {
@@ -184,7 +187,8 @@ int fserve_client_waiting (void)
             fclient = fclient->next;
         }
         return 1;
-    }
+        }
+    }}
     return 0;
 }
 #else
@@ -272,7 +276,7 @@ static int wait_for_fds(void)
     return -1;
 }
 
-static void *fserv_thread_function(void *arg)
+static void *fserv_thread_function(void *arg : itype(_Ptr<void>)) : itype(_Ptr<void>)
 {
     _Ptr<fserve_t> fclient = NULL;
     _Ptr<_Ptr<fserve_t>> trail = NULL;
@@ -291,7 +295,7 @@ static void *fserv_thread_function(void *arg)
             /* process this client, if it is ready */
             if (fclient->ready)
             {
-                client_t *client = fclient->client;
+                _Ptr<client_t> client = fclient->client;
                 _Ptr<refbuf_t> refbuf = client->refbuf;
                 fclient->ready = 0;
                 if (client->pos == refbuf->len)
@@ -341,64 +345,65 @@ static void *fserv_thread_function(void *arg)
             fclient = fclient->next;
         }
     }
-    ICECAST_LOG_DEBUG("fserve handler exit");
+    _Unchecked {ICECAST_LOG_DEBUG("fserve handler exit");}
     return NULL;
 }
 
 /* string returned needs to be free'd */
-char *fserve_content_type (const char *path)
+char *fserve_content_type(const char *path : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
-    char *ext = util_get_extension(path);
+    _Nt_array_ptr<char> ext = util_get_extension(path);
     mime_type exttype = {ext, NULL};
     _Ptr<void> result = NULL;
-    char *type;
+    _Nt_array_ptr<char> type = ((void *)0);
 
     thread_spin_lock (&pending_lock);
-    if (mimetypes && !avl_get_by_key (mimetypes, &exttype, &result))
+    if (mimetypes && !avl_get_by_key (mimetypes, _Dynamic_bounds_cast<_Ptr<void>>(&exttype), &result))
     {
         _Ptr<mime_type> mime = _Dynamic_bounds_cast<_Ptr<mime_type>>(result);
-        type = strdup (mime->type);
+        type = ((_Nt_array_ptr<char> )strdup (mime->type));
     }
-    else {
+    else _Checked {
         /* Fallbacks for a few basic ones */
         if(!strcmp(ext, "ogg"))
-            type = strdup ("application/ogg");
+            type = ((_Nt_array_ptr<char> )strdup ("application/ogg"));
         else if(!strcmp(ext, "mp3"))
-            type = strdup ("audio/mpeg");
+            type = ((_Nt_array_ptr<char> )strdup ("audio/mpeg"));
         else if(!strcmp(ext, "html"))
-            type = strdup ("text/html");
+            type = ((_Nt_array_ptr<char> )strdup ("text/html"));
         else if(!strcmp(ext, "css"))
-            type = strdup ("text/css");
+            type = ((_Nt_array_ptr<char> )strdup ("text/css"));
         else if(!strcmp(ext, "txt"))
-            type = strdup ("text/plain");
+            type = ((_Nt_array_ptr<char> )strdup ("text/plain"));
         else if(!strcmp(ext, "jpg"))
-            type = strdup ("image/jpeg");
+            type = ((_Nt_array_ptr<char> )strdup ("image/jpeg"));
         else if(!strcmp(ext, "png"))
-            type = strdup ("image/png");
+            type = ((_Nt_array_ptr<char> )strdup ("image/png"));
         else if(!strcmp(ext, "m3u"))
-            type = strdup ("audio/x-mpegurl");
+            type = ((_Nt_array_ptr<char> )strdup ("audio/x-mpegurl"));
         else if(!strcmp(ext, "aac"))
-            type = strdup ("audio/aac");
+            type = ((_Nt_array_ptr<char> )strdup ("audio/aac"));
         else
-            type = strdup ("application/octet-stream");
+            type = ((_Nt_array_ptr<char> )strdup ("application/octet-stream"));
     }
     thread_spin_unlock (&pending_lock);
     return type;
 }
 
-static void fserve_client_destroy(fserve_t *fclient)
+static void fserve_client_destroy(_Ptr<fserve_t> fclient)
 {
     if (fclient)
     {
         if (fclient->file)
             fclose (fclient->file);
-
+        _Unchecked {
         if (fclient->callback)
             fclient->callback (fclient->client, fclient->arg);
         else
             if (fclient->client)
                 client_destroy (fclient->client);
-        free (fclient);
+        }
+        free<fserve_t> (fclient);
     }
 }
 
@@ -406,24 +411,24 @@ static void fserve_client_destroy(fserve_t *fclient)
 /* client has requested a file, so check for it and send the file.  Do not
  * refer to the client_t afterwards.  return 0 for success, -1 on error.
  */
-int fserve_client_create (client_t *httpclient, const char *path)
+int fserve_client_create (client_t *httpclient : itype(_Ptr<client_t>), const char *path : itype(_Nt_array_ptr<const char>))
 {
     int bytes;
     struct stat file_buf;
-    const char *range = NULL;
+    _Nt_array_ptr<const char> range = NULL;
     off_t new_content_len = 0;
     off_t rangenumber = 0, content_length;
     int rangeproblem = 0;
     int ret = 0;
-    char *fullpath;
+    _Nt_array_ptr<char> fullpath = ((void *)0);
     int m3u_requested = 0, m3u_file_available = 1;
-    const char * xslt_playlist_requested = NULL;
+    _Nt_array_ptr<const char> xslt_playlist_requested : byte_count(8) = NULL;
     int xslt_playlist_file_available = 1;
-    ice_config_t *config;
-    FILE *file;
+    _Ptr<ice_config_t> config = ((void *)0);
+    _Ptr<FILE> file = NULL;
 
     fullpath = util_get_path_from_normalised_uri (path);
-    ICECAST_LOG_INFO("checking for file %H (%H)", path, fullpath);
+    _Unchecked{ICECAST_LOG_INFO("checking for file %H (%H)", path, fullpath);}
 
     if (strcmp (util_get_extension (fullpath), "m3u") == 0)
         m3u_requested = 1;
@@ -435,15 +440,14 @@ int fserve_client_create (client_t *httpclient, const char *path)
         xslt_playlist_requested = "vclt.xsl";
 
     /* check for the actual file */
-    //if (stat (fullpath, &file_buf) != 0)
-    if(1)
+    if (stat (fullpath, &file_buf) != 0)
     {
         /* the m3u can be generated, but send an m3u file if available */
         if (m3u_requested == 0 && xslt_playlist_requested == NULL)
         {
-            ICECAST_LOG_WARN("req for file \"%H\" %s", fullpath, strerror (errno));
+            _Unchecked {ICECAST_LOG_WARN("req for file \"%H\" %s", fullpath, strerror (errno));}
             client_send_404 (httpclient, "The file you requested could not be found");
-            free (fullpath);
+            free<char> (fullpath);
             return -1;
         }
         m3u_file_available = 0;
@@ -454,9 +458,9 @@ int fserve_client_create (client_t *httpclient, const char *path)
 
     if (m3u_requested && m3u_file_available == 0)
     {
-        const char *host = httpp_getvar (httpclient->parser, "host");
-        char *sourceuri = strdup (path);
-        char *dot = strrchr(sourceuri, '.');
+        _Nt_array_ptr<const char> host = httpp_getvar (httpclient->parser, "host");
+        _Nt_array_ptr<char> sourceuri = ((_Nt_array_ptr<char> )strdup (path));
+        _Nt_array_ptr<char> dot = strrchr(sourceuri, '.');
 
         /* at least a couple of players (fb2k/winamp) are reported to send a 
          * host header but without the port number. So if we are missing the
@@ -470,45 +474,45 @@ int fserve_client_create (client_t *httpclient, const char *path)
 	                              0, 200, NULL,
 				      "audio/x-mpegurl", NULL, "", NULL);
         if (ret == -1 || ret >= (BUFSIZE - 512)) { /* we want at least 512 bytes left for the content of the playlist */
-            ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
+            _Unchecked {ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");}
             client_send_500(httpclient, "Header generation failed.");
             return -1;
         }
         if (host == NULL)
         {
 	    config = config_get_config();
-            snprintf (httpclient->refbuf->data + ret, BUFSIZE - ret,
+            _Unchecked {snprintf (httpclient->refbuf->data + ret, BUFSIZE - ret,
                     "http://%s:%d%s\r\n", 
                     config->hostname, config->port,
                     sourceuri
-                    );
+                    );}
             config_release_config();
         }
         else
         {
-	    snprintf (httpclient->refbuf->data + ret, BUFSIZE - ret,
+	    _Unchecked {snprintf (httpclient->refbuf->data + ret, BUFSIZE - ret,
                     "http://%s%s\r\n", 
                     host, 
                     sourceuri
-                    );
+                    );}
         }
         httpclient->refbuf->len = strlen (httpclient->refbuf->data);
         fserve_add_client (httpclient, NULL);
-        free (sourceuri);
-        free (fullpath);
+        free<char> (sourceuri);
+        free<char> (fullpath);
         return 0;
     }
     if (xslt_playlist_requested && xslt_playlist_file_available == 0)
     {
-        xmlDocPtr doc;
-        char *reference = strdup (path);
-        char *eol = strrchr (reference, '.');
+        _Ptr<struct _xmlDoc> doc = NULL;
+        _Nt_array_ptr<char> reference = ((_Nt_array_ptr<char> )strdup (path));
+        _Nt_array_ptr<char> eol = strrchr (reference, '.');
         if (eol)
             *eol = '\0';
         doc = stats_get_xml (0, reference);
-        free (reference);
+        free<char> (reference);
         admin_send_response (doc, httpclient, TRANSFORMED, xslt_playlist_requested);
-        //xmlFreeDoc(doc);
+        _Unchecked {xmlFreeDoc((xmlDocPtr)doc);}
         return 0;
     }
 
@@ -516,10 +520,10 @@ int fserve_client_create (client_t *httpclient, const char *path)
     config = config_get_config();
     if (config->fileserve == 0)
     {
-        ICECAST_LOG_DEBUG("on demand file \"%H\" refused. Serving static files has been disabled in the config", fullpath);
+        _Unchecked {ICECAST_LOG_DEBUG("on demand file \"%H\" refused. Serving static files has been disabled in the config", fullpath);}
         client_send_404 (httpclient, "The file you requested could not be found");
         config_release_config();
-        free (fullpath);
+        free<char> (fullpath);
         return -1;
     }
     config_release_config();
@@ -527,20 +531,20 @@ int fserve_client_create (client_t *httpclient, const char *path)
     if (S_ISREG (file_buf.st_mode) == 0)
     {
         client_send_404 (httpclient, "The file you requested could not be found");
-        ICECAST_LOG_WARN("found requested file but there is no handler for it: %H", fullpath);
-        free (fullpath);
+        _Unchecked {ICECAST_LOG_WARN("found requested file but there is no handler for it: %H", fullpath);}
+        free<char> (fullpath);
         return -1;
     }
 
     file = fopen (fullpath, "rb");
     if (file == NULL)
     {
-        ICECAST_LOG_WARN("Problem accessing file \"%H\"", fullpath);
+        _Unchecked {ICECAST_LOG_WARN("Problem accessing file \"%H\"", fullpath);}
         client_send_404 (httpclient, "File not readable");
-        free (fullpath);
+        free<char> (fullpath);
         return -1;
     }
-    free (fullpath);
+    free<char> (fullpath);
 
     content_length = file_buf.st_size;
     range = httpp_getvar (httpclient->parser, "range");
@@ -549,32 +553,32 @@ int fserve_client_create (client_t *httpclient, const char *path)
     if (range != NULL) {
         ret = 0;
         if (strncasecmp (range, "bytes=", 6) == 0)
-            ret = sscanf (range+6, "%" SCN_OFF_T "-", &rangenumber);
+            _Unchecked {ret = sscanf (range+6, "%" SCN_OFF_T "-", &rangenumber);}
 
-        if (ret != 1) {
+        if (ret != 1) _Checked {
             /* format not correct, so lets just assume
                we start from the beginning */
             rangeproblem = 1;
         }
-        if (rangenumber < 0) {
+        if (rangenumber < 0) _Checked {
             rangeproblem = 1;
         }
         if (!rangeproblem) {
-            ret = fseeko (file, rangenumber, SEEK_SET);
-            if (ret != -1) {
+            _Unchecked {ret = fseeko ((FILE*)file, rangenumber, SEEK_SET);}
+            if (ret != -1) _Checked {
                 new_content_len = content_length - rangenumber;
                 if (new_content_len < 0) {
                     rangeproblem = 1;
                 }
             }
-            else {
+            else _Checked {
                 rangeproblem = 1;
             }
             if (!rangeproblem) {
                 off_t endpos = rangenumber+new_content_len-1;
-                char *type;
+                _Nt_array_ptr<char> type = ((void *)0);
 
-                if (endpos < 0) {
+                if (endpos < 0) _Checked {
                     endpos = 0;
                 }
                 httpclient->respcode = 206;
@@ -584,11 +588,11 @@ int fserve_client_create (client_t *httpclient, const char *path)
 						type, NULL,
 						NULL, NULL);
                 if (bytes == -1 || bytes >= (BUFSIZE - 512)) { /* we want at least 512 bytes left */
-                    ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
+                    _Unchecked {ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");}
                     client_send_500(httpclient, "Header generation failed.");
                     return -1;
                 }
-                bytes += snprintf (httpclient->refbuf->data + bytes, BUFSIZE - bytes,
+                _Unchecked {bytes += snprintf (httpclient->refbuf->data + bytes, BUFSIZE - bytes,
                     "Accept-Ranges: bytes\r\n"
                     "Content-Length: %" PRI_OFF_T "\r\n"
                     "Content-Range: bytes %" PRI_OFF_T \
@@ -596,34 +600,34 @@ int fserve_client_create (client_t *httpclient, const char *path)
                     new_content_len,
                     rangenumber,
                     endpos,
-                    content_length);
-                free (type);
+                    content_length);}
+                free<char> (type);
             }
-            else {
+            else _Checked {
                 goto fail;
             }
         }
-        else {
+        else _Checked {
             goto fail;
         }
     }
     else {
-        char *type = fserve_content_type(path);
+        _Nt_array_ptr<char> type = fserve_content_type(path);
         httpclient->respcode = 200;
 	bytes = util_http_build_header (httpclient->refbuf->data, BUFSIZE, 0,
 	                                0, 200, NULL,
 					type, NULL,
 					NULL, NULL);
         if (bytes == -1 || bytes >= (BUFSIZE - 512)) { /* we want at least 512 bytes left */
-            ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
+            _Unchecked {ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");}
             client_send_500(httpclient, "Header generation failed.");
             return -1;
         }
-        bytes += snprintf (httpclient->refbuf->data + bytes, BUFSIZE - bytes,
+        _Unchecked {bytes += snprintf (httpclient->refbuf->data + bytes, BUFSIZE - bytes,
             "Accept-Ranges: bytes\r\n"
             "Content-Length: %" PRI_OFF_T "\r\n\r\n",
-            content_length);
-        free (type);
+            content_length);}
+        free<char> (type);
     }
     httpclient->refbuf->len = bytes;
     httpclient->pos = 0;
@@ -643,16 +647,16 @@ fail:
 /* Routine to actually add pre-configured client structure to pending list and
  * then to start off the file serving thread if it is not already running
  */
-static void fserve_add_pending (fserve_t *fclient : itype(_Ptr<fserve_t>))
+static void fserve_add_pending (_Ptr<fserve_t> fclient)
 {
     thread_spin_lock (&pending_lock);
-    fclient->next = (fserve_t *)pending_list;
+    fclient->next = (_Ptr<fserve_t>)pending_list;
     pending_list = fclient;
     if (run_fserv == 0)
     {
         run_fserv = 1;
-        ICECAST_LOG_DEBUG("fserve handler waking up");
-        thread_create("File Serving Thread", fserv_thread_function, NULL, THREAD_DETACHED);
+        _Unchecked {ICECAST_LOG_DEBUG("fserve handler waking up");}
+        _Unchecked {thread_create("File Serving Thread", fserv_thread_function, NULL, THREAD_DETACHED);}
     }
     thread_spin_unlock (&pending_lock);
 }
@@ -661,11 +665,11 @@ static void fserve_add_pending (fserve_t *fclient : itype(_Ptr<fserve_t>))
 /* Add client to fserve thread, client needs to have refbuf set and filled
  * but may provide a NULL file if no data needs to be read
  */
-int fserve_add_client (client_t *client, FILE *file)
+int fserve_add_client (client_t *client : itype(_Ptr<client_t>), FILE *file : itype(_Ptr<FILE>))
 {
-    fserve_t *fclient = calloc (1, sizeof(fserve_t));
+    _Ptr<fserve_t> fclient = calloc<fserve_t> (1, sizeof(fserve_t));
 
-    ICECAST_LOG_DEBUG("Adding client to file serving engine");
+    _Unchecked {ICECAST_LOG_DEBUG("Adding client to file serving engine");}
     if (fclient == NULL)
     {
         client_send_404 (client, "memory exhausted");
@@ -683,9 +687,9 @@ int fserve_add_client (client_t *client, FILE *file)
 /* add client to file serving engine, but just write out the buffer contents,
  * then pass the client to the callback with the provided arg
  */
-void fserve_add_client_callback (client_t *client, fserve_callback_t callback, void *arg)
+_Unchecked _Itype_for_any(T) void fserve_add_client_callback (client_t *client : itype(_Ptr<client_t>), fserve_callback_t callback : itype(_Ptr<void (_Ptr<client_t>, void *)>), void *arg : itype(_Ptr<T>))
 {
-    fserve_t *fclient = calloc (1, sizeof(fserve_t));
+    _Ptr<fserve_t> fclient = calloc<fserve_t> (1, sizeof(fserve_t));
 
     ICECAST_LOG_DEBUG("Adding client to file serving engine");
     if (fclient == NULL)
@@ -703,11 +707,11 @@ void fserve_add_client_callback (client_t *client, fserve_callback_t callback, v
 }
 
 
-static int _delete_mapping(void *mapping) {
-    mime_type *map = mapping;
-    free(map->ext);
-    free(map->type);
-    free(map);
+static int _delete_mapping(void *mapping : itype(_Ptr<void>)) {
+    _Ptr<mime_type> map = _Dynamic_bounds_cast<_Ptr<mime_type>>(mapping);
+    free<char>(map->ext);
+    free<char>(map->type);
+    free<mime_type>(map);
 
     return 1;
 }
@@ -719,27 +723,30 @@ static int _compare_mappings(void *arg : itype(_Ptr<void>), void *a : itype(_Ptr
     return res;
 }
 
-void fserve_recheck_mime_types (ice_config_t *config)
+void fserve_recheck_mime_types (ice_config_t *config : itype(_Ptr<ice_config_t>))
 {
-    FILE *mimefile;
-    char line[4096];
-    char *type, *ext, *cur;
-    mime_type *mapping;
-    avl_tree *new_mimetypes;
+    _Ptr<FILE> mimefile = ((void *)0);
+    char line _Nt_checked[4096 + 1];
+    _Nt_array_ptr<char> type : count(4096) = ((void *)0);
+_Nt_array_ptr<char> ext = ((void *)0);
+_Nt_array_ptr<char> cur = ((void *)0);
+
+    _Ptr<mime_type> mapping = NULL;
+    _Ptr<avl_tree> new_mimetypes = ((void *)0);
 
     if (config->mimetypes_fn == NULL)
         return;
     mimefile = fopen (config->mimetypes_fn, "r");
     if (mimefile == NULL)
-    {
-        ICECAST_LOG_WARN("Cannot open mime types file %s", config->mimetypes_fn);
+    _Checked {
+        _Unchecked {ICECAST_LOG_WARN("Cannot open mime types file %s", config->mimetypes_fn);}
         return;
     }
 
-    new_mimetypes = avl_tree_new(_compare_mappings, NULL);
+    _Unchecked {new_mimetypes = avl_tree_new(_compare_mappings, NULL);}
 
     while(fgets(line, 4096, mimefile))
-    {
+    _Checked {
         line[4095] = 0;
 
         if(*line == 0 || *line == '#')
@@ -767,12 +774,12 @@ void fserve_recheck_mime_types (ice_config_t *config)
                 cur++;
             *cur++ = 0;
             if(*ext)
-            {
+            _Unchecked {
                 _Ptr<void> tmp = NULL;
                 /* Add a new extension->type mapping */
-                mapping = malloc(sizeof(mime_type));
-                mapping->ext = strdup(ext);
-                mapping->type = strdup(type);
+                mapping = malloc<mime_type>(sizeof(mime_type));
+                mapping->ext = ((_Nt_array_ptr<char> )strdup(ext));
+                mapping->type = ((_Nt_array_ptr<char> )strdup(type));
                 if (!avl_get_by_key (new_mimetypes, mapping, &tmp))
                     avl_delete (new_mimetypes, mapping, _delete_mapping);
                 avl_insert (new_mimetypes, mapping);
@@ -783,7 +790,7 @@ void fserve_recheck_mime_types (ice_config_t *config)
 
     thread_spin_lock (&pending_lock);
     if (mimetypes)
-        avl_tree_free (mimetypes, _delete_mapping);
+        _Unchecked {avl_tree_free(mimetypes, _delete_mapping);}
     mimetypes = new_mimetypes;
     thread_spin_unlock (&pending_lock);
 }
