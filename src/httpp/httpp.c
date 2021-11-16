@@ -23,28 +23,30 @@
 #include "httpp.h"
 
 #if defined(_WIN32) && !defined(HAVE_STRCASECMP)
-//define strcasecmp stricmp
+#define strcasecmp stricmp
 #endif
 
 #define MAX_HEADERS 32
 
+#pragma CHECKED_SCOPE on
+
 /* internal functions */
 
 /* misc */
-static char *_lowercase(char *str);
+static _Nt_array_ptr<char> _lowercase(_Nt_array_ptr<char> str);
 
 /* for avl trees */
-static int _compare_vars(void *compare_arg, void *a, void *b);
-static int _free_vars(void *key);
+static int _compare_vars(void *compare_arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>));
+static int _free_vars(void *key : itype(_Ptr<void>));
 
-http_parser_t *httpp_create_parser(void)
+http_parser_t *httpp_create_parser(void) : itype(_Ptr<http_parser_t>)
 {
-    return (http_parser_t *)malloc(sizeof(http_parser_t));
+    return (_Ptr<http_parser_t>)malloc<http_parser_t>(sizeof(http_parser_t));
 }
 
-void httpp_initialize(http_parser_t *parser, http_varlist_t *defaults)
+void httpp_initialize(http_parser_t *parser : itype(_Ptr<http_parser_t>), http_varlist_t *defaults : itype(_Ptr<http_varlist_t>))
 {
-    http_varlist_t *list;
+    _Ptr<http_varlist_t> list = ((void *)0);
 
     parser->req_type = httpp_req_none;
     parser->uri = NULL;
@@ -59,8 +61,8 @@ void httpp_initialize(http_parser_t *parser, http_varlist_t *defaults)
     }
 }
 
-static int split_headers(char *data, unsigned long len, char **line)
-{
+static int split_headers(_Nt_array_ptr<char> data : count(len), unsigned long len, _Array_ptr<_Nt_array_ptr<char>> line : count(32))
+_Checked {
     /* first we count how many lines there are 
     ** and set up the line[] array     
     */
@@ -78,7 +80,7 @@ static int split_headers(char *data, unsigned long len, char **line)
             if (i + 1 < len) {
                 if (data[i + 1] == '\n' || data[i + 1] == '\r')
                     break;
-                line[lines] = &data[i + 1];
+                line[lines] = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(&data[i + 1], byte_count(512));
             }
         }
     }
@@ -89,12 +91,12 @@ static int split_headers(char *data, unsigned long len, char **line)
     return lines;
 }
 
-static void parse_headers(http_parser_t *parser, char **line, int lines)
+static void parse_headers(_Ptr<http_parser_t> parser, _Array_ptr<_Nt_array_ptr<char>> line : count(32), int lines)
 {
     int i, l;
     int whitespace, slen;
-    char *name = NULL;
-    char *value = NULL;
+    _Nt_array_ptr<char> name = NULL;
+    _Nt_array_ptr<char> value = NULL;
 
     /* parse the name: value lines. */
     for (l = 1; l < lines; l++) {
@@ -102,7 +104,7 @@ static void parse_headers(http_parser_t *parser, char **line, int lines)
         name = line[l];
         value = NULL;
         slen = strlen(line[l]);
-        for (i = 0; i < slen; i++) {
+        for (i = 0; i < slen; i++) _Checked {
             if (line[l][i] == ':') {
                 whitespace = 1;
                 line[l][i] = '\0';
@@ -113,7 +115,7 @@ static void parse_headers(http_parser_t *parser, char **line, int lines)
                         i++;
 
                     if (i < slen)
-                        value = &line[l][i];
+                        value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(&line[l][i], count(512));
                     
                     break;
                 }
@@ -128,20 +130,23 @@ static void parse_headers(http_parser_t *parser, char **line, int lines)
     }
 }
 
-int httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned long len, const char *uri)
+int httpp_parse_response(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *http_data : itype(_Array_ptr<const char>) count(4096), unsigned long len, const char *uri : itype(_Nt_array_ptr<const char>))
 {
-    char *data;
-    char *line[MAX_HEADERS];
+    _Nt_array_ptr<char> data : byte_count(len) = NULL;
+    _Nt_array_ptr<char> line _Checked[MAX_HEADERS] = {((void *)0)};
     int lines, slen,i, whitespace=0, where=0,code;
-    char *version=NULL, *resp_code=NULL, *message=NULL;
+    _Nt_array_ptr<char> version =NULL;
+_Nt_array_ptr<char> resp_code =NULL;
+_Nt_array_ptr<char> message =NULL;
+
     
     if(http_data == NULL)
         return 0;
 
     /* make a local copy of the data, including 0 terminator */
-    data = (char *)malloc(len+1);
+    data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char>(len+1), byte_count(len+1));
     if (data == NULL) return 0;
-    memcpy(data, http_data, len);
+    _Unchecked {memcpy<char>((char*)data, http_data, len);}
     data[len] = 0;
 
     lines = split_headers(data, len, line);
@@ -151,7 +156,7 @@ int httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned 
      */
     slen = strlen(line[0]);
     version = line[0];
-    for(i=0; i < slen; i++) {
+    for(i=0; i < slen; i++) _Checked {
         if(line[0][i] == ' ') {
             line[0][i] = 0;
             whitespace = 1;
@@ -159,16 +164,16 @@ int httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned 
             whitespace = 0;
             where++;
             if(where == 1)
-                resp_code = &line[0][i];
+                resp_code = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(&line[0][i], byte_count(512));
             else {
-                message = &line[0][i];
+                message = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(&line[0][i], byte_count(512));
                 break;
             }
         }
     }
 
     if(version == NULL || resp_code == NULL || message == NULL) {
-        free(data);
+        free<char>(data);
         return 0;
     }
 
@@ -183,13 +188,13 @@ int httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned 
 
     parse_headers(parser, line, lines);
 
-    free(data);
+    free<char>(data);
 
     return 1;
 }
 
 static int hex(char c)
-{
+_Checked {
     if(c >= '0' && c <= '9')
         return c - '0';
     else if(c >= 'A' && c <= 'F')
@@ -200,27 +205,27 @@ static int hex(char c)
         return -1;
 }
 
-static char *url_escape(const char *src) : itype(_Nt_array_ptr<char>)
+static char *url_escape(_Nt_array_ptr<const char> src) : itype(_Nt_array_ptr<char>)
 {
     int len = strlen(src);
-    unsigned char *decoded;
+    _Nt_array_ptr<unsigned char>decoded = NULL;
     int i;
-    char *dst;
+    _Nt_array_ptr<char> dst = NULL;
     int done = 0;
 
-    decoded = calloc(1, len + 1);
+    decoded = _Dynamic_bounds_cast<_Nt_array_ptr<unsigned char>>(calloc<unsigned char>(1, len + 1), byte_count(512));
 
-    dst = (char *)decoded;
+    dst = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(decoded, byte_count(512));
 
-    for(i=0; i < len; i++) {
-        switch(src[i]) {
+    for(i=0; i < len; i++) _Checked {
+        switch(src[i]) _Unchecked {
         case '%':
             if(i+2 >= len) {
-                free(decoded);
+                free<unsigned char>(decoded);
                 return NULL;
             }
             if(hex(src[i+1]) == -1 || hex(src[i+2]) == -1 ) {
-                free(decoded);
+                free<unsigned char>(decoded);
                 return NULL;
             }
 
@@ -234,7 +239,7 @@ static char *url_escape(const char *src) : itype(_Nt_array_ptr<char>)
             done = 1;
             break;
         case 0:
-            free(decoded);
+            free<unsigned char>(decoded);
             return NULL;
             break;
         default:
@@ -247,24 +252,24 @@ static char *url_escape(const char *src) : itype(_Nt_array_ptr<char>)
 
     *dst = 0; /* null terminator */
 
-    return (char *)decoded;
+    return _Dynamic_bounds_cast<_Nt_array_ptr<char>>(decoded, byte_count(512));
 }
 
 /** TODO: This is almost certainly buggy in some cases */
-static void parse_query(http_parser_t *parser, char *query)
+static void parse_query(_Ptr<http_parser_t> parser, _Nt_array_ptr<char> query)
 {
     int len;
     int i=0;
-    char *key = query;
-    char *val=NULL;
+    _Nt_array_ptr<char> key = query;
+    _Nt_array_ptr<char> val =NULL;
 
     if(!query || !*query)
         return;
 
     len = strlen(query);
 
-    while(i<len) {
-        switch(query[i]) {
+    while(i<len) _Checked {
+        switch(query[i]) _Unchecked {
         case '&':
             query[i] = 0;
             if(val && key)
@@ -284,24 +289,26 @@ static void parse_query(http_parser_t *parser, char *query)
     }
 }
 
-int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
+int httpp_parse(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *http_data : itype(_Array_ptr<const char>) count(len), unsigned long len)
 {
-    char *data, *tmp;
-    char *line[MAX_HEADERS]; /* limited to 32 lines, should be more than enough */
+    _Nt_array_ptr<char> data : byte_count(len) = NULL;
+    _Nt_array_ptr<char> tmp = ((void *)0);
+
+    _Nt_array_ptr<char> line _Checked[MAX_HEADERS] = {((void *)0)}; /* limited to 32 lines, should be more than enough */
     int i;
     int lines;
-    char *req_type = NULL;
-    char *uri = NULL;
-    char *version = NULL;
+    _Nt_array_ptr<char> req_type = NULL;
+    _Nt_array_ptr<char> uri = NULL;
+    _Nt_array_ptr<char> version = NULL;
     int whitespace, where, slen;
 
     if (http_data == NULL)
         return 0;
 
     /* make a local copy of the data, including 0 terminator */
-    data = (char *)malloc(len+1);
+    data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char>(len+1), byte_count(len+1));
     if (data == NULL) return 0;
-    memcpy(data, http_data, len);
+    memcpy<char>(data, http_data, len);
     data[len] = 0;
 
     lines = split_headers(data, len, line);
@@ -316,7 +323,7 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
     whitespace = 0;
     slen = strlen(line[0]);
     req_type = line[0];
-    for (i = 0; i < slen; i++) {
+    for (i = 0; i < slen; i++) _Checked {
         if (line[0][i] == ' ') {
             whitespace = 1;
             line[0][i] = '\0';
@@ -327,38 +334,37 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
                 where++;
                 switch (where) {
                 case 1:
-                    uri = &line[0][i];
+                    uri = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(&line[0][i], byte_count(512));
                     break;
                 case 2:
-                    version = &line[0][i];
+                    version = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(&line[0][i], byte_count(512));
                     break;
                 }
             }
         }
     }
 
-//     if (strcasecmp("GET", req_type) == 0) {
-     if(1) {
+     if (strcasecmp("GET", req_type) == 0) {
         parser->req_type = httpp_req_get;
-//   } else if (strcasecmp("POST", req_type) == 0) {
+     } else if (strcasecmp("POST", req_type) == 0) {
         parser->req_type = httpp_req_post;
-//   } else if (strcasecmp("PUT", req_type) == 0) {
+     } else if (strcasecmp("PUT", req_type) == 0) {
         parser->req_type = httpp_req_put;
-//   } else if (strcasecmp("HEAD", req_type) == 0) {
+     } else if (strcasecmp("HEAD", req_type) == 0) {
         parser->req_type = httpp_req_head;
-//   } else if (strcasecmp("SOURCE", req_type) == 0) {
+     } else if (strcasecmp("SOURCE", req_type) == 0) {
         parser->req_type = httpp_req_source;
-//   } else if (strcasecmp("PLAY", req_type) == 0) {
+     } else if (strcasecmp("PLAY", req_type) == 0) {
         parser->req_type = httpp_req_play;
-//   } else if (strcasecmp("STATS", req_type) == 0) {
+     } else if (strcasecmp("STATS", req_type) == 0) {
         parser->req_type = httpp_req_stats;
     } else {
         parser->req_type = httpp_req_unknown;
     }
 
     if (uri != NULL && strlen(uri) > 0) {
-        char *query;
-        if((query = strchr(uri, '?')) != NULL) {
+        _Nt_array_ptr<char> query = ((void *)0);
+        if((query = ((_Nt_array_ptr<char> )strchr(uri, '?'))) != NULL) {
             httpp_setvar(parser, HTTPP_VAR_RAWURI, uri);
             httpp_setvar(parser, HTTPP_VAR_QUERYARGS, query);
             *query = 0;
@@ -366,23 +372,24 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
             parse_query(parser, query);
         }
 
-        parser->uri = strdup(uri);
+        parser->uri = ((_Nt_array_ptr<char> )strdup(uri));
     } else {
-        free(data);
+        free<char>(data);
         return 0;
     }
 
-    if ((version != NULL) && ((tmp = strchr(version, '/')) != NULL)) {
+    if ((version != NULL) && ((tmp = ((_Nt_array_ptr<char> )strchr(version, '/'))) != NULL)) _Checked {
         tmp[0] = '\0';
-        if ((strlen(version) > 0) && (strlen(&tmp[1]) > 0)) {
+        _Nt_array_ptr<char> holder : byte_count(2) = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(&tmp[1], byte_count(2));
+        if ((strlen(version) > 0) && (strlen(holder) > 0)) _Unchecked {
             httpp_setvar(parser, HTTPP_VAR_PROTOCOL, version);
             httpp_setvar(parser, HTTPP_VAR_VERSION, &tmp[1]);
-        } else {
-            free(data);
+        } else _Unchecked {
+            free<char>(data);
             return 0;
         }
     } else {
-        free(data);
+        free<char>(data);
         return 0;
     }
 
@@ -413,159 +420,160 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
             break;
         }
     } else {
-        free(data);
+        free<char>(data);
         return 0;
     }
 
     if (parser->uri != NULL) {
         httpp_setvar(parser, HTTPP_VAR_URI, parser->uri);
     } else {
-        free(data);
+        free<char>(data);
         return 0;
     }
 
     parse_headers(parser, line, lines);
 
-    free(data);
+    free<char>(data);
 
     return 1;
 }
 
-void httpp_deletevar(http_parser_t *parser, const char *name : itype(_Nt_array_ptr<const char>))
+void httpp_deletevar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>))
 {
-    http_var_t var;
+    http_var_t var = {};
 
     if (parser == NULL || name == NULL)
         return;
-    var.name = (char*)name;
+    var.name = (_Nt_array_ptr<char>)name;
     var.value = NULL;
-    avl_delete(parser->vars, (void *)&var, _free_vars);
+    avl_delete<void>(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(&var), _free_vars);
 }
 
-void httpp_setvar(http_parser_t *parser, const char *name, const char *value)
+void httpp_setvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>))
 {
-    http_var_t *var;
+    _Ptr<http_var_t> var = NULL;
 
     if (name == NULL || value == NULL)
         return;
 
-    var = (http_var_t *)malloc(sizeof(http_var_t));
+    var = _Dynamic_bounds_cast<_Ptr<http_var_t>>(malloc<http_var_t>(sizeof(http_var_t)));
     if (var == NULL) return;
 
-    var->name = strdup(name);
-    var->value = strdup(value);
+    var->name = ((_Nt_array_ptr<char> )strdup(name));
+    var->value = ((_Nt_array_ptr<char> )strdup(value));
 
     if (httpp_getvar(parser, name) == NULL) {
-        avl_insert(parser->vars, (void *)var);
+        avl_insert(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(var));
     } else {
-        avl_delete(parser->vars, (void *)var, _free_vars);
-        avl_insert(parser->vars, (void *)var);
+        avl_delete<void>(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(var), _free_vars);
+        avl_insert(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(var));
     }
 }
 
-const char *httpp_getvar(http_parser_t *parser, const char *name : itype(_Nt_array_ptr<const char>))
+const char *httpp_getvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<const char>)
 {
-    http_var_t var;
-    http_var_t *found;
-    void *fp;
+    http_var_t var = {};
+    _Ptr<http_var_t> found = NULL;
+    _Ptr<_Ptr<void>>fp = NULL;
 
     if (parser == NULL || name == NULL)
         return NULL;
 
-    fp = &found;
-    var.name = (char*)name;
+    fp = _Dynamic_bounds_cast<_Ptr<_Ptr<void>>>(&found);
+    var.name = (_Nt_array_ptr<char>)name;
     var.value = NULL;
 
-    if (avl_get_by_key(parser->vars, &var, fp) == 0)
+    if (avl_get_by_key(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(&var), fp) == 0)
         return found->value;
     else
         return NULL;
 }
 
-void httpp_set_query_param(http_parser_t *parser, const char *name, const char *value)
+void httpp_set_query_param(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>))
 {
-    http_var_t *var;
+    _Ptr<http_var_t> var = NULL;
 
     if (name == NULL || value == NULL)
         return;
 
-    var = (http_var_t *)malloc(sizeof(http_var_t));
+    var = _Dynamic_bounds_cast<_Ptr<http_var_t>>(malloc<http_var_t>(sizeof(http_var_t)));
     if (var == NULL) return;
 
-    var->name = strdup(name);
-    var->value = url_escape(value);
+    var->name = ((_Nt_array_ptr<char> )strdup(name));
+    var->value = ((_Nt_array_ptr<char> )url_escape(value));
 
     if (httpp_get_query_param(parser, name) == NULL) {
-        avl_insert(parser->queryvars, (void *)var);
+        avl_insert(parser->queryvars, _Dynamic_bounds_cast<_Ptr<void>>(var));
     } else {
-        avl_delete(parser->queryvars, (void *)var, _free_vars);
-        avl_insert(parser->queryvars, (void *)var);
+        avl_delete<void>(parser->queryvars, _Dynamic_bounds_cast<_Ptr<void>>(var), _free_vars);
+        avl_insert(parser->queryvars, _Dynamic_bounds_cast<_Ptr<void>>(var));
     }
 }
 
-const char *httpp_get_query_param(http_parser_t *parser, const char *name : itype(_Nt_array_ptr<const char>))
+const char *httpp_get_query_param(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<const char>)
 {
-    http_var_t var;
-    http_var_t *found;
-    void *fp;
+    http_var_t var = {};
+    _Ptr<http_var_t> found = NULL;
+    _Ptr<_Ptr<void>> fp = NULL;
 
-    fp = &found;
-    var.name = (char *)name;
+    fp = _Dynamic_bounds_cast<_Ptr<_Ptr<void>>>(&found);
+    var.name = (_Nt_array_ptr<char>)name;
     var.value = NULL;
 
-    if (avl_get_by_key(parser->queryvars, (void *)&var, fp) == 0)
+    if (avl_get_by_key(parser->queryvars, _Dynamic_bounds_cast<_Ptr<void>>(&var), fp) == 0)
         return found->value;
     else
         return NULL;
 }
 
-void httpp_clear(http_parser_t *parser)
+void httpp_clear(http_parser_t *parser : itype(_Ptr<http_parser_t>))
 {
     parser->req_type = httpp_req_none;
     if (parser->uri)
-        free(parser->uri);
+        free<char>(parser->uri);
     parser->uri = NULL;
-    avl_tree_free(parser->vars, _free_vars);
-    avl_tree_free(parser->queryvars, _free_vars);
+    avl_tree_free<void>(parser->vars, _free_vars);
+    avl_tree_free<void>(parser->queryvars, _free_vars);
     parser->vars = NULL;
 }
 
-void httpp_destroy(http_parser_t *parser)
+void httpp_destroy(http_parser_t *parser : itype(_Ptr<http_parser_t>))
 {
     httpp_clear(parser);
-    free(parser);
+    free<http_parser_t>(parser);
 }
 
-static char *_lowercase(char *str)
-{
-    char *p = str;
-    for (; *p != '\0'; p++)
-        *p = tolower(*p);
+static _Nt_array_ptr<char> _lowercase(_Nt_array_ptr<char> str)
+_Checked {
+    _Array_ptr<char> p = str;
+    _Unchecked {for (; *(char*)p != '\0'; p++)
+        *(char*)p = tolower(*(char*)p);}
 
     return str;
 }
 
-static int _compare_vars(void *compare_arg, void *a, void *b)
+static int _compare_vars(void *compare_arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
-    http_var_t *vara, *varb;
+    _Ptr<http_var_t> vara = NULL;
+    _Ptr<http_var_t> varb = NULL;
 
-    vara = (http_var_t *)a;
-    varb = (http_var_t *)b;
+    vara = _Dynamic_bounds_cast<_Ptr<http_var_t>>(a);
+    varb = _Dynamic_bounds_cast<_Ptr<http_var_t>>(b);
 
     return strcmp(vara->name, varb->name);
 }
 
-static int _free_vars(void *key)
+static int _free_vars(void *key : itype(_Ptr<void>))
 {
-    http_var_t *var;
+    _Ptr<http_var_t> var = NULL;
 
-    var = (http_var_t *)key;
+    var = _Dynamic_bounds_cast<_Ptr<http_var_t>>(key);
 
     if (var->name)
-        free(var->name);
+        free<char>(var->name);
     if (var->value)
-        free(_Dynamic_bounds_cast<_Array_ptr<void>>(var->value, byte_count(0)));
-    free(var);
+        free<void>(_Dynamic_bounds_cast<_Array_ptr<void>>(var->value, byte_count(0)));
+    free<http_var_t>(var);
 
     return 1;
 }

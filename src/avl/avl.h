@@ -103,7 +103,7 @@ typedef struct _avl_tree {
 #endif
 } avl_tree;
 
-avl_tree *avl_tree_new(avl_key_compare_fun_type compare_fun : itype(_Ptr<int (void *, void *, void *)>), void * compare_arg : itype(_Ptr<void>)) : itype(_Ptr<avl_tree>);
+avl_tree *avl_tree_new(avl_key_compare_fun_type compare_fun : itype(_Ptr<int (void * : itype(_Ptr<void>), void * : itype(_Ptr<void>), void * : itype(_Ptr<void>))>), void * compare_arg : itype(_Ptr<void>)) : itype(_Ptr<avl_tree>);
 _Itype_for_any(T) avl_node *avl_node_new(void * key : itype(_Ptr<T>), avl_node *parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>);
 
 _Itype_for_any(T) void avl_tree_free (avl_tree *tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (_Ptr<T>)>));

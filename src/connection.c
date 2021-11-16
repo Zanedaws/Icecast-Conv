@@ -384,7 +384,7 @@ static void recheck_ip_file (_Ptr<cache_file_contents> cache)
             return;
         }
 
-        new_ips = avl_tree_new (&compare_ip, NULL);
+        _Unchecked {new_ips = avl_tree_new (&compare_ip, NULL);}
 
         while (get_line (file, line, MAX_LINE_LEN))
         {
@@ -1310,7 +1310,8 @@ static void _handle_shoutcast_compatible (_Ptr<client_queue_t> node)
             "SOURCE %s HTTP/1.0\r\n%s", shoutcast_mount, client->refbuf->data);}
     parser = httpp_create_parser();
     httpp_initialize(parser, NULL);
-    _Checked {if (httpp_parse (parser, http_compliant, strlen(http_compliant)))
+    int tmpRet = strlen(http_compliant);
+    _Unchecked {if (httpp_parse (parser, (char*)http_compliant, tmpRet))
     _Unchecked {
         /* we may have more than just headers, so prepare for it */
         if (node->stream_offset == node->offset)
