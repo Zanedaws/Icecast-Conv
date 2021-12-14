@@ -30,7 +30,7 @@ struct _mount_proxy;
 #include "global.h"
 #include "connection.h"
 
-#define XMLSTR(str) ((xmlChar *)(str)) 
+#define XMLSTR(str) ((xmlChar*)(str)) 
 
 typedef enum _http_header_type {
  /* static: headers are passed as is to the client. */
