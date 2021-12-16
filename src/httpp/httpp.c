@@ -446,7 +446,7 @@ void httpp_deletevar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const c
         return;
     var.name = (_Nt_array_ptr<char>)name;
     var.value = NULL;
-    avl_delete<void>(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(&var), _free_vars);
+    avl_delete(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(&var), _free_vars);
 }
 
 void httpp_setvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>))
@@ -465,7 +465,7 @@ void httpp_setvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char
     if (httpp_getvar(parser, name) == NULL) {
         avl_insert(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(var));
     } else {
-        avl_delete<void>(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(var), _free_vars);
+        avl_delete(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(var), _free_vars);
         avl_insert(parser->vars, _Dynamic_bounds_cast<_Ptr<void>>(var));
     }
 }
@@ -505,7 +505,7 @@ void httpp_set_query_param(http_parser_t *parser : itype(_Ptr<http_parser_t>), c
     if (httpp_get_query_param(parser, name) == NULL) {
         avl_insert(parser->queryvars, _Dynamic_bounds_cast<_Ptr<void>>(var));
     } else {
-        avl_delete<void>(parser->queryvars, _Dynamic_bounds_cast<_Ptr<void>>(var), _free_vars);
+        avl_delete(parser->queryvars, _Dynamic_bounds_cast<_Ptr<void>>(var), _free_vars);
         avl_insert(parser->queryvars, _Dynamic_bounds_cast<_Ptr<void>>(var));
     }
 }
@@ -532,8 +532,8 @@ void httpp_clear(http_parser_t *parser : itype(_Ptr<http_parser_t>))
     if (parser->uri)
         free<char>(parser->uri);
     parser->uri = NULL;
-    avl_tree_free<void>(parser->vars, _free_vars);
-    avl_tree_free<void>(parser->queryvars, _free_vars);
+    avl_tree_free(parser->vars, _free_vars);
+    avl_tree_free(parser->queryvars, _free_vars);
     parser->vars = NULL;
 }
 

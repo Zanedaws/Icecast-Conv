@@ -55,9 +55,9 @@ struct _avl_tree;
 
 typedef int (*avl_key_compare_fun_type) (void * compare_arg : itype(_Array_ptr<void>) byte_count(0), void * a : itype(_Array_ptr<void>) byte_count(0), void * b : itype(_Array_ptr<void>) byte_count(0));
 typedef int (*avl_iter_fun_type)    (void * key, void * iter_arg);
-typedef int (*avl_iter_index_fun_type)    (unsigned long index, void * key, void * iter_arg);
-_Itype_for_any(T) typedef int (*avl_free_key_fun_type)    (void * key : itype(_Ptr<T>));
-typedef int (*avl_key_printer_fun_type)    (char *, void *);
+typedef int (*avl_iter_index_fun_type)    (unsigned long index, void * key : itype(_Ptr<void>), void * iter_arg : itype(_Ptr<void>));
+typedef int (*avl_free_key_fun_type)    (void * key : itype(_Ptr<void>));
+typedef int (*avl_key_printer_fun_type)    (char * : itype(_Nt_array_ptr<char>), void * : itype(_Ptr<void>));
 
 /*
  * <compare_fun> and <compare_arg> let us associate a particular compare
@@ -96,27 +96,27 @@ typedef struct _avl_tree {
   avl_node *            root : itype(_Ptr<avl_node>);
   unsigned int          height;
   unsigned int          length;
-  avl_key_compare_fun_type compare_fun : itype(_Ptr<int (void *, void *, void *)>);
-  void *             compare_arg;
+  avl_key_compare_fun_type compare_fun : itype(_Ptr<int (void * : itype(_Ptr<void>), void * : itype(_Ptr<void>), void * : itype(_Ptr<void>))>);
+  void *             compare_arg : itype(_Ptr<void>);
 #ifndef NO_THREAD
   rwlock_t rwlock;
 #endif
 } avl_tree;
 
 avl_tree *avl_tree_new(avl_key_compare_fun_type compare_fun : itype(_Ptr<int (void * : itype(_Ptr<void>), void * : itype(_Ptr<void>), void * : itype(_Ptr<void>))>), void * compare_arg : itype(_Ptr<void>)) : itype(_Ptr<avl_tree>);
-_Itype_for_any(T) avl_node *avl_node_new(void * key : itype(_Ptr<T>), avl_node *parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>);
+avl_node *avl_node_new(void * key : itype(_Ptr<void>), avl_node *parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>);
 
-_Itype_for_any(T) void avl_tree_free (avl_tree *tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (_Ptr<T>)>));
+void avl_tree_free (avl_tree *tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (_Ptr<void>)>));
 
 int avl_insert (avl_tree *ob : itype(_Ptr<avl_tree>), void *        key : itype(_Ptr<void>));
 
-_Itype_for_any(T) int avl_delete (avl_tree *tree : itype(_Ptr<avl_tree>), void *        key : itype(_Ptr<void>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (_Ptr<T>)>));
+int avl_delete (avl_tree *tree : itype(_Ptr<avl_tree>), void *        key : itype(_Ptr<void>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (_Ptr<void>)>));
 
 int avl_get_by_index (avl_tree *tree : itype(_Ptr<avl_tree>), unsigned long        index, _Ptr<_Ptr<void>>        value_address);
 
 int avl_get_by_key (avl_tree *tree : itype(_Ptr<avl_tree>), void *        key : itype(_Ptr<void>), void **        value_address : itype(_Ptr<_Ptr<void>>));
 
-_Itype_for_any(T) int avl_iterate_inorder (avl_tree *tree : itype(_Ptr<avl_tree>), avl_iter_fun_type iter_fun : itype(_Ptr<int (void *, void *)>), void *        iter_arg : itype(_Ptr<T>));
+int avl_iterate_inorder (avl_tree *tree : itype(_Ptr<avl_tree>), avl_iter_fun_type iter_fun : itype(_Ptr<int (void *, void *)>), void *        iter_arg : itype(_Ptr<void>));
 
 int avl_iterate_index_range (avl_tree *tree : itype(_Ptr<avl_tree>), avl_iter_index_fun_type iter_fun : itype(_Ptr<int (unsigned long, void *, void *)>), unsigned long        low, unsigned long        high, void *        iter_arg);
 

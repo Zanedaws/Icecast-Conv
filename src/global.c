@@ -50,7 +50,7 @@ void global_initialize(void)
 void global_shutdown(void)
 {
     thread_mutex_destroy(&_global_mutex);
-    avl_tree_free<avl_tree>(global.source_tree, NULL);
+    avl_tree_free(global.source_tree, NULL);
 }
 
 void global_lock(void)

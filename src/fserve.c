@@ -139,7 +139,7 @@ void fserve_shutdown(void)
     }
 
     if (mimetypes)
-        _Unchecked {avl_tree_free<avl_tree>(mimetypes, _delete_mapping);}
+        _Unchecked {avl_tree_free(mimetypes, _delete_mapping);}
 
     thread_spin_unlock (&pending_lock);
     thread_spin_destroy (&pending_lock);

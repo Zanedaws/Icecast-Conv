@@ -38,9 +38,11 @@
 
 #include "avl.h"
 
-_Itype_for_any(T) avl_node * avl_node_new (void * key : itype(_Ptr<T>), avl_node * parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
+#pragma CHECKED_SCOPE on
+
+avl_node *avl_node_new(void * key : itype(_Ptr<void>), avl_node *parent : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
 {
-  avl_node * node = (avl_node *) malloc (sizeof (avl_node));
+  _Ptr<avl_node> node = (_Ptr<avl_node>) malloc<avl_node> (sizeof (avl_node));
 
   if (!node) {
     return NULL;
@@ -59,22 +61,23 @@ _Itype_for_any(T) avl_node * avl_node_new (void * key : itype(_Ptr<T>), avl_node
   }
 }         
 
-avl_tree *avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg : itype(_Ptr<void>)) : itype(_Ptr<avl_tree>)
-{
+_Unchecked //unchecked due to avl_key_compare_fun_type containing void* pointer
+avl_tree *avl_tree_new(avl_key_compare_fun_type compare_fun : itype(_Ptr<int (void * : itype(_Ptr<void>), void * : itype(_Ptr<void>), void * : itype(_Ptr<void>))>), void * compare_arg : itype(_Ptr<void>)) : itype(_Ptr<avl_tree>)
+_Checked {
   _Ptr<avl_tree> t =  malloc<avl_tree>(sizeof (avl_tree));
 
   if (!t) {
     return NULL;
   } else {
-    _Ptr<avl_node> root = avl_node_new((void *)NULL, (avl_node *) NULL);
+    _Ptr<avl_node> root = avl_node_new((void *)NULL, (_Ptr<avl_node>) NULL);
     if (!root) {
-      free (t);
+      free<avl_tree> (t);
       return NULL;
     } else {
       t->root = root;
       t->height = 0;
       t->length = 0;
-      t->compare_fun = compare_fun;
+      _Unchecked {t->compare_fun = compare_fun;}
       t->compare_arg = compare_arg;
       thread_rwlock_create(&t->rwlock);
       return t;
@@ -82,44 +85,45 @@ avl_tree *avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg
   }
 }
   
+_Unchecked //unchecked region due to avl_free_key_fun_type having a void* pointer
 static void
-avl_tree_free_helper (avl_node * node, avl_free_key_fun_type free_key_fun)
-{
+avl_tree_free_helper (_Ptr<avl_node> node, avl_free_key_fun_type free_key_fun) //all calls to this function are unchecked due to free_key_fun type being odd
+_Checked{
   if (node->left) {
-    avl_tree_free_helper (node->left, free_key_fun);
+    _Unchecked {avl_tree_free_helper (node->left, free_key_fun);}
   }
-  if (free_key_fun)
-      free_key_fun (node->key);
+  _Unchecked {if (free_key_fun)
+      free_key_fun (node->key);}
   if (node->right) {
-    avl_tree_free_helper (node->right, free_key_fun);
+    _Unchecked {avl_tree_free_helper (node->right, free_key_fun);}
   }
 #ifdef HAVE_AVL_NODE_LOCK
   thread_rwlock_destroy (&node->rwlock);
 #endif
-  free (node);
+  free<avl_node> (node);
 }
   
 void
-avl_tree_free (avl_tree* tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type free_key_fun)
+avl_tree_free (avl_tree *tree : itype(_Ptr<avl_tree>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (_Ptr<void>)>))
 {
   if (tree->length) {
-    avl_tree_free_helper (tree->root->right, free_key_fun);
+    _Unchecked {avl_tree_free_helper (tree->root->right, free_key_fun);}
   }
   if (tree->root) {
 #ifdef HAVE_AVL_NODE_LOCK
     thread_rwlock_destroy(&tree->root->rwlock);
 #endif
-    free (tree->root);
+    free<avl_node> (tree->root);
   }
   thread_rwlock_destroy(&tree->rwlock);
-  free (tree);
+  free<avl_tree> (tree);
 }
 
-int avl_insert (avl_tree * ob : itype(_Ptr<avl_tree>), void * key)
+int avl_insert (avl_tree *ob : itype(_Ptr<avl_tree>), void * key : itype(_Ptr<void>))
 {
   if (!(ob->root->right)) {
     _Ptr<avl_node> node = avl_node_new (key, ob->root);
-    if (!node) {
+    if (!node) _Checked {
       return -1;
     } else {
       ob->root->right = node;
@@ -145,7 +149,7 @@ int avl_insert (avl_tree * ob : itype(_Ptr<avl_tree>), void * key)
     if (!q) {
       /* insert */
       _Ptr<avl_node> q_node = avl_node_new (key, p);
-      if (!q_node) {
+      if (!q_node) _Checked {
         return (-1);
       } else {
         q = q_node;
@@ -162,8 +166,8 @@ int avl_insert (avl_tree * ob : itype(_Ptr<avl_tree>), void * key)
     q = p->right;
     if (!q) {
       /* insert */
-      _Ptr<avl_node> q_node = avl_node_new (key, p);
-      if (!q_node) {
+      _Ptr<avl_node> q_node = avl_node_new(key, p);
+      if (!q_node) _Checked {
         return -1;
       } else {
         q = q_node;
@@ -198,9 +202,9 @@ int avl_insert (avl_tree * ob : itype(_Ptr<avl_tree>), void * key)
     
     /* balancing act */
     
-    if (ob->compare_fun (ob->compare_arg, key, s->key) < 1) {
+    if (ob->compare_fun (ob->compare_arg, key, s->key) < 1) _Checked {
       a = -1;
-    } else {
+    } else _Checked {
       a = +1;
     }
     
@@ -294,12 +298,12 @@ int avl_insert (avl_tree * ob : itype(_Ptr<avl_tree>), void * key)
 }
 
 int
-avl_get_by_index (avl_tree * tree, unsigned long index, _Ptr<_Ptr<void>> value_address)
+avl_get_by_index (avl_tree *tree : itype(_Ptr<avl_tree>), unsigned long index, _Ptr<_Ptr<void>> value_address)
 {
   _Ptr<avl_node> p = tree->root->right;
   unsigned long m = index + 1;
   while (1) {
-    if (!p) {
+    if (!p) _Checked {
       return -1;
     }
     if (m < AVL_GET_RANK(p)) {
@@ -314,9 +318,9 @@ avl_get_by_index (avl_tree * tree, unsigned long index, _Ptr<_Ptr<void>> value_a
   }
 }
            
-int avl_get_by_key (avl_tree * tree, void * key : itype(_Ptr<void>), void **value_address : itype(_Ptr<_Ptr<void>>)) {
-  avl_node * x = tree->root->right;
-  if (!x) {
+int avl_get_by_key (avl_tree *tree : itype(_Ptr<avl_tree>), void * key : itype(_Ptr<void>), void **value_address : itype(_Ptr<_Ptr<void>>)) {
+  _Ptr<avl_node> x = tree->root->right;
+  if (!x) _Checked {
     return -1;
   }
   while (1) {
@@ -324,13 +328,13 @@ int avl_get_by_key (avl_tree * tree, void * key : itype(_Ptr<void>), void **valu
     if (compare_result < 0) {
       if (x->left) {
     x = x->left;
-      } else {
+      } else _Checked {
     return -1;
       }
     } else if (compare_result > 0) {
       if (x->right) {
     x = x->right;
-      } else {
+      } else _Checked {
     return -1;
       }
     } else {
@@ -340,7 +344,7 @@ int avl_get_by_key (avl_tree * tree, void * key : itype(_Ptr<void>), void **valu
   }
 }
 
-int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key : itype(_Ptr<void>), avl_free_key_fun_type free_key_fun)
+int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key : itype(_Ptr<void>), avl_free_key_fun_type free_key_fun : itype(_Ptr<int (_Ptr<void>)>))
 {
   _Ptr<avl_node> x = NULL;
   _Ptr<avl_node> y = NULL; 
@@ -352,7 +356,7 @@ int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key : itype(_Ptr<vo
   int shortened_side, shorter;
   
   x = tree->root->right;
-  if (!x) {
+  if (!x) _Checked {
     return -1;
   }
   while (1) {
@@ -392,7 +396,7 @@ int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key : itype(_Ptr<vo
     }
     return -1;        /* key not in tree */
       }
-    } else {
+    } else _Checked {
       break;
     }
   }
@@ -457,18 +461,18 @@ int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key : itype(_Ptr<vo
 #ifdef HAVE_AVL_NODE_LOCK
   thread_rwlock_destroy (&x->rwlock);
 #endif
-  free (x);
+  free<avl_node> (x);
 
   while (shorter && p->parent) {
     
     /* case 1: height unchanged */
-    if (AVL_GET_BALANCE(p) == 0) {
-      if (shortened_side == -1) {
+    if (AVL_GET_BALANCE(p) == 0) _Checked {
+      if (shortened_side == -1) _Unchecked {
     /* we removed a left child, the tree is now heavier
      * on the right
      */
     AVL_SET_BALANCE (p, +1);
-      } else {
+      } else _Unchecked {
     /* we removed a right child, the tree is now heavier
      * on the left
      */
@@ -610,9 +614,9 @@ int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key : itype(_Ptr<vo
     x = p;
     p = x->parent;
     /* shortened_side tells us which side we came up from */
-    if (x == p->left) {
+    if (x == p->left) _Checked {
       shortened_side = -1;
-    } else {
+    } else _Checked {
       shortened_side = +1;
     }
   } /* end while(shorter) */
@@ -621,49 +625,47 @@ int avl_delete(avl_tree *tree : itype(_Ptr<avl_tree>), void *key : itype(_Ptr<vo
   return (0);
 }
 
-_Itype_for_any(T) static int
-avl_iterate_inorder_helper (avl_node * node,
-            avl_iter_fun_type iter_fun,
-            void * iter_arg : itype(_Ptr<T>))
-{
+_Unchecked //unchecked due to avl_iter_fun_type having void* pointer
+static int
+avl_iterate_inorder_helper (_Ptr<avl_node> node, avl_iter_fun_type iter_fun, void * iter_arg : itype(_Ptr<void>))
+_Checked {
   int result;
   if (node->left) {
-    result = avl_iterate_inorder_helper (node->left, iter_fun, iter_arg);
-    if (result != 0) {
+    _Unchecked {result = avl_iterate_inorder_helper (node->left, iter_fun, iter_arg);}
+    if (result != 0) _Checked {
       return result;
     }
   }
-  result = (iter_fun (node->key, iter_arg));
-  if (result != 0) {
+  _Unchecked {result = (iter_fun (node->key, iter_arg));}
+  if (result != 0) _Checked {
     return result;
   }
   if (node->right) {
-    result = avl_iterate_inorder_helper (node->right, iter_fun, iter_arg);
-    if (result != 0) {
+    _Unchecked {result = avl_iterate_inorder_helper (node->right, iter_fun, iter_arg);}
+    if (result != 0) _Checked {
       return result;
     }
   }
   return 0;
 }
 
+_Unchecked //unchecked due to avl_iter_fun_type having void* pointer
 int
-avl_iterate_inorder (avl_tree * tree,
-         avl_iter_fun_type iter_fun,
-         void * iter_arg)
-{
+avl_iterate_inorder (avl_tree *tree : itype(_Ptr<avl_tree>), avl_iter_fun_type iter_fun : itype(_Ptr<int (void *, void *)>), void * iter_arg : itype(_Ptr<void>))
+_Checked {
   int result;
 
   if (tree->length) {
-    result = avl_iterate_inorder_helper (tree->root->right, iter_fun, iter_arg);
+    _Unchecked {result = avl_iterate_inorder_helper (tree->root->right, iter_fun, iter_arg);}
     return (result);
-  } else {
+  } else _Checked {
     return 0;
   }
 }
 
-avl_node *avl_get_first(avl_tree *tree)
+avl_node *avl_get_first(avl_tree *tree : itype(_Ptr<avl_tree>)) : itype(_Ptr<avl_node>)
 {
-    avl_node *node;
+    _Ptr<avl_node> node = ((void *)0);
     
     node = tree->root->right;
     if (node == NULL || node->key == NULL) return NULL;
@@ -674,7 +676,7 @@ avl_node *avl_get_first(avl_tree *tree)
     return node;
 }
 
-avl_node *avl_get_prev(avl_node *node)
+avl_node *avl_get_prev(avl_node *node : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
 {
     if (node->left) {
         node = node->left;
@@ -684,7 +686,7 @@ avl_node *avl_get_prev(avl_node *node)
 
         return node;
     } else {
-        avl_node *child = node;
+        _Ptr<avl_node> child = node;
         while (node->parent && node->parent->key) {
             node = node->parent;
             if (child == node->right) {
@@ -697,7 +699,7 @@ avl_node *avl_get_prev(avl_node *node)
     }
 }
 
-avl_node *avl_get_next(avl_node *node)
+avl_node *avl_get_next(avl_node *node : itype(_Ptr<avl_node>)) : itype(_Ptr<avl_node>)
 {
     if (node->right) {
         node = node->right;
@@ -707,7 +709,7 @@ avl_node *avl_get_next(avl_node *node)
         
         return node;
     } else {
-        avl_node *child = node;
+        _Ptr<avl_node> child = node;
         while (node->parent && node->parent->key) {
             node = node->parent;
             if (child == node->left) {
@@ -722,18 +724,15 @@ avl_node *avl_get_next(avl_node *node)
 
 /* iterate a function over a range of indices, using get_predecessor */
 
+_Unchecked //unchecked due to void pointer in the avl_iter_index_fun_type
 int
-avl_iterate_index_range (avl_tree * tree,
-             avl_iter_index_fun_type iter_fun,
-             unsigned long low,
-             unsigned long high,
-             void * iter_arg)
-{
+avl_iterate_index_range (avl_tree *tree : itype(_Ptr<avl_tree>), avl_iter_index_fun_type iter_fun : itype(_Ptr<int (unsigned long, void *, void *)>), unsigned long low, unsigned long high, void * iter_arg : itype(_Ptr<void>))
+_Checked{
   unsigned long m;
   unsigned long num_left;
-  avl_node * node;
+  _Ptr<avl_node> node = ((void *)0);
 
-  if (high > tree->length) {
+  if (high > tree->length) _Checked {
     return -1;
   }
   num_left = (high - low);
@@ -746,16 +745,16 @@ avl_iterate_index_range (avl_tree * tree,
     } else if (m > AVL_GET_RANK (node)) {
       m = m - AVL_GET_RANK (node);
       node = node->right;
-    } else {
+    } else _Checked {
       break;
     }
   }
   /* call <iter_fun> on <node>, <get_pred(node)>, ... */
   while (num_left) {
     num_left = num_left - 1;
-    if (iter_fun (num_left, node->key, iter_arg) != 0) {
+    _Unchecked {if (iter_fun (num_left, node->key, iter_arg) != 0) _Checked {
       return -1;
-    }
+    }}
     node = avl_get_prev (node);
   }
   return 0;
@@ -766,12 +765,9 @@ avl_iterate_index_range (avl_tree * tree,
  * representing the closest preceding value.
  */
 
-static avl_node *
-avl_get_index_by_key (avl_tree * tree,
-          void * key : itype(_Ptr<void>),
-          unsigned long * index)
+static _Ptr<avl_node> avl_get_index_by_key(_Ptr<avl_tree> tree, void * key : itype(_Ptr<void>), _Ptr<unsigned long> index)
 {
-  avl_node * x = tree->root->right;
+  _Ptr<avl_node> x = tree->root->right;
   unsigned long m;
   
   if (!x) {
@@ -808,13 +804,10 @@ avl_get_index_by_key (avl_tree * tree,
 /* return the (low index, high index) pair that spans the given key */
 
 int
-avl_get_span_by_key (avl_tree * tree,
-         void * key : itype(_Ptr<void>),
-         unsigned long * low,
-         unsigned long * high)
+avl_get_span_by_key (avl_tree *tree : itype(_Ptr<avl_tree>), void * key : itype(_Ptr<void>), unsigned long *low : itype(_Ptr<unsigned long>), unsigned long *high : itype(_Ptr<unsigned long>))
 {
   unsigned long m, i, j;
-  avl_node * node;
+  _Ptr<avl_node> node = ((void *)0);
 
   node = avl_get_index_by_key (tree, key, &m);
 
@@ -824,7 +817,9 @@ avl_get_span_by_key (avl_tree * tree,
    * the arrangement of like keys.
    */
   if (node) {
-    avl_node * left, * right;
+    _Ptr<avl_node> left = ((void *)0);
+_Ptr<avl_node> right = ((void *)0);
+
     /* search left */
     left = avl_get_prev (node);
     i = m;
@@ -842,7 +837,7 @@ avl_get_span_by_key (avl_tree * tree,
     *low = i;
     *high = j + 1;
     return 0;
-  } else {
+  } else _Checked {
     *low = *high = m;
   }
   return 0;
@@ -851,20 +846,18 @@ avl_get_span_by_key (avl_tree * tree,
 /* return the (low index, high index) pair that spans the given key */
 
 int
-avl_get_span_by_two_keys (avl_tree * tree,
-              void * low_key : itype(_Ptr<void>),
-              void * high_key : itype(_Ptr<void>),
-              unsigned long * low,
-              unsigned long * high)
+avl_get_span_by_two_keys (avl_tree *tree : itype(_Ptr<avl_tree>), void * low_key : itype(_Ptr<void>), void * high_key : itype(_Ptr<void>), unsigned long *low : itype(_Ptr<unsigned long>), unsigned long *high : itype(_Ptr<unsigned long>))
 {
   unsigned long i, j;
-  avl_node * low_node, * high_node;
+  _Ptr<avl_node> low_node = ((void *)0);
+_Ptr<avl_node> high_node = ((void *)0);
+
   int order;
 
   /* we may need to swap them */
   order = tree->compare_fun (tree->compare_arg, low_key, high_key);
   if (order > 0) {
-    void * temp = low_key;
+    _Ptr<void> temp = low_key;
     low_key = high_key;
     high_key = temp;
   }
@@ -873,25 +866,25 @@ avl_get_span_by_two_keys (avl_tree * tree,
   high_node = avl_get_index_by_key (tree, high_key, &j);
 
   if (low_node) {
-    avl_node * left;
+    _Ptr<avl_node> left = ((void *)0);
     /* search left */
     left = avl_get_prev (low_node);
     while (left && (i > 0) && (tree->compare_fun (tree->compare_arg, low_key, left->key) == 0)) {
       left = avl_get_prev (left);
       i = i - 1;
     }
-  } else {
+  } else _Checked {
     i = i + 1;
   }
   if (high_node) {
-    avl_node * right;
+    _Ptr<avl_node> right = ((void *)0);
     /* search right */
     right = avl_get_next (high_node);
     while (right && (j <= tree->length) && (tree->compare_fun (tree->compare_arg, high_key, right->key) == 0)) {
       right = avl_get_next (right);
       j = j + 1;
     }
-  } else {
+  } else _Checked {
     j = j + 1;
   }
 
@@ -901,12 +894,12 @@ avl_get_span_by_two_keys (avl_tree * tree,
 }
 
            
-int avl_get_item_by_key_most (avl_tree * tree, void * key : itype(_Ptr<void>), void **value_address : itype(_Ptr<_Ptr<void>>)) 
+int avl_get_item_by_key_most (avl_tree *tree : itype(_Ptr<avl_tree>), void * key : itype(_Ptr<void>), void **value_address : itype(_Ptr<_Ptr<void>>)) 
 {
-  avl_node * x = tree->root->right;
+  _Ptr<avl_node> x = tree->root->right;
   *value_address = NULL;
 
-  if (!x) {
+  if (!x) _Checked {
     return -1;
   }
   while (1) {
@@ -943,14 +936,12 @@ int avl_get_item_by_key_most (avl_tree * tree, void * key : itype(_Ptr<void>), v
 }
 
 int
-avl_get_item_by_key_least (avl_tree * tree,
-               void * key,
-               void **value_address)
+avl_get_item_by_key_least (avl_tree *tree : itype(_Ptr<avl_tree>), void * key : itype(_Ptr<void>), void **value_address : itype(_Ptr<_Ptr<void>>))
 {
-  avl_node * x = tree->root->right;
+  _Ptr<avl_node> x = tree->root->right;
   *value_address = NULL;
 
-  if (!x) {
+  if (!x) _Checked {
     return -1;
   }
   while (1) {
@@ -987,17 +978,17 @@ avl_get_item_by_key_least (avl_tree * tree,
 #define AVL_MAX(X, Y)  ((X) > (Y) ? (X) : (Y))
 
 static long
-avl_verify_balance (avl_node * node)
+avl_verify_balance (_Ptr<avl_node> node)
 {
-  if (!node) {
+  if (!node) _Checked {
     return 0;
   } else {
     long lh = avl_verify_balance (node->left);
     long rh = avl_verify_balance (node->right);
-    if ((rh - lh) != AVL_GET_BALANCE(node)) {
+    if ((rh - lh) != AVL_GET_BALANCE(node)) _Checked {
       return 0;
     }
-    if (((lh - rh) > 1) || ((lh - rh) < -1)) {
+    if (((lh - rh) > 1) || ((lh - rh) < -1)) _Checked {
       return 0;
     }
     return (1 + AVL_MAX (lh, rh));
@@ -1005,9 +996,9 @@ avl_verify_balance (avl_node * node)
 }
     
 static void
-avl_verify_parent (avl_node * node, avl_node * parent)
+avl_verify_parent (_Ptr<avl_node> node, _Ptr<avl_node> parent)
 {
-  if (node->parent != parent) {
+  if (node->parent != parent) _Checked {
     return;
   }
   if (node->left) {
@@ -1019,9 +1010,9 @@ avl_verify_parent (avl_node * node, avl_node * parent)
 }
 
 static long
-avl_verify_rank (avl_node * node)
+avl_verify_rank (_Ptr<avl_node> node)
 {
-  if (!node) {
+  if (!node) _Checked {
     return 0;
   } else {
     unsigned long num_left=0, num_right=0;
@@ -1031,7 +1022,7 @@ avl_verify_rank (avl_node * node)
     if (node->right) {
       num_right = avl_verify_rank (node->right);
     }
-    if (AVL_GET_RANK (node) != num_left + 1) {
+    if (AVL_GET_RANK (node) != num_left + 1) _Checked {
       _Unchecked {fprintf (stderr, "invalid rank at node %ld\n", (long) node->key);}
       exit (1);
     }
@@ -1042,7 +1033,7 @@ avl_verify_rank (avl_node * node)
 /* sanity-check the tree */
 
 int
-avl_verify (avl_tree * tree)
+avl_verify (avl_tree *tree : itype(_Ptr<avl_tree>))
 {
   if (tree->length) {
     avl_verify_balance (tree->root->right);
@@ -1059,17 +1050,19 @@ avl_verify (avl_tree * tree)
  */ 
 
 typedef struct _link_node {
-  struct _link_node    * parent;
+  struct _link_node *parent : itype(_Ptr<struct _link_node>);
   char            direction;
   int            width;
 } link_node;  
 
-static char balance_chars[3] = {'\\', '-', '/'};
+static char balance_chars _Checked[3] = {'\\', '-', '/'};
 
-static int
-default_key_printer (char * buffer, void * key)
+
+//Unchecked due to having to return snprintf function call
+_Unchecked static int
+default_key_printer (_Nt_array_ptr<char> buffer, void * key)
 {
-  return snprintf (buffer, AVL_KEY_PRINTER_BUFLEN, "%p", key);
+  return snprintf ((char*)buffer, AVL_KEY_PRINTER_BUFLEN, "%p", key);
 }  
 
 /*
@@ -1080,8 +1073,8 @@ default_key_printer (char * buffer, void * key)
  */
 
 static void
-print_connectors (link_node * link)
-{
+print_connectors (_Ptr<link_node> link)
+_Checked {
   if (link->parent) {
     print_connectors (link->parent);
   }
@@ -1106,43 +1099,45 @@ print_connectors (link_node * link)
  * representation.
  */
 
-static void
-print_node (avl_key_printer_fun_type key_printer,
-        avl_node * node,
-        link_node * link)
+_Unchecked static void
+print_node (avl_key_printer_fun_type key_printer, _Ptr<avl_node> node, _Ptr<link_node> link)
 {
-  char buffer[AVL_KEY_PRINTER_BUFLEN];
+  _Checked {
+  char buffer _Nt_checked[AVL_KEY_PRINTER_BUFLEN];
   unsigned int width;
-  width = key_printer (buffer, node->key);
+  _Unchecked {width = key_printer ((char*)buffer, node->key);}
 
+  //unchecked regions due to key_printer type having a void*
   if (node->right) {
-      link_node here;
+      link_node here = {};
       here.parent = link;
       here.direction = 1;
       here.width = width + 11;
-    print_node (key_printer, node->right, &here);
+      _Unchecked {print_node (key_printer, node->right, &here);}
   }
   print_connectors (link);
   _Unchecked {fprintf (stdout, "+-[%c %s %03d]",
        balance_chars[AVL_GET_BALANCE(node)+1],
        buffer,
        (int)AVL_GET_RANK(node));}
-  if (node->left || node->right) {
+  if (node->left || node->right) _Checked {
     _Unchecked {fprintf (stdout, "-|\n");}
-  } else {
+  } else _Checked {
     _Unchecked {fprintf (stdout, "\n");}
   }
   if (node->left) {
-      link_node here;
+      link_node here = {};
       here.parent = link;
       here.direction = -1;
       here.width = width + 11;
-      print_node (key_printer, node->left, &here);
-  } 
+      _Unchecked {print_node (key_printer, node->left, &here);}
+  }
+  }
 }  
 
+_Unchecked //This unchecked is here due to the avl_key_printer_fun_type containing a void* pointer. Could probably replace with a char*, but am not doing so at this time.
 void
-avl_print_tree (avl_tree * tree, avl_key_printer_fun_type key_printer)
+avl_print_tree (avl_tree *tree : itype(_Ptr<avl_tree>), avl_key_printer_fun_type key_printer : itype(_Ptr<int (_Nt_array_ptr<char>, void *)>))
 {
   link_node top = {NULL, 0, 0};
   if (!key_printer) {
@@ -1150,23 +1145,23 @@ avl_print_tree (avl_tree * tree, avl_key_printer_fun_type key_printer)
   }
   if (tree->length) {
     print_node (key_printer, tree->root->right, &top);
-  } else {
+  } else _Checked {
     _Unchecked {fprintf (stdout, "<empty tree>\n");}
   }  
 }
 
 
-void avl_tree_rlock(avl_tree *tree)
+void avl_tree_rlock(avl_tree *tree : itype(_Ptr<avl_tree>))
 {
     thread_rwlock_rlock(&tree->rwlock);
 }
 
-void avl_tree_wlock(avl_tree *tree)
+void avl_tree_wlock(avl_tree *tree : itype(_Ptr<avl_tree>))
 {
     thread_rwlock_wlock(&tree->rwlock);
 }
 
-void avl_tree_unlock(avl_tree *tree)
+void avl_tree_unlock(avl_tree *tree : itype(_Ptr<avl_tree>))
 {
     thread_rwlock_unlock(&tree->rwlock);
 }

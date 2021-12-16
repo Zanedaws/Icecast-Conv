@@ -399,7 +399,7 @@ static void recheck_ip_file (_Ptr<cache_file_contents> cache)
         fclose (file);
         _Unchecked {ICECAST_LOG_INFO("%d entries read from file \"%s\"", count, cache->filename);}
 
-        if (cache->contents) _Unchecked {avl_tree_free<avl_tree>(cache->contents, free_filtered_ip);}
+        if (cache->contents) _Unchecked {avl_tree_free(cache->contents, free_filtered_ip);}
         cache->contents = new_ips;
     }
 }
