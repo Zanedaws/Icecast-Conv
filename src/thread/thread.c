@@ -70,18 +70,6 @@
 #define LOG_DEBUG5(y, z1, z2, z3, z4, z5) log_write(_logid, 4, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5)
 #endif
 
-/* thread starting structure */
-typedef struct thread_start_tag {
-    /* the real start routine and arg */
-    void *(*start_routine)(void *);
-    void *arg;
-
-    /* the other stuff we need to make sure this thread is inserted into
-    ** the thread tree
-    */
-    thread_type *thread;
-    pthread_t sys_thread;
-} thread_start_t;
 
 static long _next_thread_id = 0;
 static int _initialized = 0;
@@ -93,8 +81,6 @@ static mutex_t _threadtree_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1,
 #else
 static mutex_t _threadtree_mutex = { PTHREAD_MUTEX_INITIALIZER };
 #endif
-
-
 
 #ifdef DEBUG_MUTEXES
 static int _logid = -1;
@@ -112,6 +98,19 @@ static mutex_t _library_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1,
 static mutex_t _library_mutex = { PTHREAD_MUTEX_INITIALIZER };
 #endif
 
+#pragma CHECKED_SCOPE on
+/* thread starting structure */
+typedef struct thread_start_tag {
+    /* the real start routine and arg */
+    void * ((*start_routine)(void *)) : itype(_Ptr<_Ptr<void> (_Ptr<void>)>);
+    void *arg : itype(_Ptr<void>);
+
+    /* the other stuff we need to make sure this thread is inserted into
+    ** the thread tree
+    */
+    thread_type *thread : itype(_Ptr<thread_type>);
+    pthread_t sys_thread;
+} thread_start_t;
 /* INTERNAL FUNCTIONS */
 
 /* avl tree functions */
@@ -120,16 +119,16 @@ static int _compare_mutexes(void *compare_arg, void *a, void *b);
 static int _free_mutex(void *key);
 #endif
 
-static int _compare_threads(void *compare_arg, void *a, void *b);
-static int _free_thread(void *key);
+static int _compare_threads(void *compare_arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>));
+static int _free_thread(void *key : itype(_Ptr<void>));
 
 /* mutex fuctions */
-static void _mutex_create(mutex_t *mutex);
-static void _mutex_lock(mutex_t *mutex);
-static void _mutex_unlock(mutex_t *mutex);
+static void _mutex_create(_Ptr<mutex_t> mutex);
+static void _mutex_lock(_Ptr<mutex_t> mutex);
+static void _mutex_unlock(_Ptr<mutex_t> mutex);
 
 /* misc thread stuff */
-static void *_start_routine(void *arg);
+static void *_start_routine(void *arg : itype(_Ptr<void>)) : itype(_Ptr<void>);
 static void _catch_signals(void);
 static void _block_signals(void);
 
@@ -137,7 +136,7 @@ static void _block_signals(void);
 
 void thread_initialize(void)
 {
-    thread_type *thread;
+    _Ptr<thread_type> thread = NULL;
 
     /* set up logging */
 
@@ -166,18 +165,18 @@ void thread_initialize(void)
 
     /* initialize the thread tree and insert the main thread */
 
-    _threadtree = avl_tree_new(_compare_threads, NULL);
+    _threadtree = avl_tree_new(_compare_threads, NULL); 
 
-    thread = (thread_type *)malloc(sizeof(thread_type));
+    thread = _Dynamic_bounds_cast<_Ptr<thread_type>>(malloc<thread_type>(sizeof(thread_type)));
 
     thread->thread_id = _next_thread_id++;
     thread->line = 0;
-    thread->file = strdup("main.c");
+    thread->file = ((_Nt_array_ptr<char> )strdup("main.c"));
     thread->sys_thread = pthread_self();
     thread->create_time = time(NULL);
-    thread->name = strdup("Main Thread");
+    thread->name = ((_Nt_array_ptr<char> )strdup("Main Thread"));
 
-    avl_insert(_threadtree, (void *)thread);
+    avl_insert(_threadtree, _Dynamic_bounds_cast<_Ptr<void>>(thread));
 
     _catch_signals();
 
@@ -185,8 +184,8 @@ void thread_initialize(void)
 }
 
 void thread_shutdown(void)
-{
-    if (_initialized == 1) {
+_Checked {
+    if (_initialized == 1) _Unchecked {
         thread_mutex_destroy(&_library_mutex);
         thread_mutex_destroy(&_threadtree_mutex);
 #ifdef THREAD_DEBUG
@@ -217,15 +216,17 @@ static void _block_signals(void)
 #ifndef _WIN32
         sigset_t ss;
 
-        sigfillset(&ss);
+        _Unchecked {sigfillset(&ss);}
 
         /* These ones we want */
-        sigdelset(&ss, SIGKILL);
-        sigdelset(&ss, SIGSTOP);
-        sigdelset(&ss, SIGSEGV);
-        sigdelset(&ss, SIGCHLD);
-        sigdelset(&ss, SIGBUS);
-        if (pthread_sigmask(SIG_BLOCK, &ss, NULL) != 0) {
+        _Unchecked {sigdelset(&ss, SIGKILL);}
+        _Unchecked {sigdelset(&ss, SIGSTOP);}
+        _Unchecked {sigdelset(&ss, SIGSEGV);}
+        _Unchecked {sigdelset(&ss, SIGCHLD);}
+        _Unchecked {sigdelset(&ss, SIGBUS);}
+        int tmpRet;
+        _Unchecked {tmpRet = pthread_sigmask(SIG_BLOCK, &ss, NULL);}
+        if (tmpRet != 0) _Checked {
 #ifdef THREAD_DEBUG
                 LOG_ERROR("Pthread_sigmask() failed for blocking signals");
 #endif
@@ -243,16 +244,18 @@ static void _catch_signals(void)
 #ifndef _WIN32
         sigset_t ss;
 
-        sigemptyset(&ss);
+        _Unchecked {sigemptyset(&ss);}
 
         /* These ones should only be accepted by the signal handling thread (main thread) */
-        sigaddset(&ss, SIGHUP);
-        sigaddset(&ss, SIGCHLD);
-        sigaddset(&ss, SIGINT);
-        sigaddset(&ss, SIGPIPE);
-        sigaddset(&ss, SIGTERM);
+        _Unchecked {sigaddset(&ss, SIGHUP);}
+        _Unchecked {sigaddset(&ss, SIGCHLD);}
+        _Unchecked {sigaddset(&ss, SIGINT);}
+        _Unchecked {sigaddset(&ss, SIGPIPE);}
+        _Unchecked {sigaddset(&ss, SIGTERM);}
 
-        if (pthread_sigmask(SIG_UNBLOCK, &ss, NULL) != 0) {
+        int tmpRet;
+        _Unchecked {tmpRet = pthread_sigmask(SIG_UNBLOCK, &ss, NULL);}
+        if (tmpRet != 0) _Checked {
 #ifdef THREAD_DEBUG
                 LOG_ERROR("pthread_sigmask() failed for catching signals!");
 #endif
@@ -261,61 +264,63 @@ static void _catch_signals(void)
 }
 
 
-thread_type *thread_create_c(char *name, void *(*start_routine)(void *), 
-        void *arg, int detached, int line, char *file)
+thread_type *thread_create_c(char *name : itype(_Nt_array_ptr<char>), void * ((*start_routine)(void *)) : itype(_Ptr<_Ptr<void> (_Ptr<void>)>), void *arg : itype(_Ptr<void>), int detached, int line, char *file : itype(_Nt_array_ptr<char>)) : itype(_Ptr<thread_type>)
 {
     int ok = 1;
-    thread_type *thread = NULL;
-    thread_start_t *start = NULL;
+    _Ptr<thread_type> thread = NULL;
+    _Ptr<thread_start_t> start = NULL;
     pthread_attr_t attr;
 
-    thread = (thread_type *)calloc(1, sizeof(thread_type));    
+    thread = _Dynamic_bounds_cast<_Ptr<thread_type>>(calloc<thread_type>(1, sizeof(thread_type)));    
     do {
         if (thread == NULL)
             break;
-        start = (thread_start_t *)calloc(1, sizeof(thread_start_t));
+        start = _Dynamic_bounds_cast<_Ptr<thread_start_t>>(calloc<thread_start_t>(1, sizeof(thread_start_t)));
         if (start == NULL)
             break;
-        if (pthread_attr_init (&attr) < 0)
+        int tmpRet;
+        _Unchecked {tmpRet = pthread_attr_init (&attr);}
+        if (tmpRet < 0)
             break;
 
         thread->line = line;
-        thread->file = strdup(file);
+        thread->file = ((_Nt_array_ptr<char> )strdup(file));
 
         _mutex_lock (&_threadtree_mutex);    
         thread->thread_id = _next_thread_id++;
         _mutex_unlock (&_threadtree_mutex);
 
-        thread->name = strdup(name);
+        thread->name = ((_Nt_array_ptr<char> )strdup(name));
         thread->create_time = time(NULL);
 
         start->start_routine = start_routine;
         start->arg = arg;
         start->thread = thread;
 
-        pthread_attr_setstacksize (&attr, 512*1024);
-        pthread_attr_setinheritsched (&attr, PTHREAD_INHERIT_SCHED);
+        _Unchecked {pthread_attr_setstacksize (&attr, 512*1024);}
+        _Unchecked {pthread_attr_setinheritsched (&attr, PTHREAD_INHERIT_SCHED);}
         if (detached)
         {
-            pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
+            _Unchecked {pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);}
             thread->detached = 1;
         }
 
-        if (pthread_create (&thread->sys_thread, &attr, _start_routine, start) == 0)
+        _Unchecked {tmpRet = pthread_create (&thread->sys_thread, &attr, _start_routine, (void*)start);}
+        if (tmpRet == 0)
         {
-            pthread_attr_destroy (&attr);
+            _Unchecked {pthread_attr_destroy (&attr);}
             return thread;
         }
         else
-            pthread_attr_destroy (&attr);
+            _Unchecked {pthread_attr_destroy (&attr);}
     }
     while (0);
 
 #ifdef THREAD_DEBUG
     LOG_ERROR("Could not create new thread %s", name);
 #endif
-    if (start) free (start);
-    if (thread) free (thread);
+    if (start) free<thread_start_t> (start);
+    if (thread) free<thread_type> (thread);
     return NULL;
 }
 
@@ -323,17 +328,17 @@ thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
 ** 
 ** creates a mutex
 */
-static void _mutex_create(mutex_t *mutex)
+static void _mutex_create(_Ptr<mutex_t> mutex)
 {
 #ifdef DEBUG_MUTEXES
     mutex->thread_id = MUTEX_STATE_NEVERLOCKED;
     mutex->line = -1;
 #endif
 
-    pthread_mutex_init(&mutex->sys_mutex, NULL);
+    _Unchecked {pthread_mutex_init(&mutex->sys_mutex, NULL);}
 }
 
-void thread_mutex_create_c(mutex_t *mutex, int line, char *file)
+void thread_mutex_create_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>))
 {
     _mutex_create(mutex);
 
@@ -345,9 +350,9 @@ void thread_mutex_create_c(mutex_t *mutex, int line, char *file)
 #endif
 }
 
-void thread_mutex_destroy (mutex_t *mutex)
+void thread_mutex_destroy (mutex_t *mutex : itype(_Ptr<mutex_t>))
 {
-    pthread_mutex_destroy(&mutex->sys_mutex);
+    _Unchecked {pthread_mutex_destroy(&mutex->sys_mutex);}
 
 #ifdef DEBUG_MUTEXES
     _mutex_lock(&_mutextree_mutex);
@@ -356,7 +361,7 @@ void thread_mutex_destroy (mutex_t *mutex)
 #endif
 }
 
-void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
+void thread_mutex_lock_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>))
 {
 #ifdef DEBUG_MUTEXES
     thread_type *th = thread_self();
@@ -428,7 +433,7 @@ void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
 #endif /* DEBUG_MUTEXES */
 }
 
-void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file)
+void thread_mutex_unlock_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>))
 {
 #ifdef DEBUG_MUTEXES
     thread_type *th = thread_self();
@@ -493,75 +498,75 @@ void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file)
 #endif /* DEBUG_MUTEXES */
 }
 
-void thread_cond_create_c(cond_t *cond, int line, char *file)
+void thread_cond_create_c(cond_t *cond : itype(_Ptr<cond_t>), int line, char *file : itype(_Ptr<char>))
 {
-    pthread_cond_init(&cond->sys_cond, NULL);
-    pthread_mutex_init(&cond->cond_mutex, NULL);
+    _Unchecked {pthread_cond_init(&cond->sys_cond, NULL);}
+    _Unchecked {pthread_mutex_init(&cond->cond_mutex, NULL);}
 }
 
-void thread_cond_destroy(cond_t *cond)
+void thread_cond_destroy(cond_t *cond : itype(_Ptr<cond_t>))
 {
-    pthread_mutex_destroy(&cond->cond_mutex);
-    pthread_cond_destroy(&cond->sys_cond);
+    _Unchecked {pthread_mutex_destroy(&cond->cond_mutex);}
+    _Unchecked {pthread_cond_destroy(&cond->sys_cond);}
 }
 
-void thread_cond_signal_c(cond_t *cond, int line, char *file)
+void thread_cond_signal_c(cond_t *cond : itype(_Ptr<cond_t>), int line, char *file : itype(_Ptr<char>))
 {
-    pthread_cond_signal(&cond->sys_cond);
+    _Unchecked {pthread_cond_signal(&cond->sys_cond);}
 }
 
-void thread_cond_broadcast_c(cond_t *cond, int line, char *file)
+void thread_cond_broadcast_c(cond_t *cond : itype(_Ptr<cond_t>), int line, char *file : itype(_Ptr<char>))
 {
-    pthread_cond_broadcast(&cond->sys_cond);
+    _Unchecked {pthread_cond_broadcast(&cond->sys_cond);}
 }
 
-void thread_cond_timedwait_c(cond_t *cond, int millis, int line, char *file)
+void thread_cond_timedwait_c(cond_t *cond : itype(_Ptr<cond_t>), int millis, int line, char *file : itype(_Ptr<char>))
 {
     struct timespec time;
 
     time.tv_sec = millis/1000;
     time.tv_nsec = (millis - time.tv_sec*1000)*1000000;
 
-    pthread_mutex_lock(&cond->cond_mutex);
-    pthread_cond_timedwait(&cond->sys_cond, &cond->cond_mutex, &time);
-    pthread_mutex_unlock(&cond->cond_mutex);
+    _Unchecked {pthread_mutex_lock(&cond->cond_mutex);}
+    _Unchecked {pthread_cond_timedwait(&cond->sys_cond, &cond->cond_mutex, &time);}
+    _Unchecked {pthread_mutex_unlock(&cond->cond_mutex);}
 }
 
-void thread_cond_wait_c(cond_t *cond, int line, char *file)
+void thread_cond_wait_c(cond_t *cond : itype(_Ptr<cond_t>), int line, char *file : itype(_Ptr<char>))
 {
-    pthread_mutex_lock(&cond->cond_mutex);
-    pthread_cond_wait(&cond->sys_cond, &cond->cond_mutex);
-    pthread_mutex_unlock(&cond->cond_mutex);
+    _Unchecked {pthread_mutex_lock(&cond->cond_mutex);}
+    _Unchecked {pthread_cond_wait(&cond->sys_cond, &cond->cond_mutex);}
+    _Unchecked {pthread_mutex_unlock(&cond->cond_mutex);}
 }
 
-void thread_rwlock_create_c(rwlock_t *rwlock, int line, char *file)
+void thread_rwlock_create_c(rwlock_t *rwlock : itype(_Ptr<rwlock_t>), int line, char *file : itype(_Ptr<char>))
 {
-    pthread_rwlock_init(&rwlock->sys_rwlock, NULL);
+    _Unchecked {pthread_rwlock_init(&rwlock->sys_rwlock, NULL);}
 }
 
-void thread_rwlock_destroy(rwlock_t *rwlock)
+void thread_rwlock_destroy(rwlock_t *rwlock : itype(_Ptr<rwlock_t>))
 {
-    pthread_rwlock_destroy(&rwlock->sys_rwlock);
+    _Unchecked {pthread_rwlock_destroy(&rwlock->sys_rwlock);}
 }
 
-void thread_rwlock_rlock_c(rwlock_t *rwlock, int line, char *file)
+void thread_rwlock_rlock_c(rwlock_t *rwlock : itype(_Ptr<rwlock_t>), int line, char *file : itype(_Ptr<char>))
 {
-    pthread_rwlock_rdlock(&rwlock->sys_rwlock);
+    _Unchecked {pthread_rwlock_rdlock(&rwlock->sys_rwlock);}
 }
 
-void thread_rwlock_wlock_c(rwlock_t *rwlock, int line, char *file)
+void thread_rwlock_wlock_c(rwlock_t *rwlock : itype(_Ptr<rwlock_t>), int line, char *file : itype(_Ptr<char>))
 {
-    pthread_rwlock_wrlock(&rwlock->sys_rwlock);
+    _Unchecked {pthread_rwlock_wrlock(&rwlock->sys_rwlock);}
 }
 
-void thread_rwlock_unlock_c(rwlock_t *rwlock, int line, char *file)
+void thread_rwlock_unlock_c(rwlock_t *rwlock : itype(_Ptr<rwlock_t>), int line, char *file : itype(_Ptr<char>))
 {
-    pthread_rwlock_unlock(&rwlock->sys_rwlock);
+    _Unchecked {pthread_rwlock_unlock(&rwlock->sys_rwlock);}
 }
 
-void thread_exit_c(long val, int line, char *file)
+void thread_exit_c(long val, int line, char *file : itype(_Ptr<char>))
 {
-    thread_type *th = thread_self();
+    _Ptr<thread_type> th = thread_self();
 
 #if defined(DEBUG_MUTEXES) && defined(CHECK_MUTEXES)
     if (th) {
@@ -593,11 +598,11 @@ void thread_exit_c(long val, int line, char *file)
 #endif
 
         _mutex_lock(&_threadtree_mutex);
-        avl_delete(_threadtree, th, _free_thread);
+        _Unchecked {avl_delete(_threadtree, th, _free_thread);}
         _mutex_unlock(&_threadtree_mutex);
     }
 
-    pthread_exit ((void*)val);
+    _Unchecked {pthread_exit ((void*) val);}
 }
 
 /* sleep for a number of microseconds */
@@ -614,12 +619,12 @@ void thread_sleep(unsigned long len)
     time_sleep.tv_sec = len / 1000000;
     time_sleep.tv_nsec = (len % 1000000) * 1000;
 
-    ret = nanosleep(&time_sleep, &time_remaining);
+    _Unchecked {ret = nanosleep(&time_sleep, &time_remaining);}
     while (ret != 0 && errno == EINTR) {
         time_sleep.tv_sec = time_remaining.tv_sec;
         time_sleep.tv_nsec = time_remaining.tv_nsec;
         
-        ret = nanosleep(&time_sleep, &time_remaining);
+        _Unchecked {ret = nanosleep(&time_sleep, &time_remaining);}
     }
 # else
     struct timeval tv;
@@ -632,19 +637,19 @@ void thread_sleep(unsigned long len)
 #endif
 }
 
-static void *_start_routine(void *arg)
+static void *_start_routine(void *arg : itype(_Ptr<void>)) : itype(_Ptr<void>)
 {
-    thread_start_t *start = (thread_start_t *)arg;
-    void *(*start_routine)(void *) = start->start_routine;
-    void *real_arg = start->arg;
-    thread_type *thread = start->thread;
+    _Ptr<thread_start_t> start = _Dynamic_bounds_cast<_Ptr<thread_start_t>>(arg);
+    _Ptr<_Ptr<void> (_Ptr<void>)> start_routine = start->start_routine;
+    _Ptr<void> real_arg = start->arg;
+    _Ptr<thread_type> thread = start->thread;
 
     _block_signals();
 
     /* insert thread into thread tree here */
     _mutex_lock(&_threadtree_mutex);
     thread->sys_thread = pthread_self();
-    avl_insert(_threadtree, (void *)thread);
+    avl_insert(_threadtree, _Dynamic_bounds_cast<_Ptr<void>>(thread));
     _mutex_unlock(&_threadtree_mutex);
 
 #ifdef THREAD_DEBUG
@@ -652,24 +657,24 @@ static void *_start_routine(void *arg)
 #endif
 
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-    free (start);
+    free<thread_start_t> (start);
 
     (start_routine)(real_arg);
 
     if (thread->detached)
     {
         _mutex_lock (&_threadtree_mutex);
-        avl_delete (_threadtree, thread, _free_thread);
+        _Unchecked {avl_delete (_threadtree, thread, _free_thread);}
         _mutex_unlock (&_threadtree_mutex);
     }
 
     return NULL;
 }
 
-thread_type *thread_self(void)
+thread_type *thread_self(void) : itype(_Ptr<thread_type>)
 {
-    avl_node *node;
-    thread_type *th;
+    _Ptr<avl_node> node = ((void *)0);
+    _Ptr<thread_type> th = NULL;
     pthread_t sys_thread = pthread_self();
 
     _mutex_lock(&_threadtree_mutex);
@@ -685,7 +690,7 @@ thread_type *thread_self(void)
     node = avl_get_first(_threadtree);
     
     while (node) {
-        th = (thread_type *)node->key;
+        th = _Dynamic_bounds_cast<_Ptr<thread_type>>(node->key);
 
         if (th && pthread_equal(sys_thread, th->sys_thread)) {
             _mutex_unlock(&_threadtree_mutex);
@@ -704,24 +709,24 @@ thread_type *thread_self(void)
     return NULL;
 }
 
-void thread_rename(const char *name)
+void thread_rename(const char *name : itype(_Nt_array_ptr<const char>))
 {
-    thread_type *th;
+    _Ptr<thread_type> th = NULL;
 
     th = thread_self();
-    if (th->name) free(th->name);
+    if (th->name) free<char>(th->name);
 
-    th->name = strdup(name);
+    th->name = ((_Nt_array_ptr<char> )strdup(name));
 }
 
-static void _mutex_lock(mutex_t *mutex) 
+static void _mutex_lock(_Ptr<mutex_t> mutex) 
 {
-    pthread_mutex_lock(&mutex->sys_mutex);
+    _Unchecked {pthread_mutex_lock(&mutex->sys_mutex);} //pthread dependency
 }
 
-static void _mutex_unlock(mutex_t *mutex)
+static void _mutex_unlock(_Ptr<mutex_t> mutex)
 {
-    pthread_mutex_unlock(&mutex->sys_mutex);
+    _Unchecked {pthread_mutex_unlock(&mutex->sys_mutex);} //pthread dependency
 }
 
 
@@ -737,24 +742,27 @@ void thread_library_unlock(void)
 
 void thread_join(thread_type *thread)
 {
-    void *ret;
     int i;
 
-    i = pthread_join(thread->sys_thread, &ret);
+    _Unchecked {
+      void* ret = NULL;
+      i = pthread_join(thread->sys_thread, ret);
+    } //pthread library dependency
     _mutex_lock(&_threadtree_mutex);
-    avl_delete(_threadtree, thread, _free_thread);
+    _Unchecked {avl_delete(_threadtree, _Dynamic_bounds_cast<_Ptr<void>>(thread), _free_thread);} //unchecked due to void* on _free_thread
     _mutex_unlock(&_threadtree_mutex);
 }
 
 /* AVL tree functions */
 
 #ifdef DEBUG_MUTEXES
-static int _compare_mutexes(void *compare_arg, void *a, void *b)
+static int _compare_mutexes(void *compare_arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
-    mutex_t *m1, *m2;
+    _Ptr<mutex_t> m1 = NULL;
+    _Ptr<mutex_t> m2 = NULL;
 
-    m1 = (mutex_t *)a;
-    m2 = (mutex_t *)b;
+    m1 = _Dynamic_bounds_cast<_Ptr<mutex_t>> a = NULL;
+    m2 = _Dynamic_bounds_cast<_Ptr<mutex_t>> b = NULL;
 
     if (m1->mutex_id > m2->mutex_id)
         return 1;
@@ -764,13 +772,13 @@ static int _compare_mutexes(void *compare_arg, void *a, void *b)
 }
 #endif
 
-static int _compare_threads(void *compare_arg, void *a, void *b)
+static int _compare_threads(void *compare_arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>))
 {
-    thread_type *t1 = NULL;
-    thread_type *t2 = NULL;
+    _Ptr<thread_type> t1 = NULL;
+    _Ptr<thread_type> t2 = NULL;
 
-    t1 = (thread_type*) a;
-    t2 = (thread_type*) b;
+    t1 = _Dynamic_bounds_cast<_Ptr<thread_type>>(a);
+    t2 = _Dynamic_bounds_cast<_Ptr<thread_type>>(b);
 
     if (t1->thread_id > t2->thread_id)
         return 1;
@@ -797,46 +805,48 @@ static int _free_mutex(void *key)
 }
 #endif
 
-static int _free_thread(void *key)
+static int _free_thread(void *key : itype(_Ptr<void>))
 {
-    thread_type *t;
+    _Ptr<thread_type> t = NULL;
 
-    t = (thread_type *)key;
+    t = _Dynamic_bounds_cast<_Ptr<thread_type>>(key);
 
     if (t->file)
-        free(t->file);
+        free<char>(t->file);
     if (t->name)
-        free(t->name);
+        free<char>(t->name);
 
-    free(t);
+    free<thread_type>(t);
 
     return 1;
 }
 
 
 #ifdef HAVE_PTHREAD_SPIN_LOCK
-void thread_spin_create (spin_t *spin)
+void thread_spin_create (spin_t *spin : itype(_Ptr<spin_t>))
 {
-    int x = pthread_spin_init (&spin->lock, PTHREAD_PROCESS_PRIVATE);
+    int x;
+    _Unchecked {x = pthread_spin_init (&spin->lock, PTHREAD_PROCESS_PRIVATE);}
     if (x)
         abort();
 }
 
-void thread_spin_destroy (spin_t *spin)
+void thread_spin_destroy (spin_t *spin : itype(_Ptr<spin_t>))
 {
-    pthread_spin_destroy (&spin->lock);
+    _Unchecked {pthread_spin_destroy (&spin->lock);}
 }
 
-void thread_spin_lock (spin_t *spin)
+void thread_spin_lock (spin_t *spin : itype(_Ptr<spin_t>))
 {
-    int x = pthread_spin_lock (&spin->lock);
+    int x;
+    _Unchecked {x = pthread_spin_lock (&spin->lock);}
     if (x != 0)
         abort();
 }
 
-void thread_spin_unlock (spin_t *spin)
+void thread_spin_unlock (spin_t *spin : itype(_Ptr<spin_t>))
 {
-    pthread_spin_unlock (&spin->lock);
+    _Unchecked {pthread_spin_unlock (&spin->lock);}
 }
 #endif
 

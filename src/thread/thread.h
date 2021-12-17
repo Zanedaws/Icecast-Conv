@@ -163,7 +163,7 @@ void thread_initialize_with_log_id(int log_id);
 void thread_shutdown(void);
 
 /* creation, destruction, locking, unlocking, signalling and waiting */
-thread_type *thread_create_c(char *name : itype(_Nt_array_ptr<char>), void * ((*start_routine)(void *)) : itype(_Ptr<void *(void *)>), void *arg : itype(_Array_ptr<void>), int detached, int line, char *file : itype(_Nt_array_ptr<char>)) : itype(_Ptr<thread_type>);
+thread_type *thread_create_c(char *name : itype(_Nt_array_ptr<char>), void * ((*start_routine)(void *)) : itype(_Ptr<_Ptr<void> (_Ptr<void>)>), void *arg : itype(_Ptr<void>), int detached, int line, char *file : itype(_Nt_array_ptr<char>)) : itype(_Ptr<thread_type>);
 void thread_mutex_create_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>));
 void thread_mutex_lock_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>));
 void thread_mutex_unlock_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>));
@@ -190,7 +190,7 @@ void thread_library_unlock(void);
 #define PROTECT_CODE(code) { thread_library_lock(); code; thread_library_unlock(); }
 
 /* thread information functions */
-thread_type *thread_self(void);
+thread_type *thread_self(void) : itype(_Ptr<thread_type>);
 
 /* renames current thread */
 void thread_rename(const char *name : itype(_Nt_array_ptr<const char>));
