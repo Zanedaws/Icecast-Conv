@@ -55,24 +55,26 @@
 #define STATS_EVENT_REMOVE  5
 #define STATS_EVENT_HIDDEN  6
 
+
 typedef struct _event_queue_tag
 {
-    volatile stats_event_t *head;
-    volatile stats_event_t **tail;
+    volatile stats_event_t *head : itype(_Ptr<volatile stats_event_t>);
+    volatile stats_event_t **tail : itype(_Ptr<_Ptr<volatile stats_event_t>>);
 } event_queue_t;
 
 #define event_queue_init(qp)    { (qp)->head = NULL; (qp)->tail = &(qp)->head; }
+
 
 typedef struct _event_listener_tag
 {
     event_queue_t queue;
     mutex_t mutex;
 
-    struct _event_listener_tag *next;
+    struct _event_listener_tag *next : itype(_Ptr<struct _event_listener_tag>);
 } event_listener_t;
 
 static volatile int _stats_running = 0;
-static thread_type *_stats_thread_id;
+static _Ptr<thread_type> _stats_thread_id = ((void *)0);
 static volatile int _stats_threads = 0;
 
 static stats_t _stats;
@@ -81,42 +83,44 @@ static mutex_t _stats_mutex;
 static event_queue_t _global_event_queue;
 mutex_t _global_event_mutex;
 
-static volatile event_listener_t *_event_listeners;
+static _Ptr<volatile event_listener_t> _event_listeners = ((void *)0);
 
-
-static void *_stats_thread(void *arg);
+static void *_stats_thread(void *arg : itype(_Ptr<void>)) : itype(_Ptr<void>);
 static int _compare_stats(void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>), void *arg : itype(_Ptr<void>));
 static int _compare_source_stats(void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>), void *arg : itype(_Ptr<void>));
-static int _free_stats(void *key);
-static int _free_source_stats(void *key);
-static void _add_event_to_queue(stats_event_t *event, event_queue_t *queue);
-static stats_node_t *_find_node(avl_tree *tree, const char *name);
-static stats_source_t *_find_source(avl_tree *tree, const char *source);
-static void _free_event(stats_event_t *event);
-static stats_event_t *_get_event_from_queue (event_queue_t *queue);
+static int _free_stats(void *key : itype(_Ptr<void>));
+static int _free_source_stats(void *key : itype(_Ptr<void>));
+static void _add_event_to_queue(_Ptr<stats_event_t> event, _Ptr<event_queue_t> queue);
+static _Ptr<stats_node_t> _find_node(_Ptr<avl_tree> tree, _Nt_array_ptr<const char> name);
+static _Ptr<stats_source_t> _find_source(_Ptr<avl_tree> tree, _Nt_array_ptr<const char> source);
+static void _free_event(_Ptr<stats_event_t> event);
+static _Ptr<stats_event_t> _get_event_from_queue(_Ptr<event_queue_t> queue);
+static void _register_listener (event_listener_t* listener : itype(_Ptr<event_listener_t>));
+
+#pragma CHECKED_SCOPE on
 
 
 /* simple helper function for creating an event */
-static stats_event_t *build_event (const char *source, const char *name, const char *value)
+static _Ptr<stats_event_t> build_event(_Nt_array_ptr<const char> source, _Nt_array_ptr<const char> name : count(9), _Nt_array_ptr<const char> value : byte_count(0))
 {
-    stats_event_t *event;
+    _Ptr<stats_event_t> event = ((void *)0);
 
-    event = (stats_event_t *)calloc(1, sizeof(stats_event_t));
+    event = _Dynamic_bounds_cast<_Ptr<stats_event_t>>(calloc<stats_event_t>(1, sizeof(stats_event_t)));
     if (event)
     {
         if (source)
-            event->source = (char *)strdup(source);
+            event->source = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(source), byte_count(4096));
         if (name)
-            event->name = (char *)strdup(name);
+            event->name = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(name), byte_count(4096));
         if (value)
-            event->value = (char *)strdup(value);
+            event->value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(value), byte_count(4096));
         else
             event->action = STATS_EVENT_REMOVE;
     }
     return event;
 }
 
-static void queue_global_event (stats_event_t *event)
+static void queue_global_event (_Ptr<stats_event_t> event)
 {
     thread_mutex_lock(&_global_event_mutex);
     _add_event_to_queue (event, &_global_event_queue);
@@ -161,7 +165,7 @@ void stats_shutdown(void)
         n = _stats_threads;
         thread_mutex_unlock(&_stats_mutex);
     } while (n > 0);
-    ICECAST_LOG_INFO("stats thread finished");
+    _Unchecked {ICECAST_LOG_INFO("stats thread finished");}
 
     /* free the queues */
 
@@ -174,19 +178,19 @@ void stats_shutdown(void)
 
     while (1)
     {
-        stats_event_t *event = _get_event_from_queue (&_global_event_queue);
+        _Ptr<stats_event_t> event = _get_event_from_queue (&_global_event_queue);
         if (event == NULL) break;
         if(event->source)
-            free(event->source);
+            free<char>(event->source);
         if(event->value)
-            free(event->value);
+            free<char>(event->value);
         if(event->name)
-            free(event->name);
-        free(event);
+            free<char>(event->name);
+        free<stats_event_t>(event);
     }
 }
 
-stats_t *stats_get_stats(void)
+stats_t *stats_get_stats(void) : itype(_Ptr<stats_t>)
 {
     /* lock global stats
     
@@ -200,43 +204,42 @@ stats_t *stats_get_stats(void)
 }
 
 /* simple name=tag stat create/update */
-void stats_event(const char *source, const char *name, const char *value)
+void stats_event(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>))
 {
-    stats_event_t *event;
+    _Ptr<stats_event_t> event = ((void *)0);
 
-    if (value && xmlCheckUTF8 ((unsigned char *)value) == 0)
-    {
-        ICECAST_LOG_WARN("seen non-UTF8 data, probably incorrect metadata (%s, %s)", name, value);
+    _Unchecked {if (value && xmlCheckUTF8 ((unsigned char *)value) == 0)
+    _Checked {
+        _Unchecked {ICECAST_LOG_WARN("seen non-UTF8 data, probably incorrect metadata (%s, %s)", name, value);}
         return;
-    }
-    event = build_event (source, name, value);
+    }}
+    event = build_event (source, _Dynamic_bounds_cast<_Nt_array_ptr<char>>(name, byte_count(9)), value);
     if (event)
         queue_global_event (event);
 }
 
 
 /* wrapper for stats_event, this takes a charset to convert from */
-void stats_event_conv(const char *mount, const char *name, const char *value, const char *charset)
-{
+void stats_event_conv(const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Nt_array_ptr<const char>))
+_Unchecked { //most of this function would be unchecked anyways due to xml library calls
     const char *metadata = value;
     xmlBufferPtr conv = xmlBufferCreate ();
 
     if (charset)
     {
-//       xmlCharEncodingHandlerPtr handle = xmlFindCharEncodingHandler (charset);
+        xmlCharEncodingHandlerPtr handle = xmlFindCharEncodingHandler (charset);
         int deletethisvariable = 0;
-        //if (handle)
-        if (1)
+        if (handle)
         {
             xmlBufferPtr raw = xmlBufferCreate ();
-            xmlBufferAdd (raw, (const xmlChar *)value, strlen (value));
-            //if (xmlCharEncInFunc (handle, conv, raw) > 0)
-            //    metadata = (char *)xmlBufferContent (conv);
+            _Unchecked {xmlBufferAdd (raw, (const xmlChar *)value, strlen (value));}
+            if (xmlCharEncInFunc (handle, conv, raw) > 0)
+                metadata = xmlBufferContent (conv);
             xmlBufferFree (raw);
-            //xmlCharEncCloseFunc (handle);
+            _Unchecked {xmlCharEncCloseFunc (handle);}
         }
         else
-            ICECAST_LOG_WARN("No charset found for \"%s\"", charset);
+            _Unchecked {ICECAST_LOG_WARN("No charset found for \"%s\"", charset);}
     }
 
     stats_event (mount, name, metadata);
@@ -245,10 +248,10 @@ void stats_event_conv(const char *mount, const char *name, const char *value, co
 
 /* make stat hidden (non-zero). name can be NULL if it applies to a whole
  * source stats tree. */
-void stats_event_hidden (const char *source, const char *name, int hidden)
+void stats_event_hidden (const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), int hidden)
 {
-    stats_event_t *event;
-    const char *str = NULL;
+    _Ptr<stats_event_t> event = ((void *)0);
+    _Nt_array_ptr<const char> str : byte_count(0) = NULL;
 
     if (hidden)
         str = "";
@@ -261,32 +264,34 @@ void stats_event_hidden (const char *source, const char *name, int hidden)
 }
 
 /* printf style formatting for stat create/update */
-void stats_event_args(const char *source, char *name, char *format, ...)
+_Unchecked void stats_event_args(const char *source : itype(_Nt_array_ptr<const char>), char *name : itype(_Nt_array_ptr<char>), char *format : itype(_Nt_array_ptr<char>), ...)
 {
-    char buf[1024];
-    va_list val;
+    char buf _Nt_checked[1024];
     int ret;
 
     if (name == NULL)
         return;
+    _Unchecked {
+    va_list val;
     va_start(val, format);
     ret = vsnprintf(buf, sizeof(buf), format, val);
     va_end(val);
+    }
 
     if (ret < 0 || (unsigned int)ret >= sizeof (buf))
     {
-        ICECAST_LOG_WARN("problem with formatting %s stat %s",
-                source==NULL ? "global" : source, name);
+        _Unchecked {ICECAST_LOG_WARN("problem with formatting %s stat %s",
+                source==NULL ? "global" : source, name);}
         return;
     }
     stats_event(source, name, buf);
 }
 
-static char *_get_stats(const char *source, const char *name)
+static _Ptr<char> _get_stats(_Nt_array_ptr<const char> source, _Nt_array_ptr<const char> name)
 {
-    stats_node_t *stats = NULL;
-    stats_source_t *src = NULL;
-    char *value = NULL;
+    _Ptr<stats_node_t> stats = NULL;
+    _Ptr<stats_source_t> src = NULL;
+    _Ptr<char> value = NULL;
 
     thread_mutex_lock(&_stats_mutex);
 
@@ -299,22 +304,22 @@ static char *_get_stats(const char *source, const char *name)
         }
     }
 
-    if (stats) value = (char *)strdup(stats->value);
+    if (stats) value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(stats->value), byte_count(4096));
 
     thread_mutex_unlock(&_stats_mutex);
 
     return value;
 }
 
-char *stats_get_value(const char *source, const char *name)
-{
+char *stats_get_value(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<char>)
+_Checked {
     return(_get_stats(source, name));
 }
 
 /* increase the value in the provided stat by 1 */
-void stats_event_inc(const char *source, const char *name)
+void stats_event_inc(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9))
 {
-    stats_event_t *event = build_event (source, name, NULL);
+    _Ptr<stats_event_t> event = build_event (source, name, NULL);
     /* ICECAST_LOG_DEBUG("%s on %s", name, source==NULL?"global":source); */
     if (event)
     {
@@ -323,36 +328,36 @@ void stats_event_inc(const char *source, const char *name)
     }
 }
 
-void stats_event_add(const char *source, const char *name, unsigned long value)
+void stats_event_add(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), unsigned long value)
 {
-    stats_event_t *event = build_event (source, name, NULL);
+    _Ptr<stats_event_t> event = build_event (source, name, NULL);
     /* ICECAST_LOG_DEBUG("%s on %s", name, source==NULL?"global":source); */
     if (event)
     {
-        event->value = malloc (16);
-        snprintf (event->value, 16, "%ld", value);
+        event->value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char>(16), byte_count(16));
+        _Unchecked {snprintf (event->value, 16, "%ld", value);}
         event->action = STATS_EVENT_ADD;
         queue_global_event (event);
     }
 }
 
-void stats_event_sub(const char *source, const char *name, unsigned long value)
+void stats_event_sub(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), unsigned long value)
 {
-    stats_event_t *event = build_event (source, name, NULL);
+    _Ptr<stats_event_t> event = build_event (source, name, NULL);
     if (event)
     {
-        event->value = malloc (16);
-        snprintf (event->value, 16, "%ld", value);
+        event->value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char> (16), byte_count(16));
+        _Unchecked {snprintf (event->value, 16, "%ld", value);}
         event->action = STATS_EVENT_SUB;
         queue_global_event (event);
     }
 }
 
 /* decrease the value in the provided stat by 1 */
-void stats_event_dec(const char *source, const char *name)
+void stats_event_dec(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9))
 {
     /* ICECAST_LOG_DEBUG("%s on %s", name, source==NULL?"global":source); */
-    stats_event_t *event = build_event (source, name, NULL);
+    _Ptr<stats_event_t> event = build_event (source, name, NULL);
     if (event)
     {
         event->action = STATS_EVENT_DEC;
@@ -363,17 +368,17 @@ void stats_event_dec(const char *source, const char *name)
 /* note: you must call this function only when you have exclusive access
 ** to the avl_tree
 */
-static stats_node_t *_find_node(avl_tree *stats_tree, const char *name)
+static _Ptr<stats_node_t> _find_node(_Ptr<avl_tree> stats_tree, _Nt_array_ptr<const char> name)
 {
-    stats_node_t *stats;
-    avl_node *node;
+    _Ptr<stats_node_t> stats = ((void *)0);
+    _Ptr<avl_node> node = ((void *)0);
     int cmp;
 
     /* get the root node */
     node = stats_tree->root->right;
     
     while (node) {
-        stats = (stats_node_t *)node->key;
+        stats = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(node->key);
         cmp = strcmp(name, stats->name);
         if (cmp < 0) 
             node = node->left;
@@ -390,16 +395,16 @@ static stats_node_t *_find_node(avl_tree *stats_tree, const char *name)
 /* note: you must call this function only when you have exclusive access
 ** to the avl_tree
 */
-static stats_source_t *_find_source(avl_tree *source_tree, const char *source)
+static _Ptr<stats_source_t> _find_source(_Ptr<avl_tree> source_tree, _Nt_array_ptr<const char> source)
 {
-    stats_source_t *stats;
-    avl_node *node;
+    _Ptr<stats_source_t> stats = ((void *)0);
+    _Ptr<avl_node> node = ((void *)0);
     int cmp;
 
     /* get the root node */
     node = source_tree->root->right;
     while (node) {
-        stats = (stats_source_t *)node->key;
+        stats = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(node->key);
         cmp = strcmp(source, stats->source);
         if (cmp < 0)
             node = node->left;
@@ -413,17 +418,17 @@ static stats_source_t *_find_source(avl_tree *source_tree, const char *source)
     return NULL;
 }
 
-static stats_event_t *_copy_event(stats_event_t *event)
+static _Ptr<stats_event_t> _copy_event(_Ptr<stats_event_t> event)
 {
-    stats_event_t *copy = (stats_event_t *)calloc(1, sizeof(stats_event_t));
+    _Ptr<stats_event_t> copy = (_Ptr<stats_event_t>)calloc<stats_event_t>(1, sizeof(stats_event_t));
     if (event->source) 
-        copy->source = (char *)strdup(event->source);
+        copy->source = (_Nt_array_ptr<char>)strdup(event->source);
     else
         copy->source = NULL;
     if (event->name)
-        copy->name = (char *)strdup(event->name);
+        copy->name = (_Nt_array_ptr<char>)strdup(event->name);
     if (event->value)
-        copy->value = (char *)strdup(event->value);
+        copy->value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(event->value), byte_count(4096));
     else
         copy->value = NULL;
     copy->hidden = event->hidden;
@@ -434,9 +439,9 @@ static stats_event_t *_copy_event(stats_event_t *event)
 
 
 /* helper to apply specialised changes to a stats node */
-static void modify_node_event (stats_node_t *node, stats_event_t *event)
+static void modify_node_event (_Ptr<stats_node_t> node, _Ptr<stats_event_t> event)
 {
-    char *str;
+    _Nt_array_ptr<char> str = NULL;
 
     if (event->action == STATS_EVENT_HIDDEN)
     {
@@ -465,39 +470,39 @@ static void modify_node_event (stats_node_t *node, stats_event_t *event)
                 value = atoll (node->value) - atoll (event->value);
                 break;
             default:
-                ICECAST_LOG_WARN("unhandled event (%d) for %s", event->action, event->source);
+                _Unchecked {ICECAST_LOG_WARN("unhandled event (%d) for %s", event->action, event->source);}
                 break;
         }
-        str = malloc (16);
-        snprintf (str, 16, "%" PRId64, value);
+        str = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(malloc<char> (16), byte_count(16));
+        _Unchecked {snprintf ((char*)str, 16, "%" PRId64, value);}
         if (event->value == NULL)
             event->value = strdup (str);
     }
     else
-        str = (char *)strdup (event->value);
-    free (node->value);
+        str = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup (event->value), byte_count(4096));
+    free<char> (node->value);
     node->value = str;
     if (event->source)
-        ICECAST_LOG_DEBUG("update \"%s\" %s (%s)", event->source, node->name, node->value);
+        _Unchecked {ICECAST_LOG_DEBUG("update \"%s\" %s (%s)", event->source, node->name, node->value);}
     else
-        ICECAST_LOG_DEBUG("update global %s (%s)", node->name, node->value);
+        _Unchecked {ICECAST_LOG_DEBUG("update global %s (%s)", node->name, node->value);}
 }
 
 
-static void process_global_event (stats_event_t *event)
+static void process_global_event (_Ptr<stats_event_t> event)
 {
-    stats_node_t *node;
+    _Ptr<stats_node_t> node = NULL;
 
     /* ICECAST_LOG_DEBUG("global event %s %s %d", event->name, event->value, event->action); */
     if (event->action == STATS_EVENT_REMOVE)
     {
         /* we're deleting */
-        node = _find_node(_stats.global_tree, event->name);
+        node = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(_find_node(_stats.global_tree, event->name));
         if (node != NULL)
-            avl_delete(_stats.global_tree, (void *)node, _free_stats);
+            avl_delete(_stats.global_tree, _Dynamic_bounds_cast<_Ptr<void>>(node), _free_stats);
         return;
     }
-    node = _find_node(_stats.global_tree, event->name);
+    node = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(_find_node(_stats.global_tree, event->name));
     if (node)
     {
         modify_node_event (node, event);
@@ -505,38 +510,38 @@ static void process_global_event (stats_event_t *event)
     else
     {
         /* add node */
-        node = (stats_node_t *)calloc(1, sizeof(stats_node_t));
-        node->name = (char *)strdup(event->name);
-        node->value = (char *)strdup(event->value);
+        node = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(calloc<stats_node_t>(1, sizeof(stats_node_t)));
+        node->name = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(event->name), byte_count(512));
+        node->value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(event->value), byte_count(512));
 
-        avl_insert(_stats.global_tree, (void *)node);
+        avl_insert(_stats.global_tree, _Dynamic_bounds_cast<_Ptr<void>>(node));
     }
 }
 
 
-static void process_source_event (stats_event_t *event)
+static void process_source_event (_Ptr<stats_event_t> event)
 {
-    stats_source_t *snode = _find_source(_stats.source_tree, event->source);
+    _Ptr<stats_source_t> snode = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(_find_source(_stats.source_tree, event->source));
     if (snode == NULL)
     {
         if (event->action == STATS_EVENT_REMOVE)
             return;
-        snode = (stats_source_t *)calloc(1,sizeof(stats_source_t));
+        snode = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(calloc<stats_source_t>(1,sizeof(stats_source_t)));
         if (snode == NULL)
             return;
-        ICECAST_LOG_DEBUG("new source stat %s", event->source);
-        snode->source = (char *)strdup(event->source);
+        _Unchecked {ICECAST_LOG_DEBUG("new source stat %s", event->source);}
+        snode->source = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(event->source), byte_count(4096));
         snode->stats_tree = avl_tree_new(_compare_stats, NULL);
         if (event->action == STATS_EVENT_HIDDEN)
             snode->hidden = 1;
         else
             snode->hidden = 0;
 
-        avl_insert(_stats.source_tree, (void *)snode);
+        avl_insert(_stats.source_tree, _Dynamic_bounds_cast<_Ptr<void>>(snode));
     }
     if (event->name)
     {
-        stats_node_t *node = _find_node(snode->stats_tree, event->name);
+        _Ptr<stats_node_t> node = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(_find_node(snode->stats_tree, event->name));
         if (node == NULL)
         {
             if (event->action == STATS_EVENT_REMOVE)
@@ -544,20 +549,20 @@ static void process_source_event (stats_event_t *event)
             /* adding node */
             if (event->value)
             {
-                ICECAST_LOG_DEBUG("new node %s (%s)", event->name, event->value);
-                node = (stats_node_t *)calloc(1,sizeof(stats_node_t));
-                node->name = (char *)strdup(event->name);
-                node->value = (char *)strdup(event->value);
+                _Unchecked {ICECAST_LOG_DEBUG("new node %s (%s)", event->name, event->value);}
+                node = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(calloc<stats_node_t>(1,sizeof(stats_node_t)));
+                node->name = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(event->name), byte_count(4096));
+                node->value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(event->value), byte_count(4096));
                 node->hidden = snode->hidden;
 
-                avl_insert(snode->stats_tree, (void *)node);
+                avl_insert(snode->stats_tree, _Dynamic_bounds_cast<_Ptr<void>>(node));
             }
             return;
         }
         if (event->action == STATS_EVENT_REMOVE)
         {
-            ICECAST_LOG_DEBUG("delete node %s", event->name);
-            avl_delete(snode->stats_tree, (void *)node, _free_stats);
+            _Unchecked {ICECAST_LOG_DEBUG("delete node %s", event->name);}
+            avl_delete(snode->stats_tree, _Dynamic_bounds_cast<_Ptr<void>>(node), _free_stats);
             return;
         }
         modify_node_event (node, event);
@@ -565,7 +570,7 @@ static void process_source_event (stats_event_t *event)
     }
     if (event->action == STATS_EVENT_HIDDEN)
     {
-        avl_node *node = avl_get_first (snode->stats_tree);
+        _Ptr<avl_node> node = avl_get_first (snode->stats_tree);
 
         if (event->value)
             snode->hidden = 1;
@@ -573,7 +578,7 @@ static void process_source_event (stats_event_t *event)
             snode->hidden = 0;
         while (node)
         {
-            stats_node_t *stats = (stats_node_t*)node->key;
+            _Ptr<stats_node_t> stats = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(node->key);
             stats->hidden = snode->hidden;
             node = avl_get_next (node);
         }
@@ -581,17 +586,17 @@ static void process_source_event (stats_event_t *event)
     }
     if (event->action == STATS_EVENT_REMOVE)
     {
-        ICECAST_LOG_DEBUG("delete source node %s", event->source);
-        avl_delete(_stats.source_tree, (void *)snode, _free_source_stats);
+        _Unchecked {ICECAST_LOG_DEBUG("delete source node %s", event->source);}
+        avl_delete(_stats.source_tree, _Dynamic_bounds_cast<_Ptr<void>>(snode), _free_source_stats);
     }
 }
 
 /* NOTE: implicit %z is added to format string. */
-static inline void __format_time(char * buffer, size_t len, const char * format) {
+static inline void __format_time(_Nt_array_ptr<char> buffer : count(len), size_t len, _Nt_array_ptr<const char> format) {
     time_t now = time(NULL);
     struct tm local;
-    char tzbuffer[32];
-    char timebuffer[128];
+    char tzbuffer _Nt_checked[32];
+    char timebuffer _Nt_checked[128];
 #ifdef _WIN32
     struct tm *thetime;
     int time_days, time_hours, time_tz;
@@ -599,7 +604,7 @@ static inline void __format_time(char * buffer, size_t len, const char * format)
     char sign;
 #endif
 
-    localtime_r (&now, &local);
+    _Unchecked {localtime_r (&now, &local);}
 #ifndef _WIN32
     strftime (tzbuffer, sizeof(tzbuffer), "%z", &local);
 #else
@@ -632,28 +637,28 @@ static inline void __format_time(char * buffer, size_t len, const char * format)
 #endif
     strftime (timebuffer, sizeof(timebuffer), format, &local);
 
-    snprintf(buffer, len, "%s%s", timebuffer, tzbuffer);
+    _Unchecked {snprintf(buffer, len, "%s%s", timebuffer, tzbuffer);}
 }
 
-void stats_event_time (const char *mount, const char *name)
-{
-    char buffer[100];
+void stats_event_time (const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(12))
+_Checked {
+    char buffer _Nt_checked[101];
 
-    __format_time(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S ");
+    __format_time(buffer, 100, "%a, %d %b %Y %H:%M:%S ");
     stats_event (mount, name, buffer);
 }
 
 
-void stats_event_time_iso8601 (const char *mount, const char *name)
-{
-    char buffer[100];
+void stats_event_time_iso8601 (const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(20))
+_Checked {
+    char buffer _Nt_checked[101];
 
-    __format_time(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%S");
+    __format_time(buffer, 100, "%Y-%m-%dT%H:%M:%S");
     stats_event (mount, name, buffer);
 }
 
 
-void stats_global (ice_config_t *config)
+void stats_global (ice_config_t *config : itype(_Ptr<ice_config_t>))
 {
     stats_event (NULL, "server_id", config->server_id);
     stats_event (NULL, "host", config->hostname);
@@ -662,11 +667,11 @@ void stats_global (ice_config_t *config)
 }
 
 
-static void *_stats_thread(void *arg)
+static void *_stats_thread(void *arg : itype(_Ptr<void>)) : itype(_Ptr<void>)
 {
-    stats_event_t *event;
-    stats_event_t *copy;
-    event_listener_t *listener;
+    _Ptr<stats_event_t> event = ((void *)0);
+    _Ptr<stats_event_t> copy = ((void *)0);
+    _Ptr<event_listener_t> listener = ((void *)0);
 
     stats_event_time (NULL, "server_start");
     stats_event_time_iso8601 (NULL, "server_start_iso8601");
@@ -686,7 +691,7 @@ static void *_stats_thread(void *arg)
     stats_event (NULL, "stats_connections", "0");
     stats_event (NULL, "listener_connections", "0");
 
-    ICECAST_LOG_INFO("stats thread started");
+    _Unchecked {ICECAST_LOG_INFO("stats thread started");}
     while (_stats_running) {
         thread_mutex_lock(&_global_event_mutex);
         if (_global_event_queue.head != NULL) {
@@ -708,7 +713,7 @@ static void *_stats_thread(void *arg)
             
             /* now we have an event that's been processed into the running stats */
             /* this event should get copied to event listeners' queues */
-            listener = (event_listener_t *)_event_listeners;
+            listener = (_Ptr<event_listener_t>)_event_listeners;
             while (listener) {
                 copy = _copy_event(event);
                 thread_mutex_lock (&listener->mutex);
@@ -736,10 +741,11 @@ static void *_stats_thread(void *arg)
 }
 
 /* you must have the _stats_mutex locked here */
-static void _unregister_listener(event_listener_t *listener)
+static void _unregister_listener(_Ptr<event_listener_t> listener)
 {
-    event_listener_t **prev = (event_listener_t **)&_event_listeners,
-                     *current = *prev;
+    _Ptr<_Ptr<event_listener_t>> prev = (_Ptr<_Ptr<event_listener_t>>)&_event_listeners;
+_Ptr<event_listener_t> current = *prev;
+
     while (current)
     {
         if (current == listener)
@@ -753,16 +759,16 @@ static void _unregister_listener(event_listener_t *listener)
 }
 
 
-static stats_event_t *_make_event_from_node(stats_node_t *node, char *source)
+static _Ptr<stats_event_t> _make_event_from_node(_Ptr<stats_node_t> node, _Nt_array_ptr<char> source)
 {
-    stats_event_t *event = (stats_event_t *)malloc(sizeof(stats_event_t));
+    _Ptr<stats_event_t> event = (_Ptr<stats_event_t>)malloc<stats_event_t>(sizeof(stats_event_t));
     
     if (source != NULL)
-        event->source = (char *)strdup(source);
+        event->source = (_Nt_array_ptr<char>)strdup(source);
     else
         event->source = NULL;
-    event->name = (char *)strdup(node->name);
-    event->value = (char *)strdup(node->value);
+    event->name = (_Nt_array_ptr<char>)strdup(node->name);
+    event->value = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(strdup(node->value), byte_count(4096));
     event->hidden = node->hidden;
     event->action = STATS_EVENT_SET;
     event->next = NULL;
@@ -771,20 +777,20 @@ static stats_event_t *_make_event_from_node(stats_node_t *node, char *source)
 }
 
 
-static void _add_event_to_queue(stats_event_t *event, event_queue_t *queue)
+static void _add_event_to_queue(_Ptr<stats_event_t> event, _Ptr<event_queue_t> queue)
 {
     *queue->tail = event;
-    queue->tail = (volatile stats_event_t **)&event->next;
+    queue->tail = (_Ptr<_Ptr<volatile stats_event_t>>)&event->next;
 }
 
 
-static stats_event_t *_get_event_from_queue (event_queue_t *queue)
+static _Ptr<stats_event_t> _get_event_from_queue(_Ptr<event_queue_t> queue)
 {
-    stats_event_t *event = NULL;
+    _Ptr<stats_event_t> event = NULL;
 
     if (queue && queue->head)
     {
-        event = (stats_event_t *)queue->head;
+        event = (_Ptr<stats_event_t>)queue->head;
         queue->head = event->next;
         if (queue->head == NULL)
             queue->tail = &queue->head;
@@ -793,19 +799,19 @@ static stats_event_t *_get_event_from_queue (event_queue_t *queue)
     return event;
 }
 
-static int _send_event_to_client(stats_event_t *event, client_t *client)
+static int _send_event_to_client(_Ptr<stats_event_t> event, _Ptr<client_t> client)
 {
     int len;
-    char buf [200];
+    char buf _Nt_checked[200];
 
     /* send data to the client!!!! */
-    len = snprintf (buf, sizeof (buf), "EVENT %s %s %s\n",
+    _Unchecked {len = snprintf (buf, sizeof (buf), "EVENT %s %s %s\n",
             (event->source != NULL) ? event->source : "global",
             event->name ? event->name : "null",
-            event->value ? event->value : "null");
+            event->value ? event->value : "null");}
     if (len > 0 && len < (int)sizeof (buf))
     {
-        client_send_bytes (client, buf, len);
+        client_send_bytes<char> (client, buf, len);
         if (client->con->error)
             return -1;
     }
@@ -813,39 +819,40 @@ static int _send_event_to_client(stats_event_t *event, client_t *client)
 }
 
 
-static xmlNodePtr _dump_stats_to_doc (xmlNodePtr root, const char *show_mount, int hidden)
+static xmlNodePtr _dump_stats_to_doc (xmlNodePtr root : itype(_Ptr<struct _xmlNode>), const char* show_mount : itype(_Nt_array_ptr<const char>), int hidden) : itype(_Ptr<struct _xmlNode>)
 {
-    avl_node *avlnode;
-    xmlNodePtr ret = NULL;
+    _Ptr<avl_node> avlnode = ((void *)0);
+    _Ptr<struct _xmlNode> ret = NULL;
 
     thread_mutex_lock(&_stats_mutex);
     /* general stats first */
     avlnode = avl_get_first(_stats.global_tree);
     while (avlnode)
     {
-        stats_node_t *stat = avlnode->key;
+        _Ptr<stats_node_t> stat = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(avlnode->key);
         if (stat->hidden <=  hidden)
-            xmlNewTextChild (root, NULL, XMLSTR(stat->name), XMLSTR(stat->value));
+            _Unchecked {xmlNewTextChild (root, NULL, XMLSTR(stat->name), XMLSTR(stat->value));}
         avlnode = avl_get_next (avlnode);
     }
     /* now per mount stats */
     avlnode = avl_get_first(_stats.source_tree);
     while (avlnode)
     {
-        stats_source_t *source = (stats_source_t *)avlnode->key;
+        _Ptr<stats_source_t> source = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(avlnode->key);
         if (source->hidden <= hidden &&
                 (show_mount == NULL || strcmp (show_mount, source->source) == 0))
         {
-            avl_node *avlnode2 = avl_get_first (source->stats_tree);
-            xmlNodePtr xmlnode = xmlNewTextChild (root, NULL, XMLSTR("source"), NULL);
+            _Ptr<avl_node> avlnode2 = avl_get_first (source->stats_tree);
+            _Ptr<struct _xmlNode> xmlnode = NULL;
+            _Unchecked {xmlnode = _Assume_bounds_cast<_Ptr<struct _xmlNode>>(xmlNewTextChild ((xmlNodePtr)root, NULL, XMLSTR("source"), NULL));}
 
-            xmlSetProp (xmlnode, XMLSTR("mount"), XMLSTR(source->source));
+            _Unchecked {xmlSetProp ((xmlNodePtr)xmlnode, XMLSTR("mount"), XMLSTR(source->source));}
             if (ret == NULL)
                 ret = xmlnode;
             while (avlnode2)
             {
-                stats_node_t *stat = avlnode2->key;
-                xmlNewTextChild (xmlnode, NULL, XMLSTR(stat->name), XMLSTR(stat->value));
+                _Ptr<stats_node_t> stat = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(avlnode2->key);
+                _Unchecked {xmlNewTextChild ((xmlNodePtr)xmlnode, NULL, XMLSTR(stat->name), XMLSTR(stat->value));}
                 avlnode2 = avl_get_next (avlnode2);
             }
         }
@@ -855,18 +862,17 @@ static xmlNodePtr _dump_stats_to_doc (xmlNodePtr root, const char *show_mount, i
     return ret;
 }
 
-
 /* factoring out code for stats loops
 ** this function copies all stats to queue, and registers 
 ** the queue for all new events atomically.
 ** note: mutex must already be created!
 */
-static void _register_listener (event_listener_t *listener)
+static void _register_listener (event_listener_t* listener : itype(_Ptr<event_listener_t>))
 {
-    avl_node *node;
-    avl_node *node2;
-    stats_event_t *event;
-    stats_source_t *source;
+    _Ptr<avl_node> node = ((void *)0);
+    _Ptr<avl_node> node2 = ((void *)0);
+    _Ptr<stats_event_t> event = ((void *)0);
+    _Ptr<stats_source_t> source = ((void *)0);
 
     thread_mutex_lock(&_stats_mutex);
 
@@ -875,7 +881,7 @@ static void _register_listener (event_listener_t *listener)
     /* start with the global stats */
     node = avl_get_first(_stats.global_tree);
     while (node) {
-        event = _make_event_from_node((stats_node_t *)node->key, NULL);
+        event = _make_event_from_node(_Dynamic_bounds_cast<_Ptr<stats_node_t>>(node->key), NULL);
         _add_event_to_queue (event, &listener->queue);
 
         node = avl_get_next(node);
@@ -884,10 +890,10 @@ static void _register_listener (event_listener_t *listener)
     /* now the stats for each source */
     node = avl_get_first(_stats.source_tree);
     while (node) {
-        source = (stats_source_t *)node->key;
+        source = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(node->key);
         node2 = avl_get_first(source->stats_tree);
         while (node2) {
-            event = _make_event_from_node((stats_node_t *)node2->key, source->source);
+            event = _make_event_from_node(_Dynamic_bounds_cast<_Ptr<stats_node_t>>(node2->key), source->source);
             _add_event_to_queue (event, &listener->queue);
 
             node2 = avl_get_next(node2);
@@ -897,25 +903,25 @@ static void _register_listener (event_listener_t *listener)
     }
 
     /* now we register to receive future event notices */
-    listener->next = (event_listener_t *)_event_listeners;
+    listener->next = (_Ptr<event_listener_t>)_event_listeners;
     _event_listeners = listener;
 
     thread_mutex_unlock(&_stats_mutex);
 }
 
-void *stats_connection(void *arg)
+void *stats_connection(void *arg : itype(_Ptr<void>)) : itype(_Ptr<void>)
 {
-    client_t *client = (client_t *)arg;
-    stats_event_t *event;
-    event_listener_t listener;
+    _Ptr<client_t> client = _Dynamic_bounds_cast<_Ptr<client_t>>(arg);
+    _Ptr<stats_event_t> event = ((void *)0);
+    event_listener_t listener = {};
 
-    ICECAST_LOG_INFO("stats client starting");
+    _Unchecked {ICECAST_LOG_INFO("stats client starting");}
 
     event_queue_init (&listener.queue);
     /* increment the thread count */
     thread_mutex_lock(&_stats_mutex);
     _stats_threads++;
-    stats_event_args (NULL, "stats", "%d", _stats_threads);
+    _Unchecked {stats_event_args (NULL, "stats", "%d", _stats_threads);}
     thread_mutex_unlock(&_stats_mutex);
 
     thread_mutex_create (&(listener.mutex));
@@ -940,12 +946,12 @@ void *stats_connection(void *arg)
     thread_mutex_lock(&_stats_mutex);
     _unregister_listener (&listener);
     _stats_threads--;
-    stats_event_args (NULL, "stats", "%d", _stats_threads);
+    _Unchecked {stats_event_args (NULL, "stats", "%d", _stats_threads);}
     thread_mutex_unlock(&_stats_mutex);
 
     thread_mutex_destroy (&listener.mutex);
     client_destroy (client);
-    ICECAST_LOG_INFO("stats client finished");
+    _Unchecked {ICECAST_LOG_INFO("stats client finished");}
 
     return NULL;
 }
@@ -964,35 +970,35 @@ _Itype_for_any(T) void stats_callback (client_t *client : itype(_Ptr<client_t>),
 
 
 typedef struct _source_xml_tag {
-    char *mount;
-    xmlNodePtr node;
+    char *mount : itype(_Nt_array_ptr<char>);
+    xmlNodePtr node : itype(_Ptr<struct _xmlNode>);
 
-    struct _source_xml_tag *next;
+    struct _source_xml_tag *next : itype(_Ptr<struct _source_xml_tag>);
 } source_xml_t;
 
 
-void stats_transform_xslt(client_t *client, const char *uri)
+void stats_transform_xslt(client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>))
 {
-    xmlDocPtr doc;
-    char *xslpath = util_get_path_from_normalised_uri (uri);
-    const char *mount = httpp_get_query_param (client->parser, "mount");
+    _Ptr<struct _xmlDoc> doc = NULL;
+    _Nt_array_ptr<char> xslpath = util_get_path_from_normalised_uri (uri);
+    _Nt_array_ptr<const char> mount = httpp_get_query_param (client->parser, "mount");
 
     doc = stats_get_xml (0, mount);
 
-    //xslt_transform(doc, xslpath, client);
+    _Unchecked {xslt_transform((xmlDocPtr)doc, xslpath, client);}
 
-    //xmlFreeDoc(doc);
-    free (xslpath);
+    _Unchecked {xmlFreeDoc((xmlDocPtr)doc);}
+    free<char> (xslpath);
 }
 
-xmlDocPtr stats_get_xml(int show_hidden, const char *show_mount)
+xmlDocPtr stats_get_xml(int show_hidden, const char *show_mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<struct _xmlDoc>)
 {
-    xmlDocPtr doc;
-    xmlNodePtr node;
+    _Ptr<struct _xmlDoc> doc = NULL;
+    _Ptr<struct _xmlNode> node = NULL;
 
-    doc = xmlNewDoc (XMLSTR("1.0"));
-    node = xmlNewDocNode (doc, NULL, XMLSTR("icestats"), NULL);
-    xmlDocSetRootElement(doc, node);
+    _Unchecked {doc = _Assume_bounds_cast<_Ptr<struct _xmlDoc>>(xmlNewDoc (XMLSTR("1.0")));}
+    _Unchecked {node = _Assume_bounds_cast<_Ptr<struct _xmlNode>>(xmlNewDocNode ((xmlDocPtr)doc, NULL, XMLSTR("icestats"), NULL));}
+    _Unchecked {xmlDocSetRootElement((xmlDocPtr)doc, (xmlNodePtr)node);}
 
     node = _dump_stats_to_doc (node, show_mount, show_hidden);
 
@@ -1018,40 +1024,42 @@ static int _compare_source_stats(void *arg : itype(_Ptr<void>), void *a : itype(
 
 static int _free_stats(void *key)
 {
-    stats_node_t *node = (stats_node_t *)key;
-    free(node->value);
-    free(node->name);
-    free(node);
+    _Ptr<stats_node_t> node = _Dynamic_bounds_cast<_Ptr<stats_node_t>>(key);
+    free<char>(node->value);
+    free<char>(node->name);
+    free<stats_node_t>(node);
     
     return 1;
 }
 
 static int _free_source_stats(void *key)
 {
-    stats_source_t *node = (stats_source_t *)key;
+    _Ptr<stats_source_t> node = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(key);
     avl_tree_free(node->stats_tree, _free_stats);
-    free(node->source);
-    free(node);
+    free<char>(node->source);
+    free<stats_source_t>(node);
 
     return 1;
 }
 
-static void _free_event(stats_event_t *event)
+static void _free_event(_Ptr<stats_event_t> event)
 {
-    if (event->source) free(event->source);
-    if (event->name) free(event->name);
-    if (event->value) free(event->value);
-    free(event);
+    if (event->source) free<char>(event->source);
+    if (event->name) free<char>(event->name);
+    if (event->value) free<char>(event->value);
+    free<stats_event_t>(event);
 }
 
 
-refbuf_t *stats_get_streams (void)
+refbuf_t *stats_get_streams(void) : itype(_Ptr<refbuf_t>)
 {
 #define STREAMLIST_BLKSIZE  4096
-    avl_node *node;
+    _Ptr<avl_node> node = ((void *)0);
     unsigned int remaining = STREAMLIST_BLKSIZE;
-    refbuf_t *start = refbuf_new (remaining), *cur = start;
-    char *buffer = cur->data;
+    _Ptr<refbuf_t> start = refbuf_new (remaining);
+_Ptr<refbuf_t> cur = start;
+
+    _Nt_array_ptr<char> buffer = cur->data;
 
     /* now the stats for each source */
     thread_mutex_lock (&_stats_mutex);
@@ -1059,7 +1067,7 @@ refbuf_t *stats_get_streams (void)
     while (node)
     {
         int ret;
-        stats_source_t *source = (stats_source_t *)node->key;
+        _Ptr<stats_source_t> source = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(node->key);
 
         if (source->hidden == 0)
         {
@@ -1071,7 +1079,7 @@ refbuf_t *stats_get_streams (void)
                 cur = cur->next;
                 buffer = cur->data;
             }
-            ret = snprintf (buffer, remaining, "%s\r\n", source->source);
+            _Unchecked {ret = snprintf (buffer, remaining, "%s\r\n", source->source);}
             if (ret > 0)
             {
                 buffer += ret;
@@ -1093,21 +1101,20 @@ refbuf_t *stats_get_streams (void)
  */
 void stats_clear_virtual_mounts (void)
 {
-    avl_node *snode;
+    _Ptr<avl_node> snode = ((void *)0);
 
     thread_mutex_lock (&_stats_mutex);
     snode = avl_get_first(_stats.source_tree);
     while (snode)
     {
-        stats_source_t *src = (stats_source_t *)snode->key;
+        _Ptr<stats_source_t> src = _Dynamic_bounds_cast<_Ptr<stats_source_t>>(snode->key);
         _Ptr<source_t> source = source_find_mount_raw (src->source);
-
         if (source == NULL)
         {
             /* no source_t is reserved so remove them now */
             snode = avl_get_next (snode);
-            ICECAST_LOG_DEBUG("releasing %s stats", src->source);
-            avl_delete (_stats.source_tree, src, _free_source_stats);
+            _Unchecked {ICECAST_LOG_DEBUG("releasing %s stats", src->source);}
+            avl_delete (_stats.source_tree, _Dynamic_bounds_cast<_Ptr<void>>(src), _free_source_stats);
             continue;
         }
 

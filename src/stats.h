@@ -24,8 +24,8 @@
 
 typedef struct _stats_node_tag
 {
-    char *name;
-    char *value;
+    char *name : itype(_Nt_array_ptr<char>);
+    char *value : itype(_Nt_array_ptr<char>);
     int hidden;
 } stats_node_t;
 
@@ -33,7 +33,7 @@ typedef struct _stats_event_tag
 {
     char *source : itype(_Nt_array_ptr<char>);
     char *name : itype(_Nt_array_ptr<char>);
-    char *value;
+    char *value : itype(_Nt_array_ptr<char>);
     int  hidden;
     int  action;
 
@@ -42,7 +42,7 @@ typedef struct _stats_event_tag
 
 typedef struct _stats_source_tag
 {
-    char *source;
+    char *source : itype(_Nt_array_ptr<char>);
     int  hidden;
     avl_tree *stats_tree : itype(_Ptr<avl_tree>);
 } stats_source_t;
@@ -81,7 +81,7 @@ void stats_clear_virtual_mounts (void);
 
 void stats_event(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>));
 void stats_event_conv(const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Nt_array_ptr<const char>));
-void stats_event_args(const char *source : itype(_Nt_array_ptr<const char>), char *name : itype(_Nt_array_ptr<char>), char *format : itype(_Ptr<char>), ...);
+void stats_event_args(const char *source : itype(_Nt_array_ptr<const char>), char *name : itype(_Nt_array_ptr<char>), char *format : itype(_Nt_array_ptr<char>), ...);
 void stats_event_inc(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9));
 void stats_event_add(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), unsigned long value);
 void stats_event_sub(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), unsigned long value);
