@@ -92,7 +92,7 @@ client_t *source_find_client(source_t *source : itype(_Ptr<source_t>), int id) :
 int source_compare_sources(void *arg : itype(_Ptr<void>), void *a : itype(_Ptr<void>), void *b : itype(_Ptr<void>));
 void source_free_source(source_t *source : itype(_Ptr<source_t>));
 void source_move_clients (source_t *source : itype(_Ptr<source_t>), source_t *dest : itype(_Ptr<source_t>));
-int source_remove_client(void *key);
+int source_remove_client(void *key : itype(_Ptr<void>));
 void source_main(source_t *source : itype(_Ptr<source_t>));
 void source_recheck_mounts (int update_all);
 
